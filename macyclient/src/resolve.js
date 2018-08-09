@@ -283,7 +283,6 @@ let resolveUnambiguous = (conflictGraph) => {
 
                     // prevent self-dislodgement in this ambiguous case
                     if (maxHoldStrength >= 1 && conflictGraph.holds[dest] !== undefined && conflictGraph.moves[dest][moveStrengths.indexOf(maxMoveStrength)].power === conflictGraph.holds[dest].power){
-                        console.log(conflictGraph.holds[dest]);
                         continue;
                     }
 

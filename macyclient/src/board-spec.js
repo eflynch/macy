@@ -338,9 +338,10 @@ bij(fleetGraph, "Liverpool", "Wales");
 bij(fleetGraph, "Yorkshire", "London");
 bij(fleetGraph, "London", "Wales");
 
-bij(fleetGraph, "Portugal", "Spain");
-bij(fleetGraph, "Spain", "Gascony");
-bij(fleetGraph, "Spain", "Marseilles");
+bij(fleetGraph, "Portugal", "Spain :: NC");
+bij(fleetGraph, "Portugal", "Spain :: WC");
+bij(fleetGraph, "Spain :: NC", "Gascony");
+bij(fleetGraph, "Spain :: EC", "Marseilles");
 
 bij(fleetGraph, "Gascony", "Brest");
 bij(fleetGraph, "Marseilles", "Piedmont");
@@ -362,19 +363,20 @@ bij(fleetGraph, "Berlin", "Prussia");
 bij(fleetGraph, "Denmark", "Sweden");
 bij(fleetGraph, "Sweden", "Norway");
 bij(fleetGraph, "Sweden", "Finland");
-bij(fleetGraph, "Norway", "St. Petersburg");
-bij(fleetGraph, "Finland", "St. Petersburg");
-bij(fleetGraph, "St. Petersburg", "Livonia");
+bij(fleetGraph, "Norway", "St. Petersburg :: SC");
+bij(fleetGraph, "Finland", "St. Petersburg :: SC");
+bij(fleetGraph, "St. Petersburg :: SC", "Livonia");
 bij(fleetGraph, "Sevastapol", "Rumania");
 bij(fleetGraph, "Sevastapol", "Armenia");
 
 bij(fleetGraph, "Rumania", "Bulgaria");
 bij(fleetGraph, "Bulgaria", "Constantinople");
 bij(fleetGraph, "Bosnia", "Trieste");
-bij(fleetGraph, "Bosnia", "Macedonia");
-bij(fleetGraph, "Greece", "Macedonia");
+bij(fleetGraph, "Bosnia", "Macedonia :: WC");
+bij(fleetGraph, "Greece", "Macedonia :: WC");
+bij(fleetGraph, "Greece", "Macedonia :: EC");
 
-bij(fleetGraph, "Macedonia", "Constantinople");
+bij(fleetGraph, "Macedonia :: EC", "Constantinople");
 bij(fleetGraph, "Constantinople", "Ankara");
 bij(fleetGraph, "Ankara", "Armenia");
 bij(fleetGraph, "Konya", "Damascus");
@@ -394,9 +396,10 @@ bij(fleetGraph, "Algeria", "Morocco");
 
 bij(fleetGraph, "Morocco", "Gibraltar");
 
-bij(fleetGraph, "Gibraltar", "Spain");
+bij(fleetGraph, "Gibraltar", "Spain :: WC");
+bij(fleetGraph, "Gibraltar", "Spain :: EC");
 
-bij(fleetGraph, "Barents Sea", "St. Petersburg");
+bij(fleetGraph, "Barents Sea", "St. Petersburg :: NC");
 bij(fleetGraph, "Barents Sea", "Norway");
 bij(fleetGraph, "Barents Sea", "Norwegian Sea");
 bij(fleetGraph, "Norwegian Sea", "Norway");
@@ -419,7 +422,8 @@ bij(fleetGraph, "Mid Atlantic Ocean", "English Channel");
 bij(fleetGraph, "Mid Atlantic Ocean", "Ireland");
 bij(fleetGraph, "Mid Atlantic Ocean", "Brest");
 bij(fleetGraph, "Mid Atlantic Ocean", "Gascony");
-bij(fleetGraph, "Mid Atlantic Ocean", "Spain");
+bij(fleetGraph, "Mid Atlantic Ocean", "Spain :: NC");
+bij(fleetGraph, "Mid Atlantic Ocean", "Spain :: WC");
 bij(fleetGraph, "Mid Atlantic Ocean", "Portugal");
 bij(fleetGraph, "Mid Atlantic Ocean", "Gibraltar");
 bij(fleetGraph, "Mid Atlantic Ocean", "Morocco");
@@ -454,16 +458,16 @@ bij(fleetGraph, "Baltic Sea", "Kiel");
 bij(fleetGraph, "Baltic Sea", "Berlin");
 bij(fleetGraph, "Baltic Sea", "Prussia");
 bij(fleetGraph, "Gulf of Bothnia", "Finland");
-bij(fleetGraph, "Gulf of Bothnia", "St. Petersburg");
+bij(fleetGraph, "Gulf of Bothnia :: SC", "St. Petersburg");
 bij(fleetGraph, "Gulf of Bothnia", "Livonia");
 bij(fleetGraph, "Gulf of Bothnia", "Sweden");
-bij(fleetGraph, "Western Mediterranean", "Spain");
+bij(fleetGraph, "Western Mediterranean", "Spain :: EC");
 bij(fleetGraph, "Western Mediterranean", "Gibraltar");
 bij(fleetGraph, "Western Mediterranean", "Morocco");
 bij(fleetGraph, "Western Mediterranean", "Algeria");
 bij(fleetGraph, "Western Mediterranean", "Gulf of Lyon");
 bij(fleetGraph, "Western Mediterranean", "Tyrrhenian Sea");
-bij(fleetGraph, "Gulf of Lyon", "Spain");
+bij(fleetGraph, "Gulf of Lyon", "Spain :: EC");
 bij(fleetGraph, "Gulf of Lyon", "Marseilles");
 bij(fleetGraph, "Gulf of Lyon", "Piedmont");
 bij(fleetGraph, "Gulf of Lyon", "Rome");
@@ -478,14 +482,14 @@ bij(fleetGraph, "Ionian Sea", "Tripoltania");
 bij(fleetGraph, "Ionian Sea", "Cyrenaica");
 bij(fleetGraph, "Ionian Sea", "Naples");
 bij(fleetGraph, "Ionian Sea", "Apulia");
-bij(fleetGraph, "Ionian Sea", "Macedonia");
+bij(fleetGraph, "Ionian Sea", "Macedonia :: WC");
 bij(fleetGraph, "Ionian Sea", "Greece");
 bij(fleetGraph, "Ionian Sea", "Aegean Sea");
 bij(fleetGraph, "Ionian Sea", "Eastern Mediterranean");
 bij(fleetGraph, "Ionian Sea", "Adriatic Sea");
 bij(fleetGraph, "Aegean Sea", "Eastern Mediterranean");
 bij(fleetGraph, "Aegean Sea", "Greece");
-bij(fleetGraph, "Aegean Sea", "Macedonia");
+bij(fleetGraph, "Aegean Sea", "Macedonia :: EC");
 bij(fleetGraph, "Aegean Sea", "Constantinople");
 bij(fleetGraph, "Aegean Sea", "Konya");
 bij(fleetGraph, "Eastern Mediterranean", "Konya");
@@ -497,7 +501,7 @@ bij(fleetGraph, "Adriatic Sea", "Apulia");
 bij(fleetGraph, "Adriatic Sea", "Venetia");
 bij(fleetGraph, "Adriatic Sea", "Trieste");
 bij(fleetGraph, "Adriatic Sea", "Bosnia");
-bij(fleetGraph, "Adriatic Sea", "Macedonia");
+bij(fleetGraph, "Adriatic Sea", "Macedonia :: WC");
 bij(fleetGraph, "Black Sea", "Constantinople");
 bij(fleetGraph, "Black Sea", "Bulgaria");
 bij(fleetGraph, "Black Sea", "Rumania");
@@ -515,8 +519,11 @@ let dip1900 = {
             },
             startingCenters: ["London", "Edinburgh", "Liverpool", "Egypt"],
             emergencyBuildPoints: [],
-            fleetImage: "png/gb-fleet.png",
-            armyImage: "png/gb-army.png",
+            unitImages: {
+                army: "png/gb-army.png",
+                fleet: "png/gb-fleet.png",
+            },
+            color: "#336699"
         },
         "Germany": {
             buildPoints: ["Kiel", "Berlin", "Cologne", "Munich"],
@@ -526,8 +533,11 @@ let dip1900 = {
             },
             startingCenters: ["Berlin", "Cologne", "Munich", "Kiel"],
             emergencyBuildPoints: [],
-            fleetImage: "png/germany-fleet.png",
-            armyImage: "png/germany-army.png",
+            unitImages: {
+                army: "png/germany-army.png",
+                fleet: "png/germany-fleet.png",
+            },
+            color: "#000000"
         },
         "France": {
             buildPoints: ["Paris", "Marseilles", "Brest"],
@@ -537,8 +547,11 @@ let dip1900 = {
             },
             startingCenters: ["Brest", "Paris", "Marseilles", "Algeria"],
             emergencyBuildPoints: [],
-            fleetImage: "png/france-fleet.png",
-            armyImage: "png/france-army.png",
+            unitImages: {
+                army: "png/france-army.png",
+                fleet: "png/france-fleet.png",
+            },
+            color: "#66CCCC"
         },
         "Italy": {
             buildPoints: ["Milan", "Rome", "Naples"],
@@ -548,8 +561,11 @@ let dip1900 = {
             },
             startingCenters: ["Naples", "Milan", "Rome"],
             emergencyBuildPoints: [],
-            fleetImage: "png/italy-fleet.png",
-            armyImage: "png/italy-army.png",
+            unitImages: {
+                army: "png/italy-army.png",
+                fleet: "png/italy-fleet.png",
+            },
+            color: "#339933"
         },
         "Austria Hungary": {
             buildPoints: ["Trieste", "Vienna", "Budapest"],
@@ -559,8 +575,11 @@ let dip1900 = {
             },
             startingCenters: ["Trieste", "Vienna", "Budapest"],
             emergencyBuildPoints: [],
-            fleetImage: "png/ah-fleet.png",
-            armyImage: "png/ah-army.png",
+            unitImages: {
+                army: "png/ah-army.png",
+                fleet: "png/ah-fleet.png",
+            },
+            color: "#ff3333"
         },
         "Turkey": {
             buildPoints: ["Damascus", "Ankara", "Constantinople"],
@@ -570,23 +589,30 @@ let dip1900 = {
             },
             startingCenters: ["Ankara", "Damascus", "Constantinople"],
             emergencyBuildPoints: [],
-            fleetImage: "png/turkey-fleet.png",
-            armyImage: "png/turkey-army.png",
+            unitImages: {
+                army: "png/turkey-army.png",
+                fleet: "png/turkey-fleet.png",
+            },
+            color: "#ffcc66"
         },
         "Russia": {
             buildPoints: ["Sevastapol", "Moscow", "St. Petersburg", "Warsaw"],
             startingUnits: {
-                fleet: ["Sevastapol", "St. Petersburg"],
+                fleet: ["Sevastapol", "St. Petersburg :: SC"],
                 army: ["Moscow", "Warsaw"]
             },
             startingCenters: ["Sevastapol", "St. Petersburg", "Moscow", "Warsaw"],
             emergencyBuildPoints: ["Siberia"],
-            fleetImage: "png/russia-fleet.png",
-            armyImage: "png/russia-army.png",
+            unitImages: {
+                army: "png/russia-army.png",
+                fleet: "png/russia-fleet.png",
+            },
+            color: "#ffffff"
         },
     },
     boardImage: "png/board.jpg",
     boardSize: [2250, 2250],
+    title: "1900 Diplomacy",
     unitPositions: {
         "North Atlantic Ocean": [305, 648],
         "Norwegian Sea": [747, 408],
@@ -603,6 +629,7 @@ let dip1900 = {
         "Tyrrhenian Sea": [974, 1622],
         "Ionian Sea": [1252, 1818],
         "Aegean Sea": [1550, 1776],
+        "Adriatic Sea": [1159, 1500],
         "Eastern Mediterranean": [1774, 1868],
         "Black Sea": [1733, 1405],
         "Helgoland Bight": [875, 886],
@@ -622,8 +649,8 @@ let dip1900 = {
 
         "Cologne": [865, 1058],
         "Munich": [956, 1087],
-        "Kiel": [908, 965],
-        "Berlin": [1134, 948],
+        "Kiel": [966, 919],
+        "Berlin": [1064, 989],
         "Prussia": [1243, 933],
         "Silesia": [1167, 1054],
         "Alsace": [840, 1171],
@@ -636,6 +663,9 @@ let dip1900 = {
         "Gascony": [563, 1385],
 
         "Spain": [458, 1512],
+        "Spain :: NC": [369, 1391],
+        "Spain :: WC": [244, 1676],
+        "Spain :: EC": [484, 1647],
         "Portugal": [242, 1466],
 
         "Gibraltar": [267, 1735],
@@ -658,9 +688,11 @@ let dip1900 = {
         "Damascus": [2145, 1692],
         "Konya": [1696, 1718],
         "Armenia": [2034, 1510],
-        "Ankara": [1827, 1815],
+        "Ankara": [1867, 1513],
         "Constantinople": [1653, 1573],
         "Macedonia": [1401, 1595],
+        "Macedonia :: WC": [1330, 1612],
+        "Macedonia :: EC": [1511, 1559],
 
         "Greece": [1431, 1758],
         "Bosnia": [1236, 1426],
@@ -677,10 +709,12 @@ let dip1900 = {
 
         "Switzerland": [879, 1275],
         "Belgium": [764, 1062],
-        "Netherlands": [831, 896],
+        "Netherlands": [824, 989],
 
         "Finland": [1357, 501],
         "St. Petersburg": [1584, 654],
+        "St. Petersburg :: SC": [1584, 654],
+        "St. Petersburg :: NC": [1750, 212],
         "Siberia": [2142, 469],
         "Moscow": [1709, 864],
         "Livonia": [1376, 782],
@@ -696,8 +730,10 @@ let dip1900 = {
         "Budapest": [1355, 1321]
     },
     seas: seas,
-    armyGraph: armyGraph,
-    fleetGraph: fleetGraph,
+    graph: {
+        army: armyGraph,
+        fleet: fleetGraph
+    },
     supplyCenters: [
         "Edinburgh",
         "Liverpool",

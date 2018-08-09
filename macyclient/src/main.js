@@ -3,11 +3,10 @@ import $ from 'jquery';
 import {render} from 'react-dom';
 
 import Graph from './graph';
-import Board from './board';
-import {resolve, boardSpec, gameState, orders} from './resolve';
+import App from './app';
+import {session} from './game';
 
 document.addEventListener("DOMContentLoaded", function (){
-    render(<Board boardSpec={boardSpec} gameState={gameState}/>, document.getElementById("content"));
-    // resolve(boardSpec, gameState, orders);
+    render(<App session={session}/>, document.getElementById("content"));
 
 });

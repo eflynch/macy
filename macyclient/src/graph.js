@@ -1,5 +1,3 @@
-
-
 let makeKey = (a, b) => [a, b].join(",");
 
 class Graph {
@@ -7,6 +5,13 @@ class Graph {
         this.nodes = new Set();
         this.edges = new Map();
         this.distances = new Map();
+    }
+
+    clone() {
+        let g = new Graph();
+        g.nodes = new Set(this.nodes);
+        g.edges = new Map(this.edges);
+        g.distances = new Map(this.distances);
     }
 
     addNode(value){
@@ -64,7 +69,7 @@ class Graph {
         if (distanceAndPath.visited.has(toNode)){
             return distanceAndPath.visited.get(toNode);
         } else {
-            return NaN;
+            return undefined;
         }
     }
 }

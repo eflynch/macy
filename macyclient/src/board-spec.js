@@ -510,6 +510,47 @@ bij(fleetGraph, "Black Sea", "Armenia");
 bij(fleetGraph, "Black Sea", "Ankara");
 
 let dip1900 = {
+    startingGameState: {
+        year: 1900,
+        season: "Spring",
+        factions : {
+            "Great Britain": {
+                fleet: ["Edinburgh", "Gibraltar", "Egypt", "London"],
+                army: [],
+                supplyCenters: ["London", "Edinburgh", "Liverpool", "Egypt"]
+            },
+            "Germany": {
+                fleet: ["Kiel"],
+                army: ["Cologne", "Munich", "Berlin"],
+                supplyCenters: ["Kiel", "Cologne", "Munich", "Berlin"]
+            },
+            "France": {
+                fleet: ["Brest"],
+                army: ["Paris", "Marseilles", "Algeria"],
+                supplyCenters: ["Brest", "Paris", "Marseilles", "Algeria"]
+            },
+            "Italy": {
+                fleet: ["Naples"],
+                army: ["Milan", "Rome"],
+                supplyCenters: ["Naples", "Milan", "Rome"],
+            },
+            "Austria Hungary": {
+                fleet: ["Trieste"],
+                army: ["Vienna", "Budapest"],
+                supplyCenters: ["Trieste", "Vienna", "Budapest"]
+            },
+            "Turkey": {
+                fleet: ["Ankara"],
+                army: ["Damascus", "Constantinople"],
+                supplyCenters: ["Ankara", "Damascus", "Constantinople"],
+            },
+            "Russia": {
+                fleet: ["Sevastapol", "St. Petersburg :: SC"],
+                army: ["Moscow", "Warsaw"],
+                supplyCenters: ["Sevastapol", "St. Petersburg", "Moscow", "Warsaw"],
+            },
+        }
+    },
     factions : {
         "Great Britain": {
             buildPoints: ["London", "Edinburgh", "Liverpool"],

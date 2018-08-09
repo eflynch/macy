@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Board from './board';
+import {resolve} from './resolve';
 
 
 class SupplyCenters extends React.PureComponent {
@@ -97,10 +98,12 @@ class App extends React.Component {
         this.state = {turn: props.session.turns.length-1, showOrders: true};
     }
     render () {
-        console.log(this.state.turn, this.props.session.turns);
-        let gameState = this.props.session.turns[this.state.turn].gameState;
-        let orders = this.props.session.turns[this.state.turn].orders;
         let boardSpec = this.props.session.boardSpec;
+        let gameState = JSON.parse(JSON.stringify(boardSpec.startingGameState));
+        for (let orders of this.props.session.turns.slice(0, this.state.turn)) {
+            gameState = resolve(boardSpec, gameState, orders);
+        }
+        let orders = this.props.session.turns[this.state.turn];
         return (
             <div>
                 <h1>{this.props.session.title} ({this.props.session.boardSpec.title})</h1>

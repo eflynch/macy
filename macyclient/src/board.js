@@ -69,6 +69,7 @@ class Hold extends React.PureComponent {
 class SupportMove extends React.PureComponent {
     render () {
         let {boardSpec, source, destination, supporter} = this.props;
+        console.log(this.props);
 
         let [x1, y1] = boardSpec.unitPositions[source];
         let [x2, y2] = boardSpec.unitPositions[destination];
@@ -102,8 +103,6 @@ class Convoy extends React.PureComponent {
         let {boardSpec, territory, size} = this.props;
 
         let [x, y] = boardSpec.unitPositions[territory];
-        console.log(x, y);
-
 
         return (
             <g>
@@ -138,10 +137,10 @@ class Board extends React.Component {
             if (order.action === "Convoy") {
                 return <Convoy key={i} boardSpec={boardSpec} territory={order.unit} size={100}/>;
             }
-            if (order.action === "Support" && order.target !== null) {
+            if (order.action === "Support" && (order.target !== null && order.target !== undefined)) {
                 return <SupportMove key={i} boardSpec={boardSpec} supporter={order.unit} source={order.targetUnit} destination={order.target}/>;
             }
-            if (order.action === "Support" && order.target === null) {
+            if (order.action === "Support" && (order.target === null || order.target === undefined)) {
                 return <SupportHold key={i} boardSpec={boardSpec} supporter={order.unit} targetUnit={order.targetUnit} />;
             }
             if (order.action === "Build") {

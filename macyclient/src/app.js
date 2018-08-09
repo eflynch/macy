@@ -56,35 +56,32 @@ class OrdersList extends React.PureComponent {
                 </div>
                 {this.props.orders.map((order, i) => {
                     let faction = this.props.gameState.factions[order.power];
-                    let unitType;
-                    if (faction.army.includes(order.unit)) {
-                        unitType = "A";
-                    } else if (faction.fleet.includes(order.unit)) {
-                        unitType = "F";
-                    }
+                    let color = this.props.boardSpec.factions[order.power].color;
+
+                    let powerCaption = <span className="order-power" >{order.power}</span>;
 
                     if (order.action === "Move") {
-                        return <div key={i}>{order.power} : {unitType} {order.unit} -> {order.target}</div>;
+                        return <div key={i}>{powerCaption} {order.unit} -> {order.target}</div>;
                     }
 
                     if (order.action === "Support") {
                         if (order.target) {
-                            return <div key={i}>{order.power} : {unitType} {order.unit} S {order.targetUnit} -> {order.target}</div>;
+                            return <div key={i}>{powerCaption} {order.unit} S {order.targetUnit} -> {order.target}</div>;
                         } else {
-                            return <div key={i}>{order.power} : {unitType} {order.unit} S {order.targetUnit} H</div>;
+                            return <div key={i}>{powerCaption} {order.unit} S {order.targetUnit} H</div>;
                         }
                     }
 
                     if (order.action === "Hold") {
-                        return <div key={i}>{order.power} : {unitType} {order.unit} H</div>;
+                        return <div key={i}>{powerCaption} {order.unit} H</div>;
                     }
 
                     if (order.action === "Convoy") {
-                        return <div key={i}>{order.power} : {unitType} {order.unit} C {order.targetUnit} -> {order.target}</div>;
+                        return <div key={i}>{powerCaption} {order.unit} C {order.targetUnit} -> {order.target}</div>;
                     }
 
                     if (order.action === "Build") {
-                        return <div key={i}>{order.power} : build {order.unitType} {order.unit}</div>;
+                        return <div key={i}>{powerCaption}build {order.unitType} {order.unit}</div>;
                     }
                 })}
             </div>
@@ -112,7 +109,7 @@ class App extends React.Component {
                         <Board orders={this.state.showOrders ? orders : []} boardSpec={boardSpec} gameState={gameState}/>
                         <SupplyCenters boardSpec={boardSpec} gameState={gameState} />
                     </div>
-                    <OrdersList orders={orders} gameState={gameState}
+                    <OrdersList orders={orders} boardSpec={boardSpec} gameState={gameState}
                         toggleShowOrders={()=>{this.setState({showOrders: !this.state.showOrders});}}
                         goBack={()=>{this.setState({turn: Math.max(0, this.state.turn -1)})}}
                         goForward={()=>{this.setState({turn: Math.min(this.props.session.turns.length - 1, this.state.turn + 1)})}}/>

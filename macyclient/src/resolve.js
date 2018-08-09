@@ -99,6 +99,11 @@ let validateOrders = (boardSpec, gameState, orders) => {
     return orders.filter(validateOrder);
 };
 
+let removeFromArray = (array, item) => {
+    var index = array.indexOf(item);
+    if (index !== -1) array.splice(index, 1);
+};
+
 let findValidConvoyPaths = (boardSpec, gameState, orders) => {
     for (let order of orders) {
         if (order.action === "Move" && order.viaConvoy) {
@@ -193,7 +198,7 @@ let resolveHeadToHead = (conflictGraph) => {
             });
         } else {
             conflictGraph.holds[move.source].holdStrength = 1;
-            conflictGraph.moves[move.destination] = conflictGraph.moves[move.destination].filter((m) => m !== move);
+            removeFromArray(conflictGraph.moves[move.destination], move);
         }
     }
     for (let dest of moveDests) {
@@ -234,7 +239,7 @@ let resolveUnambiguous = (conflictGraph) => {
             });
         } else {
             conflictGraph.holds[move.source].holdStrength = 1;
-            conflictGraph.moves[move.destination] = conflictGraph.moves[move.destination].filter((m) => m !== move);
+            removeFromArray(conflictGraph.moves[move.destination], move);
         }
     };
 
@@ -355,25 +360,75 @@ let resolve = (boardSpec, gameState, orders) => {
         // If destination has hold strength >= 1:
             // register dislodged unit from destination ( with restriction of source)
         // Destination gets hold strength 1 (register source as unitOrigin)
-
-    let conflictGraph = generateConflictGraph(boardSpec, gameState, orders);
-
-    resolveHeadToHead(conflictGraph);
-
-    let {dislodged, moved} = resolveUnambiguous(conflictGraph);
-
-
     let newGameState = JSON.parse(JSON.stringify(gameState));
-    // Update gameState
-    for (let move of moved){
-        if (gameState.factions[move.power].army.includes(move.source)){
-            newGameState.factions[move.power].army[gameState.factions[move.power].army.indexOf(move.source)] = move.destination;
-        }
 
-        if (gameState.factions[move.power].fleet.includes(move.source)){
-            newGameState.factions[move.power].fleet[gameState.factions[move.power].fleet.indexOf(move.source)] = move.destination;
+    if (["Spring", "Fall"].includes(gameState.season)) {
+        let conflictGraph = generateConflictGraph(boardSpec, gameState, orders);
+
+        resolveHeadToHead(conflictGraph);
+
+        let {dislodged, moved} = resolveUnambiguous(conflictGraph);
+
+        // Update gameState
+        for (let move of moved){
+            if (gameState.factions[move.power].army.includes(move.source)){
+                newGameState.factions[move.power].army[gameState.factions[move.power].army.indexOf(move.source)] = move.destination;
+            }
+
+            if (gameState.factions[move.power].fleet.includes(move.source)){
+                newGameState.factions[move.power].fleet[gameState.factions[move.power].fleet.indexOf(move.source)] = move.destination;
+            }
         }
     }
+
+    // In the fall update supply center occupations
+    if (gameState.season === "Fall") {
+        const factions = Object.keys(gameState.factions);
+        let occupations = {};
+        for (let faction of factions) {
+            for (let army of newGameState.factions[faction].army) {
+                if (boardSpec.supplyCenters.includes(army)){
+                    occupations[army] = faction;
+                }
+            }
+
+            for (let fleet of newGameState.factions[faction].fleet) {
+                if (boardSpec.supplyCenters.includes(fleet.replace(" :: NC", "").replace(" :: SC", ""))){
+                    occupations[fleet.replace(" :: NC", "").replace(" :: SC", "")] = faction;
+                }
+            }
+        }
+        for (let occupiedSupplyCenter of Object.keys(occupations)) {
+            for (let faction of factions) {
+                if (faction !== occupations[occupiedSupplyCenter] && newGameState.factions[faction].supplyCenters.includes(occupiedSupplyCenter)) {
+                    removeFromArray(newGameState.factions[faction].supplyCenters, occupiedSupplyCenter);
+                }
+
+                if (faction === occupations[occupiedSupplyCenter] && !newGameState.factions[faction].supplyCenters.includes(occupiedSupplyCenter)) {
+                    newGameState.factions[faction].supplyCenters.push(occupiedSupplyCenter);
+                }
+            }
+        }
+    }
+
+    if (gameState.season === "Winter") {
+        for (let order of orders) {
+            if (order.action === "Build") {
+                newGameState.factions[order.power][order.unitType].push(order.unit);
+                console.log(newGameState.factions[order.power]);
+            }
+
+            if (order.action === "Disband") {
+                if (newGamestate.factions[order.power].army.includes(order.unit)){
+                    removeFromArray(newGamestate.factions[order.power].army, order.target);
+                }
+                if (newGamestate.factions[order.power].fleet.includes(order.unit)){
+                    removeFromArray(newGamestate.factions[order.power].fleet, order.unit);
+                }
+            }
+        }
+    }
+    
 
     if (gameState.season === "Spring"){
         newGameState.season = "Fall";

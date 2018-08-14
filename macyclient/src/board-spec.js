@@ -1,5 +1,6 @@
 
 import Graph from './graph';
+import {paths} from './territory-paths';
 
 let bij = (g, a, b, d = 1) => {
     g.addEdge(a, b, d);
@@ -45,7 +46,7 @@ let provinces = [
     "Algeria",
     "Southern Algeria",
     "Tunisia",
-    "Tripoltania",
+    "Tripolitania",
     "Cyrenaica",
     "Egypt",
 
@@ -114,7 +115,7 @@ let coasts = [
     "Morocco",
     "Algeria",
     "Tunisia",
-    "Tripoltania",
+    "Tripolitania",
     "Cyrenaica",
     "Egypt",
 
@@ -300,9 +301,9 @@ bij(armyGraph, "Hejaz", "Egypt");
 
 bij(armyGraph, "Egypt", "Cyrenaica");
 
-bij(armyGraph, "Cyrenaica", "Tripoltania");
-bij(armyGraph, "Tripoltania", "Tunisia");
-bij(armyGraph, "Tripoltania", "Southern Algeria");
+bij(armyGraph, "Cyrenaica", "Tripolitania");
+bij(armyGraph, "Tripolitania", "Tunisia");
+bij(armyGraph, "Tripolitania", "Southern Algeria");
 
 bij(armyGraph, "Tunisia", "Southern Algeria");
 bij(armyGraph, "Tunisia", "Algeria");
@@ -388,8 +389,8 @@ bij(fleetGraph, "Hejaz", "Egypt");
 
 bij(fleetGraph, "Egypt", "Cyrenaica");
 
-bij(fleetGraph, "Cyrenaica", "Tripoltania");
-bij(fleetGraph, "Tripoltania", "Tunisia");
+bij(fleetGraph, "Cyrenaica", "Tripolitania");
+bij(fleetGraph, "Tripolitania", "Tunisia");
 
 bij(fleetGraph, "Tunisia", "Algeria");
 bij(fleetGraph, "Algeria", "Morocco");
@@ -478,7 +479,7 @@ bij(fleetGraph, "Tyrrhenian Sea", "Rome");
 bij(fleetGraph, "Tyrrhenian Sea", "Naples");
 bij(fleetGraph, "Tyrrhenian Sea", "Ionian Sea");
 bij(fleetGraph, "Ionian Sea", "Tunisia");
-bij(fleetGraph, "Ionian Sea", "Tripoltania");
+bij(fleetGraph, "Ionian Sea", "Tripolitania");
 bij(fleetGraph, "Ionian Sea", "Cyrenaica");
 bij(fleetGraph, "Ionian Sea", "Naples");
 bij(fleetGraph, "Ionian Sea", "Apulia");
@@ -652,6 +653,8 @@ let dip1900 = {
         },
     },
     boardImage: "png/board.jpg",
+    territoryImages: "png/map/",
+    territoryPaths: paths,
     boardSize: [2250, 2250],
     title: "1900 Diplomacy",
     unitPositions: {
@@ -717,7 +720,7 @@ let dip1900 = {
         "Southern Algeria": [346, 2127],
         "Tunisia": [896, 1831],
 
-        "Tripoltania": [1042, 2077],
+        "Tripolitania": [1042, 2077],
         "Cyrenaica": [1412, 2062],
 
         "Egypt": [1676, 2139],
@@ -786,7 +789,7 @@ let dip1900 = {
         "Portugal",
         "Morocco",
         "Algeria",
-        "Tripoltania",
+        "Tripolitania",
         "Egypt",
         "Damascus",
         "Ankara",

@@ -46,7 +46,7 @@ let session = {
             {power: "France", unit: "Algeria", action: "Move", target: "Morocco", viaConvoy: false},
             {power: "Italy", unit: "Switzerland", action: "Hold"},
             {power: "Italy", unit: "Piedmont", action: "Move", target: "Marseilles", viaConvoy: false},
-            {power: "Italy", unit: "Ionian Sea", action: "Move", target: "Tripoltania", viaConvoy: false},
+            {power: "Italy", unit: "Ionian Sea", action: "Move", target: "Tripolitania", viaConvoy: false},
             {power: "Austria Hungary", unit: "Adriatic Sea", action: "Move", target: "Ionian Sea", viaConvoy: false},
             {power: "Austria Hungary", unit: "Vienna", action: "Move", target: "Budapest", viaConvoy: false},
             {power: "Austria Hungary", unit: "Budapest", action: "Move", target: "Rumania", viaConvoy: false},
@@ -58,21 +58,6 @@ let session = {
             {power: "Russia", unit: "Galacia", action: "Support", targetUnit: "Sevastapol", target: "Rumania"},
             {power: "Russia", unit: "Sevastapol", action: "Move", target: "Rumania", viaConvoy: false},
         ],
-        [
-            {power: "Great Britain", unit: "London", action: "Build", unitType: "army"},
-            {power: "France", unit: "Paris", action: "Build", unitType: "army"},
-            {power: "Italy", unit: "Rome", action: "Build", unitType: "fleet"},
-            {power: "Italy", unit: "Naples", action: "Build", unitType: "fleet"},
-            {power: "Italy", unit: "Milan", action: "Build", unitType: "army"},
-            {power: "Austria Hungary", unit: "Vienna", action: "Build", unitType: "army"},
-            {power: "Turkey", unit: "Constantinople", action: "Build", unitType: "army"},
-            {power: "Turkey", unit: "Damascus", action: "Build", unitType: "fleet"},
-            {power: "Germany", unit: "Cologne", action: "Build", unitType: "army"},
-            {power: "Germany", unit: "Berlin", action: "Build", unitType: "army"},
-            {power: "Russia", unit: "St. Petersburg :: NC", action: "Build", unitType: "fleet"},
-        ],
-        [
-        ]
     ]
 }
 

@@ -12,7 +12,7 @@ body {
 .board {
     width: calc(90vmin - 50px);
     height: calc(90vmin - 50px);
-    cursor: default;
+    cursor: pointer;
     user-select: none;
     user-drag: none;
     -moz-user-select: none;
@@ -110,4 +110,12 @@ h1 {
     margin: 0px;
     text-align: center;
     font-size: 18px;
+}
+
+.tokens {
+    pointer-events: none;
+}
+
+.units {
+    pointer-events: none;
 }

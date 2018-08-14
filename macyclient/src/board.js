@@ -115,14 +115,14 @@ class Convoy extends React.PureComponent {
 
 class Board extends React.Component {
     render () {
-        let {boardSpec, gameState, orders} = this.props;
+        let {boardSpec, gameState, orders, selectedTerritory} = this.props;
         const factions = Object.keys(gameState.factions);
         const unitTypes = ["army", "fleet"];
         let units = [];
         for (let faction of factions) {
             for (let unitType of unitTypes) {
                 for (let territory of gameState.factions[faction][unitType]) {
-                    units.push(<Unit unitType={unitType} key={territory} boardSpec={boardSpec} faction={faction} size={100} territory={territory}/>);
+                    units.push(<Unit unitType={unitType} key={territory + faction + unitType} boardSpec={boardSpec} faction={faction} size={100} territory={territory}/>);
                 }
             }
         }
@@ -162,6 +162,21 @@ class Board extends React.Component {
             return false;
         }).filter((order)=>order);
 
+        let territories = [];
+        let transform="translate(0.000000,2250.000000) scale(0.100000,-0.100000)";
+        for (let territory of Object.keys(boardSpec.unitPositions)) {
+            const filePath = territory.toLowerCase().replace(/\./g, "").replace(/ /g, "-");
+            if (boardSpec.territoryPaths[filePath] !== undefined) {
+                territories.push(
+                    <g onClick={()=>{this.props.setSelected(territory);}} key={territory +"path"} transform={transform} style={{opacity: selectedTerritory === territory ? 0.6 : 0.0}}>
+                        {boardSpec.territoryPaths[filePath].map((p)=><path d={p}/>)}
+                    }}
+                        
+                    </g>
+                );
+            }
+        }
+
 
         const arrowWidth = 12;
         const arrowHeight = 3;
@@ -174,11 +189,17 @@ class Board extends React.Component {
                             <path d={`M0,0 L0,${arrowHeight} L${arrowWidth / 2},${arrowHeight / 2} z`} fill="#ff0" />
                         </marker>
                     </defs>
-
                     <image href={boardSpec.boardImage} x="0" y="0"></image>
-                    {underTokens}
-                    {units}
-                    {overTokens}
+                    {territories}
+                    <g className="tokens">
+                        {underTokens}
+                        </g>
+                    <g className="units">
+                        {units}
+                    </g>
+                    <g className="tokens">
+                        {overTokens}
+                    </g>
                 </svg>
             </div>
         );

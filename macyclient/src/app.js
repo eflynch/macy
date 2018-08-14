@@ -81,7 +81,7 @@ class OrdersList extends React.PureComponent {
                     }
 
                     if (order.action === "Build") {
-                        return <div key={i}>{powerCaption}build {order.unitType} {order.unit}</div>;
+                        return <div key={i}>{powerCaption} build {order.unitType} {order.unit}</div>;
                     }
                 })}
             </div>
@@ -92,7 +92,11 @@ class OrdersList extends React.PureComponent {
 class App extends React.Component {
     constructor(props){
         super(props);
-        this.state = {turn: props.session.turns.length-1, showOrders: true};
+        this.state = {
+            turn: props.session.turns.length - 1,
+            showOrders: true,
+            selectedTerritory: "Iceland" 
+        };
     }
     render () {
         let boardSpec = this.props.session.boardSpec;
@@ -106,7 +110,9 @@ class App extends React.Component {
                 <h1>{this.props.session.title} ({this.props.session.boardSpec.title})</h1>
                 <div className="main">
                     <div className="board-container">
-                        <Board orders={this.state.showOrders ? orders : []} boardSpec={boardSpec} gameState={gameState}/>
+                        <Board setSelected={(territory)=>{
+                            this.setState({selectedTerritory: territory});
+                        }} orders={this.state.showOrders ? orders : []} boardSpec={boardSpec} gameState={gameState} selectedTerritory={this.state.selectedTerritory}/>
                         <SupplyCenters boardSpec={boardSpec} gameState={gameState} />
                     </div>
                     <OrdersList orders={orders} boardSpec={boardSpec} gameState={gameState}

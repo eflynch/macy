@@ -19,6 +19,23 @@ class App extends React.Component {
             additionalOrders: {}
         };
     }
+    componentDidMount() {
+        window.onkeydown = (e) => {
+            if (e.keyCode === 77) {
+                this.setState({orderMode: "move"});
+            } else if (e.keyCode === 83) {
+                this.setState({orderMode: "support"});
+            } else if (e.keyCode === 67) {
+                this.setState({orderMode: "convoy"});
+            } else if (e.keyCode === 65) {
+                this.setState({orderMode: "build army"});
+            } else if (e.keyCode === 70) {
+                this.setState({orderMode: "build fleet"});
+            } else if (e.keyCode === 68) {
+                this.setState({orderMode: "disband"});
+            }
+        };
+    }
     getCurrentGameState = () => {
         let boardSpec = this.props.session.boardSpec;
         let gameState = JSON.parse(JSON.stringify(boardSpec.startingGameState));
@@ -70,58 +87,66 @@ class App extends React.Component {
         const units = this.getUnitMap(gameState);
         const buildPoints = this.getBuildPoints(boardSpec);
         
-        if (this.state.selectionMode === "unit") {
-            if (units[territory] !== undefined) {
-                if (this.state.orderMode === "convoy") {
-                    if (units[territory].unitType === "fleet"){
-                        this.setState({selectedTerritory: territory, selectionMode: "targetUnit"});
-                    }
+        if (this.state.orderMode === "convoy") {
+            if (this.state.selectedTerritory) {
+                if (this.state.selectedTargetUnit) {
+                    this.state.additionalOrders[this.state.selectedTerritory] ={
+                        power: units[this.state.selectedTerritory].faction,
+                        unit: this.state.selectedTerritory,
+                        action: "Convoy",
+                        target: territory,
+                        targetUnit: this.state.selectedTargetUnit
+                    };
+                    this.setState({additionalOrders: this.state.additionalOrders});
+                    this.setState({selectedTargetUnit: false, selectedTerritory: false});
                 } else {
-                    if (this.state.orderMode === "move") {
-                        this.setState({selectedTerritory: territory, selectionMode: "target"});
-                    } else if (this.state.orderMode === "support") {
-                        this.setState({selectedTerritory: territory, selectionMode: "targetUnit"});
-                    } else if (this.state.orderMode === "convoy") {
-                        this.setState({selectedTerritory: territory, selectionMode: "targetUnit"});
-                    } else if (this.state.orderMode === "disband") {
-                        this.state.additionalOrders[territory] = {
-                            power: units[territory].faction,
-                            action: "Disband",
-                            unit: territory
-                        };
-                        this.setState({additionalOrders: this.state.additionalOrders});
+                    if (units[territory] !== undefined){
+                        if (units[territory].unitType === "army") {
+                            this.setState({selectedTargetUnit: territory});
+                        }
                     }
                 }
             } else {
-                if (buildPoints[territory] !== undefined) {
-                    if (this.state.orderMode === "build army") {
-                        this.state.additionalOrders[territory] = {
-                            power: buildPoints[territory].power,
-                            unitType: "army",
-                            action: "Build",
-                            unit: territory
-                        };
-                        this.setState({additionalOrders: this.state.additionalOrders});
-                    } else if (this.state.orderMode === "build fleet") {
-                        this.state.additionalOrders[territory] = {
-                            power: buildPoints[territory].power,
-                            unitType: "fleet",
-                            action: "Build",
-                            unit: territory
-                        };
-                     this.setState({additionalOrders: this.state.additionalOrders});
+                if (units[territory] !== undefined) {
+                    if (units[territory].unitType === "fleet"){
+                        this.setState({selectedTerritory: territory});
                     }
                 }
             }
-        } else if (this.state.selectionMode === "targetUnit") {
-            if (units[territory] !== undefined){
-                if (this.state.orderMode !== "convoy" || units[territory].unitType === "army") {
-                    this.setState({targetUnitTerritory: territory, selectionMode: "target"});
+        } else if (this.state.orderMode === "support") {
+            if (this.state.selectedTerritory) {
+                if (this.state.selectedTargetUnit) {
+                    if (this.state.selectedTargetUnit === territory) {
+                        this.state.additionalOrders[this.state.selectedTerritory] = {
+                            power: units[this.state.selectedTerritory].faction,
+                            unit: this.state.selectedTerritory,
+                            action: "Support",
+                            target: null,
+                            targetUnit: this.state.selectedTargetUnit,
+                        };
+                    } else {
+                        this.state.additionalOrders[this.state.selectedTerritory] = {
+                            power: units[this.state.selectedTerritory].faction,
+                            unit: this.state.selectedTerritory,
+                            action: "Support",
+                            target: territory,
+                            targetUnit: this.state.selectedTargetUnit,
+                        };
+                    }
+                    this.setState({additionalOrders: this.state.additionalOrders});
+                    this.setState({selectedTargetUnit: false, selectedTerritory: false});
+                } else {
+                    if (units[territory] !== undefined){
+                        this.setState({selectedTargetUnit: territory});
+                    }
+                }
+            } else {
+                if (units[territory] !== undefined) {
+                    this.setState({selectedTerritory: territory});
                 }
             }
-        } else if (this.state.selectionMode === "target") {
-            this.setState({selectionMode: "unit", selectedTerritory: false});
-            if (this.state.orderMode === "move") {
+        } else if (this.state.orderMode === "move") {
+            if (this.state.selectedTerritory) {
                 if (this.state.selectedTerritory === territory) {
                     this.state.additionalOrders[this.state.selectedTerritory] = {
                         power: units[this.state.selectedTerritory].faction,
@@ -139,34 +164,43 @@ class App extends React.Component {
                     };
                 }
                 this.setState({additionalOrders: this.state.additionalOrders});
-            } else if (this.state.orderMode === "convoy") {
-                this.state.additionalOrders[this.state.selectedTerritory] ={
-                    power: units[this.state.selectedTerritory].faction,
-                    unit: this.state.selectedTerritory,
-                    action: "Convoy",
-                    target: territory,
-                    targetUnit: this.state.targetUnitTerritory
+                this.setState({selectedTargetUnit: false, selectedTerritory: false});
+            } else {
+                if (units[territory] !== undefined) {
+                    this.setState({selectedTerritory: territory});
+                }
+            }
+        } else if (this.state.orderMode === "build army") {
+            if (units[territory] === undefined) {
+                this.state.additionalOrders[territory] = {
+                    power: buildPoints[territory].power,
+                    unitType: "army",
+                    action: "Build",
+                    unit: territory
                 };
                 this.setState({additionalOrders: this.state.additionalOrders});
-            } else if (this.state.orderMode === "support") {
-                if (this.state.targetUnitTerritory === territory) {
-                    this.state.additionalOrders[this.state.selectedTerritory] = {
-                        power: units[this.state.selectedTerritory].faction,
-                        unit: this.state.selectedTerritory,
-                        action: "Support",
-                        target: null,
-                        targetUnit: this.state.targetUnitTerritory,
-                    };
-                } else {
-                    this.state.additionalOrders[this.state.selectedTerritory] = {
-                        power: units[this.state.selectedTerritory].faction,
-                        unit: this.state.selectedTerritory,
-                        action: "Support",
-                        target: territory,
-                        targetUnit: this.state.targetUnitTerritory,
-                    };
-                }
+                this.setState({selectedTargetUnit: false, selectedTerritory: false});
+            }
+        } else if (this.state.orderMode === "build fleet") {
+            if (units[territory] === undefined) {
+                this.state.additionalOrders[territory] = {
+                    power: buildPoints[territory].power,
+                    unitType: "fleet",
+                    action: "Build",
+                    unit: territory
+                };
                 this.setState({additionalOrders: this.state.additionalOrders});
+                this.setState({selectedTargetUnit: false, selectedTerritory: false});
+            }
+        } else if (this.state.orderMode === "disband") {
+            if (units[territory] !== undefined) {
+                this.state.additionalOrders[territory] = {
+                    power: units[territory].faction,
+                    action: "Disband",
+                    unit: territory
+                };
+                this.setState({additionalOrders: this.state.additionalOrders});
+                this.setState({selectedTargetUnit: false, selectedTerritory: false});
             }
         }
     };

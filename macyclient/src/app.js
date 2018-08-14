@@ -2,92 +2,9 @@ import React from 'react';
 
 import Board from './board';
 import {resolve} from './resolve';
+import OrdersList from './orders-list';
+import SupplyCenters from './supply-centers';
 
-
-class SupplyCenters extends React.PureComponent {
-
-    constructor(props){
-        super(props);
-        this.state = {show: null};
-    }
-
-    render () {
-        let {gameState, boardSpec} = this.props;
-        const factions = Object.keys(gameState.factions);
-        return (
-            <div className="supply-centers">
-                {factions.map((faction) => {
-                    let show = "";
-                    if (this.state.show === faction){
-                        show = (
-                            <div className="supply-center-item-list">
-                                {gameState.factions[faction].supplyCenters.map((center)=><span>{center}</span>)}
-                            </div>
-                        );
-                    }
-                    return (
-                        <div className="supply-center-item" key={faction} style={{background: boardSpec.factions[faction].color}} onClick={(e) => {
-                                this.setState({show: this.state.show === faction ? null : faction});
-                            }}>
-                            <div className="supply-center-item-content">
-                                <div className="supply-center-item-title">
-                                    <span>{faction}</span>
-                                    <span>{gameState.factions[faction].supplyCenters.length}</span>
-                                </div>
-                                {show}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-        );
-    }
-}
-
-class OrdersList extends React.PureComponent {
-    render () {
-        return (
-            <div className="order-list">
-                <div className="show-button" onClick={this.props.toggleShowOrders}>Show on Map</div>
-                <div className="order-header">
-                    <span style={{cursor:"pointer"}} onClick={this.props.goBack}>←</span>
-                    <span>{this.props.gameState.season} {this.props.gameState.year}</span>
-                    <span style={{cursor:"pointer"}} onClick={this.props.goForward}>→</span>
-                </div>
-                {this.props.orders.map((order, i) => {
-                    let faction = this.props.gameState.factions[order.power];
-                    let color = this.props.boardSpec.factions[order.power].color;
-
-                    let powerCaption = <span className="order-power" >{order.power}</span>;
-
-                    if (order.action === "Move") {
-                        return <div key={i}>{powerCaption} {order.unit} -> {order.target}</div>;
-                    }
-
-                    if (order.action === "Support") {
-                        if (order.target) {
-                            return <div key={i}>{powerCaption} {order.unit} S {order.targetUnit} -> {order.target}</div>;
-                        } else {
-                            return <div key={i}>{powerCaption} {order.unit} S {order.targetUnit} H</div>;
-                        }
-                    }
-
-                    if (order.action === "Hold") {
-                        return <div key={i}>{powerCaption} {order.unit} H</div>;
-                    }
-
-                    if (order.action === "Convoy") {
-                        return <div key={i}>{powerCaption} {order.unit} C {order.targetUnit} -> {order.target}</div>;
-                    }
-
-                    if (order.action === "Build") {
-                        return <div key={i}>{powerCaption} build {order.unitType} {order.unit}</div>;
-                    }
-                })}
-            </div>
-        );
-    }
-}
 
 class App extends React.Component {
     constructor(props){
@@ -96,39 +13,145 @@ class App extends React.Component {
             turn: props.session.turns.length - 1,
             showOrders: true,
             selectedTerritory: false,
-            targetTerritory: false,
             targetUnitTerritory: false,
             selectionMode: "unit", 
+            orderMode: "support",
+            additionalOrders: {}
         };
     }
-    selectTerritory = (territory) => {
-        if (this.state.selectionMode === "unit") {
-            this.setState({selectedTerritory: territory});
-        } else if (this.state.selectionMode === "targetUnit") {
-            this.setState({targetUnitTerritory: territory});
-        } else if (this.state.selectionMode === "target") {
-            this.setState({targetTerritory: territory});
-        }
-    };
-    render () {
+    getCurrentGameState = () => {
         let boardSpec = this.props.session.boardSpec;
         let gameState = JSON.parse(JSON.stringify(boardSpec.startingGameState));
         for (let orders of this.props.session.turns.slice(0, this.state.turn)) {
             gameState = resolve(boardSpec, gameState, orders);
         }
+        return gameState;
+    };
+    getUnitMap = (gameState) => {
+        const factions = Object.keys(gameState.factions);
+        const unitTypes = ["army", "fleet"];
+        let units = {};
+        for (let faction of factions) {
+            for (let unitType of unitTypes) {
+                for (let territory of gameState.factions[faction][unitType]) {
+                    units[territory] = {
+                        faction: faction,
+                        unitType: unitType
+                    };
+                }
+            }
+        }
+        return units;
+    };
+    clickTerritory = (territory) => {
+        let gameState = this.getCurrentGameState();
+        let orderable = this.props.session.turns[this.state.turn].length === 0;
+        if (!orderable) {
+            return;
+        }
+        const units = this.getUnitMap(gameState);
+        
+        if (this.state.selectionMode === "unit") {
+            if (units[territory] !== undefined){
+                this.setState({selectedTerritory: territory});
+                if (this.state.orderMode === "move") {
+                    this.setState({selectionMode: "target"});
+                } else {
+                    this.setState({selectionMode: "targetUnit"});
+                }
+            }
+        } else if (this.state.selectionMode === "targetUnit") {
+            if (units[territory] !== undefined){
+                this.setState({targetUnitTerritory: territory, selectionMode: "target"});
+            }
+        } else if (this.state.selectionMode === "target") {
+            this.setState({selectionMode: "unit", selectedTerritory: false});
+            if (this.state.orderMode === "move") {
+                if (this.state.selectedTerritory === territory) {
+                    this.state.additionalOrders[this.state.selectedTerritory] = {
+                        power: units[this.state.selectedTerritory].faction,
+                        unit: this.state.selectedTerritory,
+                        action: "Hold",
+                        target: territory,
+                    };
+                } else {
+                    this.state.additionalOrders[this.state.selectedTerritory] = {
+                        power: units[this.state.selectedTerritory].faction,
+                        unit: this.state.selectedTerritory,
+                        action: "Move",
+                        target: territory,
+                        viaConvoy: false
+                    };
+                }
+                this.setState({additionalOrders: this.state.additionalOrders});
+            } else if (this.state.orderMode === "convoy") {
+                this.state.additionalOrders[this.state.selectedTerritory] ={
+                    power: units[this.state.selectedTerritory].faction,
+                    unit: this.state.selectedTerritory,
+                    action: "Convoy",
+                    target: territory,
+                    targetUnit: this.state.targetUnitTerritory
+                };
+                this.setState({additionalOrders: this.state.additionalOrders});
+            } else if (this.state.orderMode === "support") {
+                if (this.state.targetUnitTerritory === territory) {
+                    this.state.additionalOrders[this.state.selectedTerritory] = {
+                        power: units[this.state.selectedTerritory].faction,
+                        unit: this.state.selectedTerritory,
+                        action: "Support",
+                        target: null,
+                        targetUnit: this.state.targetUnitTerritory,
+                    };
+                } else {
+                    this.state.additionalOrders[this.state.selectedTerritory] = {
+                        power: units[this.state.selectedTerritory].faction,
+                        unit: this.state.selectedTerritory,
+                        action: "Support",
+                        target: territory,
+                        targetUnit: this.state.targetUnitTerritory,
+                    };
+                }
+                this.setState({additionalOrders: this.state.additionalOrders});
+            }
+        }
+    };
+    render () {
+        let boardSpec = this.props.session.boardSpec;
+        let gameState = this.getCurrentGameState();
         let orders = this.props.session.turns[this.state.turn];
+        let orderable = orders.length === 0;
+        if (orderable){
+            orders = Object.values(this.state.additionalOrders);
+        }
         return (
             <div>
-                <h1>{this.props.session.title} ({this.props.session.boardSpec.title})</h1>
+                <h1>{this.props.session.title} ({boardSpec.title})</h1>
                 <div className="main">
                     <div className="board-container">
-                        <Board setSelected={this.selectTerritory} orders={this.state.showOrders ? orders : []} boardSpec={boardSpec} gameState={gameState} selectedTerritory={this.state.selectedTerritory}/>
+                        <Board clickTerritory={this.clickTerritory} orders={this.state.showOrders ? orders : []} boardSpec={boardSpec} gameState={gameState} selectedTerritory={orderable ? this.state.selectedTerritory : false}/>
                         <SupplyCenters boardSpec={boardSpec} gameState={gameState} />
                     </div>
-                    <OrdersList orders={orders} boardSpec={boardSpec} gameState={gameState}
-                        toggleShowOrders={()=>{this.setState({showOrders: !this.state.showOrders});}}
-                        goBack={()=>{this.setState({turn: Math.max(0, this.state.turn -1)})}}
-                        goForward={()=>{this.setState({turn: Math.min(this.props.session.turns.length - 1, this.state.turn + 1)})}}/>
+                    <OrdersList
+                        orders={orders}
+                        boardSpec={boardSpec}
+                        gameState={gameState}
+                        showOrders={this.state.showOrders}
+                        orderMode={this.state.orderMode}
+                        setOrderMode={(orderMode)=>{
+                            this.setState({orderMode: orderMode});
+                        }}
+                        toggleShowOrders={()=>{
+                            this.setState({showOrders: !this.state.showOrders});
+                        }}
+                        goBack={()=>{
+                            this.setState({turn: Math.max(0, this.state.turn -1)});
+                        }}
+                        goForward={()=>{
+                            this.setState({
+                                turn: Math.min(
+                                    this.props.session.turns.length - 1, this.state.turn + 1)
+                            });
+                        }}/>
                 </div>
             </div>
         );

@@ -58,6 +58,7 @@ let session = {
             {power: "Russia", unit: "Galacia", action: "Support", targetUnit: "Sevastapol", target: "Rumania"},
             {power: "Russia", unit: "Sevastapol", action: "Move", target: "Rumania", viaConvoy: false},
         ],
+        [],
     ]
 }
 

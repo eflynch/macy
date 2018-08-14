@@ -69,7 +69,6 @@ class Hold extends React.PureComponent {
 class SupportMove extends React.PureComponent {
     render () {
         let {boardSpec, source, destination, supporter} = this.props;
-        console.log(this.props);
 
         let [x1, y1] = boardSpec.unitPositions[source];
         let [x2, y2] = boardSpec.unitPositions[destination];
@@ -78,6 +77,7 @@ class SupportMove extends React.PureComponent {
         return (
             <g>
                 <line x1={x3} y1={y3} x2={(x1 + x2)/2} y2={(y1+y2)/2} style={{stroke: "white", strokeWidth:4}}/>
+                <line x2={x2} y2={y2} x1={(x1 + x2)/2} y1={(y1+y2)/2} style={{stroke: "white", strokeWidth:4}}/>
             </g>
         );
     }
@@ -167,8 +167,9 @@ class Board extends React.Component {
         for (let territory of Object.keys(boardSpec.unitPositions)) {
             const filePath = territory.toLowerCase().replace(/\./g, "").replace(/ /g, "-");
             if (boardSpec.territoryPaths[filePath] !== undefined) {
+                let isSelected = selectedTerritory === territory;
                 territories.push(
-                    <g onClick={()=>{this.props.setSelected(territory);}} key={territory +"path"} transform={transform} style={{opacity: selectedTerritory === territory ? 0.6 : 0.0}}>
+                    <g className={`territory${isSelected ? " selected": ""}`} onClick={()=>{this.props.clickTerritory(territory);}} key={territory +"path"} transform={transform}>
                         {boardSpec.territoryPaths[filePath].map((p)=><path d={p}/>)}
                     }}
                         

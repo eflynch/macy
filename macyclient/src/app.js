@@ -95,9 +95,21 @@ class App extends React.Component {
         this.state = {
             turn: props.session.turns.length - 1,
             showOrders: true,
-            selectedTerritory: "Iceland" 
+            selectedTerritory: false,
+            targetTerritory: false,
+            targetUnitTerritory: false,
+            selectionMode: "unit", 
         };
     }
+    selectTerritory = (territory) => {
+        if (this.state.selectionMode === "unit") {
+            this.setState({selectedTerritory: territory});
+        } else if (this.state.selectionMode === "targetUnit") {
+            this.setState({targetUnitTerritory: territory});
+        } else if (this.state.selectionMode === "target") {
+            this.setState({targetTerritory: territory});
+        }
+    };
     render () {
         let boardSpec = this.props.session.boardSpec;
         let gameState = JSON.parse(JSON.stringify(boardSpec.startingGameState));
@@ -110,9 +122,7 @@ class App extends React.Component {
                 <h1>{this.props.session.title} ({this.props.session.boardSpec.title})</h1>
                 <div className="main">
                     <div className="board-container">
-                        <Board setSelected={(territory)=>{
-                            this.setState({selectedTerritory: territory});
-                        }} orders={this.state.showOrders ? orders : []} boardSpec={boardSpec} gameState={gameState} selectedTerritory={this.state.selectedTerritory}/>
+                        <Board setSelected={this.selectTerritory} orders={this.state.showOrders ? orders : []} boardSpec={boardSpec} gameState={gameState} selectedTerritory={this.state.selectedTerritory}/>
                         <SupplyCenters boardSpec={boardSpec} gameState={gameState} />
                     </div>
                     <OrdersList orders={orders} boardSpec={boardSpec} gameState={gameState}

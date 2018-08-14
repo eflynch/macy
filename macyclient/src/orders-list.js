@@ -7,7 +7,7 @@ class OrdersList extends React.PureComponent {
             showOrdersIcon = <span>[x]</span>;
         }
 
-        const orderModes = ["Move", "Support", "Convoy", "Build", "Disband"];
+        const orderModes = ["Move", "Support", "Convoy", "Build Army", "Build Fleet", "Disband"];
 
         let {orderMode, setOrderMode} = this.props;
 
@@ -15,7 +15,7 @@ class OrdersList extends React.PureComponent {
             <div className="order-list">
                 <div className="order-types">
                     {orderModes.map((om)=>{
-                        return <li onClick={()=>{setOrderMode(om.toLowerCase());}} className={orderMode === om.toLowerCase() ? "selected" : ""}>{om}</li>;
+                        return <li key={om} onClick={()=>{setOrderMode(om.toLowerCase());}} className={orderMode === om.toLowerCase() ? "selected" : ""}>{om}</li>;
                     })}
                 </div>
                 <div className="show-button" onClick={this.props.toggleShowOrders}>{showOrdersIcon}Show Orders on Map</div>
@@ -52,6 +52,10 @@ class OrdersList extends React.PureComponent {
 
                     if (order.action === "Build") {
                         return <div key={i}>{powerCaption} build {order.unitType} {order.unit}</div>;
+                    }
+
+                    if (order.action === "Disband") {
+                        return <div key={i}>{powerCaption} disband {order.unit}</div>;
                     }
                 })}
             </div>

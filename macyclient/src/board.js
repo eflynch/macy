@@ -170,7 +170,7 @@ class Board extends React.Component {
                 let isSelected = selectedTerritory === territory;
                 territories.push(
                     <g className={`territory${isSelected ? " selected": ""}`} onClick={()=>{this.props.clickTerritory(territory);}} key={territory +"path"} transform={transform}>
-                        {boardSpec.territoryPaths[filePath].map((p)=><path d={p}/>)}
+                        {boardSpec.territoryPaths[filePath].map((p, i)=><path key={i} d={p}/>)}
                     }}
                         
                     </g>

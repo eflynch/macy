@@ -7,7 +7,103 @@ let removeFromArray = (array, item) => {
     if (index !== -1) array.splice(index, 1);
 };
 
+// removes orders that are malformed (not orders that FAIL)
+let filterInvalidOrders = (boardSpec, gameState, orders) => {
+    return orders.filter((order) => {
+        return true;
+    });
+};
 
+// removes convoyed move orders that will FAIL
+let filterInvalidConvoys = (boardSpec, gameState, orders) => {
+
+};
+
+// removes support orders that FAIL because they are cut by a non-convoyed unit
+let cutSupportOrdersByNonConvoyed = (boardSpec, gameState, orders) => {
+
+};
+
+// moveOrder => [path, path, etc.]
+let generateValidConvoyMap = (boardSpec, gameState, orders) => {
+
+};
+
+// generates map of convoying fleets that Could be dislodged
+// fleet => (holdStrength, moveStrength, supporters)
+let generateDislodgedConvoyerMap = (boardSpec, gameState, orders) => {
+
+};
+
+let ignoreExtraOrders = (boardSpec, gameState, orders) => {
+
+};
+
+// The algorithm here is
+// while true:
+    // Check if exists a path in a move order in convoy map where all fleets are safe
+        // cut support at destination (remove supporter from dislodgementMap if there)
+    // Check if exists a fleet in dislodgement map where all supporters are safe
+        // remove all paths involving that fleet
+        // cancel a move order if it has no more paths
+// if there are still  ambiguous fleet dislodgements, they are all dislodged
+let disruptConvoysAndCutSupportOrdersByConvoyed = (convoyMap, dislodgedConvoyerMap, orders) => {
+    let cutSupport = (target) => {
+        for (let order of orders){
+            if (order.unit === target) {
+                removeFromArray(orders, order);
+                break;
+            }
+        }
+        for (let fleet of Object.keys(dislodgedConvoyerMap)) {
+            if (dislodgedConvoyerMap[fleet].supporters.includes(target)){
+                removeFromArray(dislodgedConvoyerMap[fleet].supporters, target);
+            }
+            if (dislodgedConvoyerMap[fleet].margin > dislodgedConvoyerMap[fleet].supporters.length) {
+                delete dislodgedConvoyerMap[fleet];
+            }
+        }
+    };
+
+    let isPathCertain = (path) => {
+        for (let fleet of path) {
+            if (Object.keys(dislodgedConvoyerMap).includes(fleet)) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    // While exists a move order with a path with all safe fleets, remove supports
+    // by its targets
+    let failCount = 0;
+    while(true) {
+        let foundOne = false;
+        for (let convoyPair of convoyMap) {
+            let {moveOrder, paths} = convoyPair;
+            for (let path of paths) {
+                if (isPathCertain(path)) {
+                    foundOne = true;
+                    cutSupport(moveOrder.target);
+                    removeFromArray(convoyMap, convoyPair);
+                    break;
+                }
+            }
+        }
+        if (foundOne){
+            failCount = 0;
+        } else {
+            failCount += 1;
+        }
+        if (failCount > 2){
+            break;
+        }
+    }
+};
+
+
+// This assumes all move remaining move orders are valid
+// And all remaining support orders are NOT cut
 let generateConflictGraph = (boardSpec, gameState, orders) => {
     const factions = Object.keys(gameState.factions);
     let holds = {};
@@ -222,31 +318,20 @@ let resolveUnambiguous = (conflictGraph) => {
     };
 };
 
-let findDisruptedConvoy = (boardSpec, gameState, orders) => {
-    let convoyingFleets = [];
-    for (let order of orders) {
-        if (order.action === "Convoy") {
-            convoyingFleets.push(order.unit);
-        }
-    }
-
-    // Cancel supports that are not broken viaConvoy;
-
-    let conflictGraph = generateConflictGraph(boardSpec, gameState, orders);
-};
-
 let resolve = (boardSpec, gameState, orders) => {
     let newGameState = JSON.parse(JSON.stringify(gameState));
 
     if (["Spring", "Fall"].includes(gameState.season)) {
 
-        let disruptedConvoy = findDisruptedConvoy(boardSpec, gameState, orders);
-        // Determine if ANY convoying fleets will be dislodged
-        // Cancel those convoy orders
-        // Cancel invalid moves
-        // Cancel broken supports
+        let validOrders = filterInvalidOrders(boardSpec, gameState, orders);
+        ignoreExtraOrders(boardSpec, gameState, orders);
+        filterInvalidConvoys(boardSpec, gameState, validOrders);
+        cutSupportOrdersByNonConvoyed(boardSpec, gameState, validOrders);
+        let convoyMap = generateValidConvoyMap(boardSpec, gameState, validOrders);
+        let dislodgedConvoyerMap = generateDislodgedConvoyerMap(boardSpec, gameState, validOrders);
+        disruptConvoysAndCutSupportOrdersByConvoyed(convoyMap, dislodgedConvoyerMap, validOrders);
 
-        let conflictGraph = generateConflictGraph(boardSpec, gameState, orders);
+        let conflictGraph = generateConflictGraph(boardSpec, gameState, validOrders);
 
         resolveHeadToHead(conflictGraph);
 
@@ -295,7 +380,9 @@ let resolve = (boardSpec, gameState, orders) => {
     }
 
     if (gameState.season === "Winter") {
-        for (let order of orders) {
+        let validOrders = filterInvalidOrders(boardSpec, gameState, orders);
+        ignoreExtraOrders(boardSpec, gameState, validOrders);
+        for (let order of validOrders) {
             if (order.action === "Build") {
                 newGameState.factions[order.power][order.unitType].push(order.unit);
             }

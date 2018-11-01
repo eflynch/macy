@@ -4,7 +4,6 @@ let session = {
     title: "War in Q4",
     boardSpec: dip1900,
     turns: [
-        []
         // [
         //     {power: "Great Britain", unit: "London", action: "Move", target: "English Channel", viaConvoy: false},
         //     {power: "Great Britain", unit: "Edinburgh", action: "Move", target: "North Sea", viaConvoy: false},

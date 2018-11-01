@@ -11,6 +11,11 @@ class OrdersList extends React.PureComponent {
 
         let {orderMode, setOrderMode} = this.props;
 
+        let resolve = <span/>;
+        if (this.props.showResolve){
+            resolve = <div className="resolve-button" onClick={this.props.resolveOrders}>Resolve</div>;
+        }
+
         return (
             <div className="order-list">
                 <div className="order-types">
@@ -58,6 +63,7 @@ class OrdersList extends React.PureComponent {
                         return <div key={i}>{powerCaption} disband {order.unit}</div>;
                     }
                 })}
+                {resolve}
             </div>
         );
     }

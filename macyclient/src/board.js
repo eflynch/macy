@@ -164,15 +164,62 @@ class Board extends React.Component {
 
         let territories = [];
         let transform="translate(0.000000,2250.000000) scale(0.100000,-0.100000)";
-        for (let territory of Object.keys(boardSpec.unitPositions)) {
-            const filePath = territory.toLowerCase().replace(/\./g, "").replace(/ /g, "-");
+        
+        let fleetSelected = false;
+        let armySelected = false;
+        if (selectedTerritory) {
+            for (let faction of factions) {
+                if (gameState.factions[faction].fleet.includes(selectedTerritory)) {
+                    fleetSelected = true;
+                    break;
+                }
+                if (gameState.factions[faction].army.includes(selectedTerritory)) {
+                    armySelected = true;
+                    break;
+                }
+            }
+        }
+
+        let all_territories = Object.keys(boardSpec.unitPositions);
+        // If we have a fleet selected, do not add non-coastal variants
+        if (fleetSelected){
+            all_territories = all_territories.filter(t => !boardSpec.multiCoast.includes(t));
+        // If we have an army selected, do not add coastal variants
+        } else if (armySelected){
+            all_territories = all_territories.filter(t => !t.includes("::"));
+
+        // If we have nothing selected, add coastal graphs only in territories where fleets are
+        } else {
+            all_territories = all_territories.filter(t => {
+                if (t.includes("::")) {
+                    for (let faction of factions) {
+                        if (gameState.factions[faction].fleet.includes(t)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                } else if (boardSpec.multiCoast.includes(t)) {
+                    for (let faction of factions) {
+                        for (let territory of gameState.factions[faction].fleet) {
+                            if (territory.includes(t)){
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+                return true;
+            });
+        }
+        for (let territory of all_territories) {
+            const filePath = territory.toLowerCase().replace(/\./g, "").replace(/ /g, "-").replace("-::-", "-coast-");
             if (boardSpec.territoryPaths[filePath] !== undefined) {
                 let isSelected = selectedTerritory === territory;
+
                 territories.push(
                     <g className={`territory${isSelected ? " selected": ""}`} onClick={()=>{this.props.clickTerritory(territory);}} key={territory +"path"} transform={transform}>
                         {boardSpec.territoryPaths[filePath].map((p, i)=><path key={i} d={p}/>)}
                     }}
-                        
                     </g>
                 );
             }

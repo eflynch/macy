@@ -110,7 +110,9 @@ let coasts = [
     "Marseilles",
 
     "Portugal",
-    "Spain",
+    "Spain :: EC",
+    "Spain :: WC",
+    "Spain :: NC",
     "Gibraltar",
     "Morocco",
     "Algeria",
@@ -131,7 +133,8 @@ let coasts = [
     "Denmark",
 
     "Finland",
-    "St. Petersburg",
+    "St. Petersburg :: SC",
+    "St. Petersburg :: NC",
     "Livonia",
     "Sevastapol",
 
@@ -139,7 +142,8 @@ let coasts = [
     "Ankara",
     "Constantinople",
     "Konya",
-    "Macedonia",
+    "Macedonia :: EC",
+    "Macedonia :: WC",
     "Damascus",
     "Palestine",
 
@@ -171,6 +175,12 @@ let seas = [
     "Adriatic Sea",
     "Eastern Mediterranean",
     "Black Sea"
+];
+
+let multiCoast = [
+    "St. Petersburg",
+    "Spain",
+    "Macedonia"
 ];
 
 let armyGraph = new Graph();
@@ -459,7 +469,7 @@ bij(fleetGraph, "Baltic Sea", "Kiel");
 bij(fleetGraph, "Baltic Sea", "Berlin");
 bij(fleetGraph, "Baltic Sea", "Prussia");
 bij(fleetGraph, "Gulf of Bothnia", "Finland");
-bij(fleetGraph, "Gulf of Bothnia :: SC", "St. Petersburg");
+bij(fleetGraph, "Gulf of Bothnia", "St. Petersburg :: SC");
 bij(fleetGraph, "Gulf of Bothnia", "Livonia");
 bij(fleetGraph, "Gulf of Bothnia", "Sweden");
 bij(fleetGraph, "Western Mediterranean", "Spain :: EC");
@@ -778,6 +788,7 @@ let dip1900 = {
         army: armyGraph,
         fleet: fleetGraph
     },
+    multiCoast: multiCoast,
     supplyCenters: [
         "Edinburgh",
         "Liverpool",

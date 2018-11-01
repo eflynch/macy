@@ -23,9 +23,20 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
             }
 
             if (order.action === "Move") {
+                if (boardSpec.graph[unitType].distance(order.unit, order.target) != 1) {
+                    return false;
+                }
             }
             if (order.action === "Support") {
-
+                if (order.target !== undefined && order.target !== null) { // Move Support
+                    if (boardSpec.graph[unitType].distance(order.unit, order.target) != 1) {
+                        return false;
+                    }
+                } else { // Hold Support
+                    if (boardSpec.graph[unitType].distance(order.unit, order.targetUnit) != 1) {
+                        return false;
+                    }
+                }
             }
             if (order.action === "Convoy") {
 
@@ -55,7 +66,7 @@ let cutSupportOrdersByNonConvoyed = (boardSpec, gameState, orders) => {
 
 // moveOrder => [path, path, etc.]
 let generateValidConvoyMap = (boardSpec, gameState, orders) => {
-
+    return [];
 };
 
 // generates map of convoying fleets that Could be dislodged
@@ -130,6 +141,14 @@ let disruptConvoysAndCutSupportOrdersByConvoyed = (convoyMap, dislodgedConvoyerM
     }
 };
 
+let strip_coast = (fleet) => {
+    return fleet
+        .replace(" :: NC", "")
+        .replace(" :: SC", "")
+        .replace(" :: WC", "")
+        .replace(" :: EC", "");
+}
+
 
 // This assumes all move remaining move orders are valid
 // And all remaining support orders are NOT cut
@@ -142,34 +161,36 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
             power: faction,
             unit: a
         };});
-        gameState.factions[faction].fleet.forEach((a) => {holds[a] = {
+        gameState.factions[faction].fleet.forEach((f) => {holds[strip_coast(f)] = {
             holdStrength: 1,
             power: faction,
-            unit: a
+            unit: strip_coast(f)
         };});
     }
 
     let moves = {};
     for (let order of orders) {
         if (order.action === "Move") {
-            holds[order.unit].holdStrength = "?";
-            if (moves[order.target] !== undefined) {
-                moves[order.target].push(
+            let unit = strip_coast(order.unit);
+            let target = strip_coast(order.target);
+            holds[unit].holdStrength = "?";
+            if (moves[target] !== undefined) {
+                moves[target].push(
                     {
                         moveStrength: 1,
                         power: order.power,
                         source: order.unit,
-                        destination: order.target,
+                        destination: target,
                         viaConvoy: order.viaConvoy
                     }
                 );
             } else {
-                moves[order.target] = [
+                moves[target] = [
                     {
                         moveStrength: 1,
                         power: order.power,
                         source: order.unit,
-                        destination: order.target,
+                        destination: target,
                         viaConvoy: order.viaConvoy
                     }
                 ]
@@ -180,14 +201,17 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
 
     for (let order of orders) {
         if (order.action === "Support") {
+            let unit = strip_coast(order.unit);
+            let targetUnit = strip_coast(order.targetUnit);
             if (order.target !== undefined && order.target !== null) {
-                for (let move of moves[order.target]) {
+                let target = strip_coast(order.target);
+                for (let move of moves[target]) {
                     if (move.source === order.targetUnit) {
                         move.moveStrength += 1;
                     }
                 }
             } else {
-                let hold = holds[order.targetUnit];
+                let hold = holds[targetUnit];
                 if (hold !== undefined && hold.holdStrength != "?"){
                     hold.holdStrength += 1;
                 }
@@ -361,9 +385,7 @@ let resolve = (boardSpec, gameState, orders) => {
         disruptConvoysAndCutSupportOrdersByConvoyed(convoyMap, dislodgedConvoyerMap, validOrders);
 
         let conflictGraph = generateConflictGraph(boardSpec, gameState, validOrders);
-
         resolveHeadToHead(conflictGraph);
-
         let {dislodged, moved} = resolveUnambiguous(conflictGraph);
 
         // Update gameState
@@ -390,8 +412,8 @@ let resolve = (boardSpec, gameState, orders) => {
             }
 
             for (let fleet of newGameState.factions[faction].fleet) {
-                if (boardSpec.supplyCenters.includes(fleet.replace(" :: NC", "").replace(" :: SC", ""))){
-                    occupations[fleet.replace(" :: NC", "").replace(" :: SC", "")] = faction;
+                if (boardSpec.supplyCenters.includes(strip_coast(fleet))){
+                    occupations[strip_coast(fleet)] = faction;
                 }
             }
         }

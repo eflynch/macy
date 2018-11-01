@@ -10,6 +10,35 @@ let removeFromArray = (array, item) => {
 // removes orders that are malformed (not orders that FAIL)
 let filterInvalidOrders = (boardSpec, gameState, orders) => {
     return orders.filter((order) => {
+        if (order.action === "Build") {
+
+        } else {
+            let unitType;
+            if (gameState.factions[order.power].army.includes(order.unit)) {
+                unitType = "army";
+            } else if (gameState.factions[order.power].fleet.includes(order.unit)) {
+                unitType = "fleet";
+            } else {
+                return false;
+            }
+
+            if (order.action === "Move") {
+            }
+            if (order.action === "Support") {
+
+            }
+            if (order.action === "Convoy") {
+
+            }
+            if (order.action === "Hold") {
+
+            }
+
+            if (order.action === "Disband") {
+
+            }
+        }
+        
         return true;
     });
 };

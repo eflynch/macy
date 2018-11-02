@@ -100,13 +100,17 @@ class SupportHold extends React.PureComponent {
 
 class Convoy extends React.PureComponent {
     render () {
-        let {boardSpec, territory, size} = this.props;
+        let {boardSpec, convoyer, source, destination, size} = this.props;
 
-        let [x, y] = boardSpec.unitPositions[territory];
+        let [x, y] = boardSpec.unitPositions[convoyer];
+        let [x1, y1] = boardSpec.unitPositions[source];
+        let [x2, y2] = boardSpec.unitPositions[destination];
 
         return (
             <g>
-                <path d={`m${x - size * 0.5} ${y + size * 0.5} ${` s ${size * 0.05} 14, ${size * 0.1} 0`.repeat(10)}`}  style={{stroke: "white", fillOpacity: 0, strokeWidth:12}}/>
+                <path d={`m${x - size * 0.5} ${y + size * 0.5} ${` s ${size * 0.05} 14, ${size * 0.1} 0`.repeat(10)}`}  style={{stroke: "rgba(0, 0, 255, 0.8)", fillOpacity: 0, strokeWidth:12}}/>
+                 <line x1={x} y1={y} x2={(x1 + x2)/2} y2={(y1+y2)/2} style={{stroke: "rgba(0, 0, 255, 0.8)", strokeWidth:4}}/>
+                <line x1={x1} y1={y1} x2={x2} y2={y2} style={{stroke: "rgba(0, 0, 255, 0.2)", strokeWidth:60, strokeLinecap:"round"}}/>
             </g>
         );
     }
@@ -115,7 +119,7 @@ class Convoy extends React.PureComponent {
 
 class Board extends React.Component {
     render () {
-        let {boardSpec, gameState, orders, selectedTerritory} = this.props;
+        let {boardSpec, gameState, orders, selectedTerritory, orderMode} = this.props;
         const factions = Object.keys(gameState.factions);
         const unitTypes = ["army", "fleet"];
         let units = [];
@@ -135,7 +139,7 @@ class Board extends React.Component {
                 return <Hold key={i} boardSpec={boardSpec} territory={order.unit} size={100}/>;
             }
             if (order.action === "Convoy") {
-                return <Convoy key={i} boardSpec={boardSpec} territory={order.unit} size={100}/>;
+                return <Convoy key={i} boardSpec={boardSpec} convoyer={order.unit} source={order.targetUnit} destination={order.target} size={100}/>;
             }
             if (order.action === "Support" && (order.target !== null && order.target !== undefined)) {
                 return <SupportMove key={i} boardSpec={boardSpec} supporter={order.unit} source={order.targetUnit} destination={order.target}/>;
@@ -181,11 +185,11 @@ class Board extends React.Component {
         }
 
         let all_territories = Object.keys(boardSpec.unitPositions);
-        // If we have a fleet selected, do not add non-coastal variants
-        if (fleetSelected){
+        // If we have a fleet selected but not in convoy orderMode, do not add non-coastal variants
+        if (fleetSelected && orderMode != "convoy"){
             all_territories = all_territories.filter(t => !boardSpec.multiCoast.includes(t));
-        // If we have an army selected, do not add coastal variants
-        } else if (armySelected){
+        // If we have an army selected or in convoy orderMode, do not add coastal variants
+        } else if (armySelected || orderMode == "convoy"){
             all_territories = all_territories.filter(t => !t.includes("::"));
 
         // If we have nothing selected, add coastal graphs only in territories where fleets are

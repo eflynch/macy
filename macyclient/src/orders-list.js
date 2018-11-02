@@ -18,7 +18,7 @@ class OrdersList extends React.PureComponent {
 
         let revert = <span/>;
         if (this.props.showRevert){
-            revert = <div className="resolve-button" onClick={this.props.revertOrders}>Revert To This Season</div>;
+            revert = <div className="revert-button" onClick={this.props.revertOrders}>Revert To This Season</div>;
         }
 
         return (

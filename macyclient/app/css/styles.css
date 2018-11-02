@@ -3,6 +3,21 @@ body {
     padding: 10px;
 }
 
+.keybindings {
+    padding: 30px;
+    position: fixed;
+    margin: 20px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: black solid 1px;
+    border-radius: 10px;
+    bottom: 0px;
+    right: 0px;
+}
+
+.keybindings th {
+    text-align: left;
+}
+
 .saveload {
     margin: 0px;
 }
@@ -120,6 +135,28 @@ body {
     color: black;
     border-color: black;
 }
+
+.order-list .revert-button {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-top: 30px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: red;
+    background-color: rgba(255, 0, 0, 0.6);
+    border-radius: 5px;
+    font-family: "Italiana";
+    text-align: center;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.order-list .revert-button:hover {
+    background-color: red;
+}
+
 
 li {
     list-style: none;

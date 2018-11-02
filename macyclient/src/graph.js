@@ -42,6 +42,14 @@ class Graph {
     }
 
     addEdge(fromNode, toNode, distance) {
+        if (!this.nodes.has(fromNode)){
+            console.warn(`Added edge for non-existant node ${fromNode} in ${fromNode}-${toNode}`);
+            return;
+        }
+        if (!this.nodes.has(toNode)){
+            console.warn(`Added edge for non-existant node ${toNode} in ${fromNode}-${toNode}`);
+            return;
+        }
         if (this.edges.has(fromNode)){
             this.edges.get(fromNode).add(toNode);
         } else {

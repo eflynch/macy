@@ -8,6 +8,7 @@ let bij = (g, a, b, d = 1) => {
 };
 
 let provinces = [
+    "Edinburgh",
     "Ireland",
     "Clyde",
     "Liverpool",
@@ -31,6 +32,8 @@ let provinces = [
     "Trieste",
 
     "Switzerland",
+    "Belgium",
+    "Netherlands",
 
     "Picardy",
     "Burgundy",
@@ -103,6 +106,9 @@ let coasts = [
     "Prussia",
 
     "Trieste",
+
+    "Belgium",
+    "Netherlands",
 
     "Picardy",
     "Brest",
@@ -213,7 +219,7 @@ bij(armyGraph, "Paris", "Burgundy");
 bij(armyGraph, "Paris", "Picardy");
 bij(armyGraph, "Burgundy", "Picardy");
 bij(armyGraph, "Burgundy", "Belgium");
-bij(armyGraph, "Burgundy", "Alasace");
+bij(armyGraph, "Burgundy", "Alsace");
 bij(armyGraph, "Burgundy", "Switzerland");
 bij(armyGraph, "Picardy", "Belgium");
 

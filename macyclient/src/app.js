@@ -4,6 +4,7 @@ import Board from './board';
 import {resolve} from './resolve';
 import OrdersList from './orders-list';
 import SupplyCenters from './supply-centers';
+import KeyBindings from './keybindings';
 
 
 class App extends React.Component {
@@ -16,24 +17,35 @@ class App extends React.Component {
             targetUnitTerritory: false,
             selectionMode: "unit", 
             orderMode: "move",
+            showKeybindings: false,
             additionalOrders: {},
             additionalTurns: [[]]
         };
     }
     componentDidMount() {
         window.onkeydown = (e) => {
-            if (e.keyCode === 77) {
+            if (e.keyCode === 77) { // m
                 this.setState({orderMode: "move"});
-            } else if (e.keyCode === 83) {
+            } else if (e.keyCode === 83) { // s
                 this.setState({orderMode: "support"});
-            } else if (e.keyCode === 67) {
+            } else if (e.keyCode === 67) { // c
                 this.setState({orderMode: "convoy"});
-            } else if (e.keyCode === 65) {
+            } else if (e.keyCode === 65) { // a
                 this.setState({orderMode: "build army"});
-            } else if (e.keyCode === 70) {
+            } else if (e.keyCode === 70) { // f
                 this.setState({orderMode: "build fleet"});
-            } else if (e.keyCode === 68) {
+            } else if (e.keyCode === 68) { // d
                 this.setState({orderMode: "disband"});
+            } else if (e.keyCode === 191) { // /?
+                this.setState({showKeybindings: !this.state.showKeybindings});
+            } else if (e.keyCode === 78) { // n
+                this.goForward();
+            } else if (e.keyCode === 80) { // p
+                this.goBack();
+            } else if (e.keyCode === 82) { // r
+                this.resolveOrders();
+            } else if (e.keyCode === 88) { // x
+                this.revertToCurrentTurn();
             }
         };
     }
@@ -42,7 +54,10 @@ class App extends React.Component {
         let gameState = JSON.parse(JSON.stringify(boardSpec.startingGameState));
         let turns = this.props.session.turns.concat(this.state.additionalTurns);
         for (let orders of turns.slice(0, this.state.turn)) {
+            console.log(orders);
+            console.log(gameState);
             gameState = resolve(boardSpec, gameState, orders);
+            console.log(gameState);
         }
         return gameState;
     };
@@ -79,6 +94,57 @@ class App extends React.Component {
         }
         return buildPoints;
     };
+
+    goBack = () => {
+        this.setState({turn: Math.max(0, this.state.turn -1)});
+    };
+
+    goForward = () => {
+        let turns = this.props.session.turns.concat(this.state.additionalTurns);
+        this.setState({
+            turn: Math.min(
+                turns.length - 1, this.state.turn + 1)
+        });
+    };
+
+    revertToCurrentTurn = () => {
+        if (this.state.turn < this.props.session.turns.length){
+            return;
+        }
+        const newLastAdditionalTurn = this.state.turn - this.props.session.turns.length;
+        this.state.additionalTurns.length = newLastAdditionalTurn + 1;
+        let theseOrders = this.state.additionalTurns[newLastAdditionalTurn];
+        let additionalOrders = {}
+        for (let order of theseOrders) {
+            additionalOrders[order.unit] = order;
+        }
+        theseOrders.length = 0;
+        this.setState({
+            additionalOrders: additionalOrders,
+            additionalTurns: this.state.additionalTurns,
+            turn: this.state.turn
+        });
+    };
+
+    resolveOrders = () => {
+        let turns = this.props.session.turns.concat(this.state.additionalTurns);
+        let orders = turns[this.state.turn];
+        let orderable = orders.length === 0;
+        if (orderable){
+            orders = Object.values(this.state.additionalOrders);
+        }
+        if (!orderable || this.state.turn != turns.length - 1){
+            return;
+        }
+        this.state.additionalTurns[this.state.additionalTurns.length - 1].push(...orders);
+        this.state.additionalTurns.push([]);
+        this.setState({
+            additionalOrders: {},
+            additionalTurns: this.state.additionalTurns,
+            turn: this.state.turn + 1
+        });
+    };
+
     clickTerritory = (territory) => {
         let boardSpec = this.props.session.boardSpec;
         let gameState = this.getCurrentGameState();
@@ -216,8 +282,13 @@ class App extends React.Component {
         if (orderable){
             orders = Object.values(this.state.additionalOrders);
         }
+        let keybindings = <span/>;
+        if (this.state.showKeybindings){
+            keybindings = <KeyBindings/>;
+        }
         return (
             <div>
+                {keybindings}
                 <h1>{this.props.session.title} ({boardSpec.title})</h1>
                 <p className="saveload">
                     <a onClick={(e)=>{
@@ -232,7 +303,7 @@ class App extends React.Component {
                 </p>
                 <div className="main">
                     <div className="board-container">
-                        <Board clickTerritory={this.clickTerritory} orders={this.state.showOrders ? orders : []} boardSpec={boardSpec} gameState={gameState} selectedTerritory={orderable ? this.state.selectedTerritory : false}/>
+                        <Board clickTerritory={this.clickTerritory} orders={this.state.showOrders ? orders : []} boardSpec={boardSpec} gameState={gameState} orderMode={this.state.orderMode} selectedTerritory={orderable ? this.state.selectedTerritory : false}/>
                         <SupplyCenters boardSpec={boardSpec} gameState={gameState} />
                     </div>
                     <OrdersList
@@ -243,45 +314,16 @@ class App extends React.Component {
                         gameState={gameState}
                         showOrders={this.state.showOrders}
                         orderMode={this.state.orderMode}
-                        resolveOrders={()=>{
-                            this.state.additionalTurns[this.state.additionalTurns.length - 1].push(...orders);
-                            this.state.additionalTurns.push([]);
-                            this.setState({
-                                additionalOrders: {},
-                                additionalTurns: this.state.additionalTurns,
-                                turn: this.state.turn + 1
-                            });
-                        }}
-                        revertOrders={()=>{
-                            const newLastAdditionalTurn = this.state.turn - this.props.session.turns.length;
-                            this.state.additionalTurns.length = newLastAdditionalTurn + 1;
-                            let theseOrders = this.state.additionalTurns[newLastAdditionalTurn];
-                            let additionalOrders = {}
-                            for (let order of theseOrders) {
-                                additionalOrders[order.unit] = order;
-                            }
-                            theseOrders.length = 0;
-                            this.setState({
-                                additionalOrders: additionalOrders,
-                                additionalTurns: this.state.additionalTurns,
-                                turn: this.state.turn
-                            });
-                        }}
+                        resolveOrders={this.resolveOrders}
+                        revertOrders={this.revertToCurrentTurn}
                         setOrderMode={(orderMode)=>{
                             this.setState({orderMode: orderMode});
                         }}
                         toggleShowOrders={()=>{
                             this.setState({showOrders: !this.state.showOrders});
                         }}
-                        goBack={()=>{
-                            this.setState({turn: Math.max(0, this.state.turn -1)});
-                        }}
-                        goForward={()=>{
-                            this.setState({
-                                turn: Math.min(
-                                    turns.length - 1, this.state.turn + 1)
-                            });
-                        }}/>
+                        goBack={this.goBack}
+                        goForward={this.goForward}/>
                 </div>
             </div>
         );

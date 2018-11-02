@@ -13,7 +13,12 @@ class OrdersList extends React.PureComponent {
 
         let resolve = <span/>;
         if (this.props.showResolve){
-            resolve = <div className="resolve-button" onClick={this.props.resolveOrders}>Resolve</div>;
+            resolve = <div className="resolve-button" onClick={this.props.resolveOrders}>Resolve Orders</div>;
+        }
+
+        let revert = <span/>;
+        if (this.props.showRevert){
+            revert = <div className="resolve-button" onClick={this.props.revertOrders}>Revert To This Season</div>;
         }
 
         return (
@@ -64,6 +69,7 @@ class OrdersList extends React.PureComponent {
                     }
                 })}
                 {resolve}
+                {revert}
             </div>
         );
     }

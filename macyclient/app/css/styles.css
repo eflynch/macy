@@ -99,6 +99,28 @@ body {
     color: white;
 }
 
+.order-list .resolve-button {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin-top: 30px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: red;
+    border-radius: 5px;
+    font-family: "Italiana";
+    text-align: center;
+    color: red;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.order-list .resolve-button:hover {
+    background-color: white;
+    color: black;
+    border-color: black;
+}
+
 li {
     list-style: none;
 }

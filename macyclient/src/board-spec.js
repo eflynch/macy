@@ -252,6 +252,12 @@ bij(armyGraph, "Kiel", "Denmark");
 bij(armyGraph, "Kiel", "Berlin");
 bij(armyGraph, "Berlin", "Silesia");
 bij(armyGraph, "Berlin", "Prussia");
+bij(armyGraph, "Silesia", "Bohemia");
+bij(armyGraph, "Silesia", "Warsaw");
+bij(armyGraph, "Silesia", "Galacia");
+bij(armyGraph, "Silesia", "Prussia");
+bij(armyGraph, "Prussia", "Livonia");
+bij(armyGraph, "Prussia", "Warsaw");
 
 bij(armyGraph, "Denmark", "Sweden");
 bij(armyGraph, "Sweden", "Norway");

@@ -211,7 +211,6 @@ class App extends React.Component {
         let boardSpec = this.props.session.boardSpec;
         let gameState = this.getCurrentGameState();
         let turns = this.props.session.turns.concat(this.state.additionalTurns);
-        console.log(turns, this.state.turn);
         let orders = turns[this.state.turn];
         let orderable = orders.length === 0;
         if (orderable){
@@ -238,6 +237,7 @@ class App extends React.Component {
                     </div>
                     <OrdersList
                         showResolve={orderable && this.state.turn == turns.length - 1}
+                        showRevert={this.state.turn < turns.length - 1 && this.state.turn >= this.props.session.turns.length}
                         orders={orders}
                         boardSpec={boardSpec}
                         gameState={gameState}
@@ -250,6 +250,21 @@ class App extends React.Component {
                                 additionalOrders: {},
                                 additionalTurns: this.state.additionalTurns,
                                 turn: this.state.turn + 1
+                            });
+                        }}
+                        revertOrders={()=>{
+                            const newLastAdditionalTurn = this.state.turn - this.props.session.turns.length;
+                            this.state.additionalTurns.length = newLastAdditionalTurn + 1;
+                            let theseOrders = this.state.additionalTurns[newLastAdditionalTurn];
+                            let additionalOrders = {}
+                            for (let order of theseOrders) {
+                                additionalOrders[order.unit] = order;
+                            }
+                            theseOrders.length = 0;
+                            this.setState({
+                                additionalOrders: additionalOrders,
+                                additionalTurns: this.state.additionalTurns,
+                                turn: this.state.turn
                             });
                         }}
                         setOrderMode={(orderMode)=>{

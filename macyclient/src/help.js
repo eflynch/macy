@@ -17,6 +17,7 @@ class Help extends React.PureComponent {
                     This an online implementation of a well-known classic game of international intrigue.
                     Please send any complaints directly to the President of the United States.
                     Contact the author, Evan Lynch, with praise or gifts.
+                    View the source on GitHub <a href="https://github.com/eflynch/macy">here</a>.
                 </p>
                 <div style={{display:"flex", flexDirection:"row", flexWrap:"wrap", maxHeight:1000}}>
                     <HelpSection>

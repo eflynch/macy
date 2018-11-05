@@ -559,8 +559,8 @@ let dip1900 = {
                 supplyCenters: ["Naples", "Milan", "Rome"],
             },
             "Austria Hungary": {
-                fleet: ["Trieste"],
-                army: ["Vienna", "Budapest"],
+                fleet: [],
+                army: ["Trieste", "Vienna", "Budapest"],
                 supplyCenters: ["Trieste", "Vienna", "Budapest"]
             },
             "Turkey": {

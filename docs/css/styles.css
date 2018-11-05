@@ -52,7 +52,7 @@ body {
 }
 
 .order-power {
-    display: inline-block;
+    margin-top: 10px;
     width: 100px;
     font-size: 10px;
 }

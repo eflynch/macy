@@ -1,5 +1,42 @@
 import React from 'react';
 
+let Order = (props) => {
+    let {order} = props;
+    let unit = order.unit ? order.unit.toLowerCase(): undefined;
+    let target = order.target ? order.target.toLowerCase() : undefined;
+    let targetUnit = order.targetUnit ? order.targetUnit.toLowerCase() : undefined;
+    if (order.action === "Move") {
+        if (order.viaConvoy){
+            return <div>{unit} ⤼ {target}</div>;
+        }
+        return <div>{unit} → {target}</div>;
+    }
+
+    if (order.action === "Support") {
+        if (order.target) {
+            return <div>{unit} S {targetUnit} → {target}</div>;
+        } else {
+            return <div>{unit} S {targetUnit} H</div>;
+        }
+    }
+
+    if (order.action === "Hold") {
+        return <div>{unit} H</div>;
+    }
+
+    if (order.action === "Convoy") {
+        return <div>{unit} C {targetUnit} → {target}</div>;
+    }
+
+    if (order.action === "Build") {
+        return <div>build {order.unitType} {order.unit}</div>;
+    }
+
+    if (order.action === "Disband") {
+        return <div>disband {unit}</div>;
+    }
+};
+
 class OrdersList extends React.PureComponent {
     render () {
         let showOrdersIcon = <span>[&nbsp;&nbsp;]</span>;
@@ -21,9 +58,15 @@ class OrdersList extends React.PureComponent {
             revert = <div className="revert-button" onClick={this.props.revertOrders}>Revert To This Season</div>;
         }
 
-        // TODO: Doesn't work yet
-        let orders = this.props.orders.concat().sort((a, b)=>a.power > b.power);
-
+        let orders = {};
+        for (let order of this.props.orders) {
+            if (orders.hasOwnProperty(order.power)) {
+                orders[order.power].push(order);
+            } else {
+                orders[order.power] = [order];
+            }
+        }
+        let powersWithOrders = Object.keys(orders);
 
         return (
             <div className="order-list">
@@ -38,39 +81,12 @@ class OrdersList extends React.PureComponent {
                     <span>{this.props.gameState.season} {this.props.gameState.year}</span>
                     <span style={{cursor:"pointer"}} onClick={this.props.goForward}>→</span>
                 </div>
-                {orders.map((order, i) => {
-                    let faction = this.props.gameState.factions[order.power];
-                    let color = this.props.boardSpec.factions[order.power].color;
-
-                    let powerCaption = <span className="order-power" >{order.power}</span>;
-
-                    if (order.action === "Move") {
-                        return <div key={i}>{powerCaption} {order.unit} -> {order.target}</div>;
-                    }
-
-                    if (order.action === "Support") {
-                        if (order.target) {
-                            return <div key={i}>{powerCaption} {order.unit} S {order.targetUnit} -> {order.target}</div>;
-                        } else {
-                            return <div key={i}>{powerCaption} {order.unit} S {order.targetUnit} H</div>;
-                        }
-                    }
-
-                    if (order.action === "Hold") {
-                        return <div key={i}>{powerCaption} {order.unit} H</div>;
-                    }
-
-                    if (order.action === "Convoy") {
-                        return <div key={i}>{powerCaption} {order.unit} C {order.targetUnit} -> {order.target}</div>;
-                    }
-
-                    if (order.action === "Build") {
-                        return <div key={i}>{powerCaption} build {order.unitType} {order.unit}</div>;
-                    }
-
-                    if (order.action === "Disband") {
-                        return <div key={i}>{powerCaption} disband {order.unit}</div>;
-                    }
+                {powersWithOrders.map((power) => {
+                    return (
+                        <div key={power}>
+                            <div className="order-power">{power}</div>
+                            {orders[power].map((order, i) => <Order order={order} key={i}/>)}
+                        </div>);
                 })}
                 {resolve}
                 {revert}

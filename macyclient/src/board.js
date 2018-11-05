@@ -39,14 +39,17 @@ class Disband extends React.PureComponent {
 
 class Move extends React.PureComponent {
     render () {
-        let {boardSpec, source, destination} = this.props;
+        let {boardSpec, source, destination, viaConvoy} = this.props;
 
         let [x1, y1] = boardSpec.unitPositions[source];
         let [x2, y2] = boardSpec.unitPositions[destination];
 
+        let color = viaConvoy ? "blue" : "white";
+        let markerEnd = viaConvoy ? "url(#barrow)" : "url(#warrow)";
+
         return (
             <g>
-                <line x1={x1} y1={y1} x2={x2} y2={y2} style={{stroke: "white", strokeWidth:12}} markerEnd="url(#arrow)"/>
+                <line x1={x1} y1={y1} x2={x2} y2={y2} style={{stroke: color, strokeWidth:12}} markerEnd={markerEnd}/>
             </g>
         );
     }
@@ -133,7 +136,7 @@ class Board extends React.Component {
 
         let underTokens = orders.map((order, i) => {
             if (order.action === "Move") {
-                return <Move key={i} boardSpec={boardSpec} source={order.unit} destination={order.target} />;
+                return <Move key={i} boardSpec={boardSpec} source={order.unit} destination={order.target} viaConvoy={order.viaConvoy} />;
             }
             if (order.action === "Hold") {
                 return <Hold key={i} boardSpec={boardSpec} territory={order.unit} size={100}/>;
@@ -237,8 +240,11 @@ class Board extends React.Component {
             <div className="board">
                 <svg ref={d=>this.svgDiv=d} width="100%" height="100%" viewBox={`0 0 ${boardSpec.boardSize[0]} ${boardSpec.boardSize[1]}`}>
                     <defs>
-                        <marker id="arrow" markerWidth={arrowWidth} markerHeight={arrowHeight} refX={arrowWidth / 2 - 1} refY={arrowHeight / 2} orient="auto" markerUnits="strokeWidth">
+                        <marker id="warrow" markerWidth={arrowWidth} markerHeight={arrowHeight} refX={arrowWidth / 2 - 1} refY={arrowHeight / 2} orient="auto" markerUnits="strokeWidth">
                             <path d={`M0,0 L0,${arrowHeight} L${arrowWidth / 2},${arrowHeight / 2} z`} fill="#fff" />
+                        </marker>
+                        <marker id="barrow" markerWidth={arrowWidth} markerHeight={arrowHeight} refX={arrowWidth / 2 - 1} refY={arrowHeight / 2} orient="auto" markerUnits="strokeWidth">
+                            <path d={`M0,0 L0,${arrowHeight} L${arrowWidth / 2},${arrowHeight / 2} z`} fill="#00f" />
                         </marker>
                     </defs>
                     <image href={boardSpec.boardImage} x="0" y="0"></image>

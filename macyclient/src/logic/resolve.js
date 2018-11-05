@@ -45,7 +45,7 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
                 if (unitType !== "fleet") {
                     return false;
                 }
-                if (!boardSpec.seas.includes(order.unit)) {
+                if (!boardSpec.canConvoy.includes(order.unit)) {
                     return false;
                 }
             }

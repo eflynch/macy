@@ -4,7 +4,7 @@ import Board from './board';
 import {resolve} from './logic/resolve';
 import OrdersList from './orders-list';
 import SupplyCenters from './supply-centers';
-import KeyBindings from './keybindings';
+import Help from './help';
 
 
 class App extends React.Component {
@@ -17,7 +17,7 @@ class App extends React.Component {
             targetUnitTerritory: false,
             selectionMode: "unit", 
             orderMode: "move",
-            showKeybindings: false,
+            showHelp: false,
             additionalOrders: {},
             additionalTurns: [[]]
         };
@@ -39,7 +39,7 @@ class App extends React.Component {
             } else if (e.keyCode === 68) { // d
                 this.setState({orderMode: "disband"});
             } else if (e.keyCode === 191) { // /?
-                this.setState({showKeybindings: !this.state.showKeybindings});
+                this.toggleHelp();
             } else if (e.keyCode === 78) { // n
                 this.goForward();
             } else if (e.keyCode === 80) { // p
@@ -48,9 +48,16 @@ class App extends React.Component {
                 this.resolveOrders();
             } else if (e.keyCode === 88) { // x
                 this.revertToCurrentTurn();
+            } else if (e.keyCode === 76) { // l
+                this.loadSession();
+            } else if (e.keyCode === 83) { // r
+                this.saveSession();
             }
         };
     }
+    toggleHelp = () => {
+        this.setState({showHelp: !this.state.showHelp});
+    };
     getCurrentGameState = () => {
         let boardSpec = this.props.session.boardSpec;
         let gameState = JSON.parse(JSON.stringify(boardSpec.startingGameState));
@@ -272,6 +279,18 @@ class App extends React.Component {
             }
         }
     };
+
+    saveSession = ()=>{
+        let session_copy = JSON.parse(JSON.stringify(this.props.session));
+        session_copy.boardSpec = "<removed to save space>";
+        session_copy.turns = session_copy.turns.concat(this.state.additionalTurns);
+        this.props.saveSession(session_copy);
+    };
+
+    loadSession = ()=> {
+        this.props.loadSession();
+    };
+
     render () {
         let boardSpec = this.props.session.boardSpec;
         let gameState = this.getCurrentGameState();
@@ -282,23 +301,18 @@ class App extends React.Component {
             orders = Object.values(this.state.additionalOrders);
         }
         let keybindings = <span/>;
-        if (this.state.showKeybindings){
-            keybindings = <KeyBindings/>;
+        if (this.state.showHelp){
+            keybindings = <Help/>;
         }
         return (
             <div>
                 {keybindings}
                 <h1>{this.props.session.title} ({boardSpec.title})</h1>
                 <p className="saveload">
-                    <a onClick={(e)=>{
-                        let session_copy = JSON.parse(JSON.stringify(this.props.session));
-                        session_copy.boardSpec = "<removed to save space>";
-                        session_copy.turns = session_copy.turns.concat(this.state.additionalTurns);
-                        this.props.saveSession(session_copy);
-                    }}>save session to clipboard</a>
-                    <a onClick={(e)=>{
-                        this.props.loadSession();
-                    }}>load session from clipboard</a>
+                    <a onClick={this.toggleHelp}>help</a>
+                    clipboard: <span/> 
+                    <a onClick={this.saveSession}>save</a>
+                    <a onClick={this.loadSession}>load</a>
                 </p>
                 <div className="main">
                     <div className="board-container">

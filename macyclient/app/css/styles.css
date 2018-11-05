@@ -3,7 +3,8 @@ body {
     padding: 10px;
 }
 
-.keybindings {
+.help {
+    max-height: 80vh;
     padding: 30px;
     position: fixed;
     margin: 20px;
@@ -12,18 +13,20 @@ body {
     border-radius: 10px;
     bottom: 0px;
     right: 0px;
+    overflow: auto;
 }
 
-.keybindings th {
+.help th {
     text-align: left;
 }
 
 .saveload {
+    user-select: none;
     margin: 0px;
+    font-size: 11px;
 }
 
 .saveload a {
-    font-size: 11px;
     padding-right: 10px;
     color: red;
     cursor: pointer;

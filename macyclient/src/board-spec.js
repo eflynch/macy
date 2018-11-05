@@ -796,7 +796,7 @@ let dip1900 = {
         "Galacia": [1418, 1129],
         "Budapest": [1355, 1321]
     },
-    seas: seas,
+    canConvoy: seas,
     graph: {
         army: armyGraph,
         fleet: fleetGraph

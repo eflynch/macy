@@ -7,7 +7,7 @@ class OrdersList extends React.PureComponent {
             showOrdersIcon = <span>[x]</span>;
         }
 
-        const orderModes = ["Move", "Support", "Convoy", "Build Army", "Build Fleet", "Disband"];
+        const orderModes = ["Move", "Move (Convoy)", "Support", "Convoy", "Build Army", "Build Fleet", "Disband"];
 
         let {orderMode, setOrderMode} = this.props;
 
@@ -20,6 +20,10 @@ class OrdersList extends React.PureComponent {
         if (this.props.showRevert){
             revert = <div className="revert-button" onClick={this.props.revertOrders}>Revert To This Season</div>;
         }
+
+        // TODO: Doesn't work yet
+        let orders = this.props.orders.concat().sort((a, b)=>a.power > b.power);
+
 
         return (
             <div className="order-list">
@@ -34,7 +38,7 @@ class OrdersList extends React.PureComponent {
                     <span>{this.props.gameState.season} {this.props.gameState.year}</span>
                     <span style={{cursor:"pointer"}} onClick={this.props.goForward}>→</span>
                 </div>
-                {this.props.orders.map((order, i) => {
+                {orders.map((order, i) => {
                     let faction = this.props.gameState.factions[order.power];
                     let color = this.props.boardSpec.factions[order.power].color;
 

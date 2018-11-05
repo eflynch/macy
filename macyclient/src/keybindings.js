@@ -15,6 +15,10 @@ class KeyBindings extends React.PureComponent {
                         <td>Move</td> 
                     </tr>
                     <tr>
+                        <td>v</td>
+                        <td>Move (Convoy)</td> 
+                    </tr>
+                    <tr>
                         <td>s</td>
                         <td>Support</td> 
                     </tr>

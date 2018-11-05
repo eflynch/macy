@@ -180,7 +180,8 @@ let seas = [
     "Aegean Sea",
     "Adriatic Sea",
     "Eastern Mediterranean",
-    "Black Sea"
+    "Black Sea",
+    "Gibraltar"
 ];
 
 let multiCoast = [

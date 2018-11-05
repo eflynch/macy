@@ -12,6 +12,7 @@ class Graph {
         g.nodes = new Set(this.nodes);
         g.edges = new Map(this.edges);
         g.distances = new Map(this.distances);
+        return g;
     }
 
     addNode(value){
@@ -19,8 +20,8 @@ class Graph {
     }
 
     removeNode(value){
-        this.nodes.remove(value);
-        this.edges.forEach((fromNode, toNodes) => {
+        this.nodes.delete(value);
+        this.edges.forEach((toNodes, fromNode) => {
             if (toNodes.has(value)) {
                 toNodes.delete(value);
             }

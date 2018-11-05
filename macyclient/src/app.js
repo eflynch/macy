@@ -1,7 +1,7 @@
 import React from 'react';
 
 import Board from './board';
-import {resolve} from './resolve';
+import {resolve} from './logic/resolve';
 import OrdersList from './orders-list';
 import SupplyCenters from './supply-centers';
 import KeyBindings from './keybindings';
@@ -26,6 +26,8 @@ class App extends React.Component {
         window.onkeydown = (e) => {
             if (e.keyCode === 77) { // m
                 this.setState({orderMode: "move"});
+            } else if (e.keyCode === 86) { // v
+                this.setState({orderMode: "move (convoy)"});
             } else if (e.keyCode === 83) { // s
                 this.setState({orderMode: "support"});
             } else if (e.keyCode === 67) { // c
@@ -54,10 +56,7 @@ class App extends React.Component {
         let gameState = JSON.parse(JSON.stringify(boardSpec.startingGameState));
         let turns = this.props.session.turns.concat(this.state.additionalTurns);
         for (let orders of turns.slice(0, this.state.turn)) {
-            console.log(orders);
-            console.log(gameState);
             gameState = resolve(boardSpec, gameState, orders);
-            console.log(gameState);
         }
         return gameState;
     };
@@ -214,7 +213,7 @@ class App extends React.Component {
                     this.setState({selectedTerritory: territory});
                 }
             }
-        } else if (this.state.orderMode === "move") {
+        } else if (this.state.orderMode === "move" || this.state.orderMode === "move (convoy)") {
             if (this.state.selectedTerritory) {
                 if (this.state.selectedTerritory === territory) {
                     this.state.additionalOrders[this.state.selectedTerritory] = {
@@ -229,7 +228,7 @@ class App extends React.Component {
                         unit: this.state.selectedTerritory,
                         action: "Move",
                         target: territory,
-                        viaConvoy: false
+                        viaConvoy: this.state.orderMode === "move (convoy)" 
                     };
                 }
                 this.setState({additionalOrders: this.state.additionalOrders});

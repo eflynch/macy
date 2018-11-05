@@ -25,6 +25,8 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
 
             if (order.action === "Move") {
                 if (!order.viaConvoy && boardSpec.graph[unitType].distance(order.unit, order.target) != 1) {
+                    console.log("Invalid move", order);
+                    console.log(boardSpec.graph.fleet);
                     return false;
                 }
             }
@@ -177,7 +179,6 @@ let filterFailedConvoyMovesAndCutSupportOrdersByConvoyed = (boardSpec, gameState
             let {moveOrder, convoyers} = convoyPair;
             let safeConvoyers = convoyers.filter((c)=>!Object.keys(dislodgedConvoyerMap).includes(c));
             let fleetSubGraph = boardSpec.graph.fleet.clone();
-            // TODO: clone doesn't work yet
             fleetSubGraph.removeAllBut(convoyers.concat([moveOrder.unit, moveOrder.target]));
             if (fleetSubGraph.distance(moveOrder.unit, moveOrder.target)) {
                 done = cutSupports(moveOrder);

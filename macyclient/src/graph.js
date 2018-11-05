@@ -9,9 +9,15 @@ class Graph {
 
     clone() {
         let g = new Graph();
-        g.nodes = new Set(this.nodes);
-        g.edges = new Map(this.edges);
-        g.distances = new Map(this.distances);
+        for (let node of this.nodes) {
+            g.addNode(node);
+        }
+        for (let edge of this.edges) {
+            let [fromNode, toNodes] = edge;
+            for (let toNode of toNodes) {
+                g.addEdge(fromNode, toNode, this.distances.get(makeKey(fromNode, toNode)));
+            }
+        }
         return g;
     }
 
@@ -123,5 +129,6 @@ var dijsktra = function(graph, initial) {
     return {visited, path};
 }
 window.dijsktra = dijsktra;
+window.graph = Graph;
 
 module.exports = Graph;

@@ -6,7 +6,7 @@ class Unit extends React.PureComponent {
         let {boardSpec, faction, unitType, size, territory} = this.props;
         let [x, y] = boardSpec.unitPositions[territory];
         return (
-            <image href={boardSpec.factions[faction].unitImages[unitType]} x={x-size*0.5} y={y-size*0.5} width={size} height={size} />
+            <image xlinkHref={boardSpec.factions[faction].unitImages[unitType]} x={x-size*0.5} y={y-size*0.5} width={size} height={size} />
         );
     }
 }
@@ -18,7 +18,7 @@ class Build extends React.PureComponent {
         return (
             <g>
                 <circle cx={x+2} cy={y+2} r={size * 0.5} style={{fillOpacity: 0.2, fill: "green"}}/>
-                <image style={{opacity: 1.0}} href={boardSpec.factions[faction].unitImages[unitType]} x={x-size*0.5} y={y-size*0.5} width={size} height={size} />
+                <image style={{opacity: 1.0}} xlinkHref={boardSpec.factions[faction].unitImages[unitType]} x={x-size*0.5} y={y-size*0.5} width={size} height={size} />
             </g>
         );
     }
@@ -247,7 +247,7 @@ class Board extends React.Component {
                             <path d={`M0,0 L0,${arrowHeight} L${arrowWidth / 2},${arrowHeight / 2} z`} fill="#00f" />
                         </marker>
                     </defs>
-                    <image href={boardSpec.boardImage} x="0" y="0"></image>
+                    <image xlinkHref={boardSpec.boardImage} x="0" y="0" width={boardSpec.boardSize[0]} height={boardSpec.boardSize[1]}></image>
                     {territories}
                     <g className="tokens">
                         {underTokens}

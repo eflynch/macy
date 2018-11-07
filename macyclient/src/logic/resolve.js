@@ -7,6 +7,13 @@ let removeFromArray = (array, item) => {
     if (index !== -1) array.splice(index, 1);
 };
 
+let strip_coast = (fleet) => {
+    return fleet
+        .replace(" :: NC", "")
+        .replace(" :: SC", "")
+        .replace(" :: WC", "")
+        .replace(" :: EC", "");
+}
 
 // removes orders that are malformed (not orders that FAIL)
 let filterInvalidOrders = (boardSpec, gameState, orders) => {
@@ -32,7 +39,8 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
             }
             if (order.action === "Support") {
                 if (order.target !== undefined && order.target !== null) { // Move Support
-                    if (boardSpec.graph[unitType].distance(order.unit, order.target) != 1) {
+                    let target = unitType === "army" ? strip_coast(order.target) : order.target;
+                    if (boardSpec.graph[unitType].distance(order.unit, target) != 1) {
                         return false;
                     }
                 } else { // Hold Support
@@ -196,17 +204,6 @@ let filterFailedConvoyMovesAndCutSupportOrdersByConvoyed = (boardSpec, gameState
     // Any remaining convoys in convoyMap fail
 };
 
-
-
-let strip_coast = (fleet) => {
-    return fleet
-        .replace(" :: NC", "")
-        .replace(" :: SC", "")
-        .replace(" :: WC", "")
-        .replace(" :: EC", "");
-}
-
-
 // This assumes all remaining move orders are valid
 // And all remaining support orders are NOT cut
 let generateConflictGraph = (boardSpec, gameState, orders) => {
@@ -238,6 +235,7 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
                         power: order.power,
                         source: order.unit,
                         destination: target,
+                        realDestination: order.target,
                         viaConvoy: order.viaConvoy,
                         supporters: []
                     }
@@ -249,6 +247,7 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
                         power: order.power,
                         source: order.unit,
                         destination: target,
+                        realDestination: order.target,
                         viaConvoy: order.viaConvoy,
                         supporters: []
                     }
@@ -345,7 +344,7 @@ let resolveUnambiguous = (conflictGraph) => {
         moved.push({
             power: move.power,
             source: move.source,
-            destination: move.destination
+            destination: move.realDestination
         });
         if (conflictGraph.holds[move.source] !== undefined && conflictGraph.holds[move.source].holdStrength === "?") {
             conflictGraph.holds[move.source].holdStrength = 0;
@@ -442,6 +441,7 @@ let resolve = (boardSpec, gameState, orders) => {
         filterFailedConvoyMovesAndCutSupportOrdersByConvoyed(boardSpec, gameState, validOrders);
 
         let conflictGraph = generateConflictGraph(boardSpec, gameState, validOrders);
+        console.log(JSON.parse(JSON.stringify(conflictGraph)));
         resolveHeadToHead(conflictGraph);
         let {dislodged, moved} = resolveUnambiguous(conflictGraph);
 

@@ -2,6 +2,7 @@ import React from 'react';
 
 import Board from './board';
 import {resolve} from './logic/resolve';
+import utils from './utils';
 import OrdersList from './orders-list';
 import SupplyCenters from './supply-centers';
 import Help from './help';
@@ -16,7 +17,7 @@ class App extends React.Component {
             selectedTerritory: false,
             targetUnitTerritory: false,
             selectionMode: "unit", 
-            orderMode: "move",
+            orderMode: "Move",
             showHelp: false,
             additionalOrders: {},
             additionalTurns: [[]]
@@ -25,19 +26,19 @@ class App extends React.Component {
     componentDidMount() {
         window.onkeydown = (e) => {
             if (e.keyCode === 77) { // m
-                this.setState({orderMode: "move"});
+                this.setState({orderMode: "Move"});
             } else if (e.keyCode === 86) { // v
-                this.setState({orderMode: "move (convoy)"});
+                this.setState({orderMode: "Move (Convoy)"});
             } else if (e.keyCode === 83) { // s
-                this.setState({orderMode: "support"});
+                this.setState({orderMode: "Support"});
             } else if (e.keyCode === 67) { // c
-                this.setState({orderMode: "convoy"});
+                this.setState({orderMode: "Convoy"});
             } else if (e.keyCode === 65) { // a
-                this.setState({orderMode: "build army"});
+                this.setState({orderMode: "Build army"});
             } else if (e.keyCode === 70) { // f
-                this.setState({orderMode: "build fleet"});
+                this.setState({orderMode: "Build fleet"});
             } else if (e.keyCode === 68) { // d
-                this.setState({orderMode: "disband"});
+                this.setState({orderMode: "Disband"});
             } else if (e.keyCode === 191) { // /?
                 this.toggleHelp();
             } else if (e.keyCode === 78) { // n
@@ -54,6 +55,18 @@ class App extends React.Component {
                 this.saveSession();
             }
         };
+        let gameState = this.getCurrentGameState();
+        let orderModes = utils.getAllowedOrderModes(gameState.season);
+        if (!orderModes.includes(this.state.orderMode)) {
+            this.setState({orderMode: orderModes[0]});
+        }
+    }
+    componentDidUpdate() {
+        let gameState = this.getCurrentGameState();
+        let orderModes = utils.getAllowedOrderModes(gameState.season);
+        if (!orderModes.includes(this.state.orderMode)) {
+            this.setState({orderMode: orderModes[0]});
+        }
     }
     toggleHelp = () => {
         this.setState({showHelp: !this.state.showHelp});
@@ -101,16 +114,27 @@ class App extends React.Component {
         return buildPoints;
     };
 
+    setOrderMode = (orderMode) => {
+        let gameState = this.getCurrentGameState();
+        let orderModes = utils.getAllowedOrderModes(gameState.season);
+        if (orderModes.includes(orderMode)) {
+            this.setState({orderMode: orderMode});
+        } else {
+            this.setState({orderMode: orderModes[0]});
+        }
+    };
+
+    setTurn = (turn) => {
+        this.setState({turn: turn});
+    };
+
     goBack = () => {
-        this.setState({turn: Math.max(0, this.state.turn -1)});
+        this.setTurn(Math.max(0, this.state.turn - 1));
     };
 
     goForward = () => {
         let turns = this.props.session.turns.concat(this.state.additionalTurns);
-        this.setState({
-            turn: Math.min(
-                turns.length - 1, this.state.turn + 1)
-        });
+        this.setTurn(Math.min(turns.length - 1, this.state.turn + 1));
     };
 
     revertToCurrentTurn = () => {
@@ -128,7 +152,6 @@ class App extends React.Component {
         this.setState({
             additionalOrders: additionalOrders,
             additionalTurns: this.state.additionalTurns,
-            turn: this.state.turn
         });
     };
 
@@ -147,8 +170,8 @@ class App extends React.Component {
         this.setState({
             additionalOrders: {},
             additionalTurns: this.state.additionalTurns,
-            turn: this.state.turn + 1
         });
+        this.setTurn(this.state.turn + 1);
     };
 
     clickTerritory = (territory) => {
@@ -162,7 +185,7 @@ class App extends React.Component {
         const units = this.getUnitMap(gameState);
         const buildPoints = this.getBuildPoints(boardSpec);
         
-        if (this.state.orderMode === "convoy") {
+        if (this.state.orderMode === "Convoy") {
             if (this.state.selectedTerritory) {
                 if (this.state.selectedTargetUnit) {
                     this.state.additionalOrders[this.state.selectedTerritory] ={
@@ -188,7 +211,7 @@ class App extends React.Component {
                     }
                 }
             }
-        } else if (this.state.orderMode === "support") {
+        } else if (this.state.orderMode === "Support") {
             if (this.state.selectedTerritory) {
                 if (this.state.selectedTargetUnit) {
                     if (this.state.selectedTargetUnit === territory) {
@@ -220,7 +243,7 @@ class App extends React.Component {
                     this.setState({selectedTerritory: territory});
                 }
             }
-        } else if (this.state.orderMode === "move" || this.state.orderMode === "move (convoy)") {
+        } else if (this.state.orderMode === "Move" || this.state.orderMode === "Move (Convoy)") {
             if (this.state.selectedTerritory) {
                 if (this.state.selectedTerritory === territory) {
                     this.state.additionalOrders[this.state.selectedTerritory] = {
@@ -235,7 +258,7 @@ class App extends React.Component {
                         unit: this.state.selectedTerritory,
                         action: "Move",
                         target: territory,
-                        viaConvoy: this.state.orderMode === "move (convoy)" 
+                        viaConvoy: this.state.orderMode === "Move (Convoy)" 
                     };
                 }
                 this.setState({additionalOrders: this.state.additionalOrders});
@@ -245,7 +268,30 @@ class App extends React.Component {
                     this.setState({selectedTerritory: territory});
                 }
             }
-        } else if (this.state.orderMode === "build army") {
+        } else if (this.state.orderMode === "Retreat") {
+            if (this.state.selectedTerritory) {
+                if (this.state.selectedTerritory !== territory) {
+                    let power = false;
+                    for (let dislodgement of gameState.dislodged) {
+                        if (dislodgement.source === this.state.selectedTerritory) {
+                            power = dislodgement.power;
+                        }
+                    }
+                    this.state.additionalOrders[this.state.selectedTerritory] = {
+                        power: power,
+                        unit: this.state.selectedTerritory,
+                        action: "Retreat",
+                        target: territory
+                    };
+                    this.setState({additionalOrders: this.state.additionalOrders});
+                    this.setState({selectedTargetUnit: false, selectedTerritory: false});
+                }
+            } else {
+                if (units[territory] !== undefined) {
+                    this.setState({selectedTerritory: territory});
+                }
+            }
+        } else if (this.state.orderMode === "Build army") {
             if (units[territory] === undefined) {
                 this.state.additionalOrders[territory] = {
                     power: buildPoints[territory].power,
@@ -256,7 +302,7 @@ class App extends React.Component {
                 this.setState({additionalOrders: this.state.additionalOrders});
                 this.setState({selectedTargetUnit: false, selectedTerritory: false});
             }
-        } else if (this.state.orderMode === "build fleet") {
+        } else if (this.state.orderMode === "Build fleet") {
             if (units[territory] === undefined) {
                 this.state.additionalOrders[territory] = {
                     power: buildPoints[territory].power,
@@ -267,7 +313,7 @@ class App extends React.Component {
                 this.setState({additionalOrders: this.state.additionalOrders});
                 this.setState({selectedTargetUnit: false, selectedTerritory: false});
             }
-        } else if (this.state.orderMode === "disband") {
+        } else if (this.state.orderMode === "Disband") {
             if (units[territory] !== undefined) {
                 this.state.additionalOrders[territory] = {
                     power: units[territory].faction,
@@ -282,7 +328,7 @@ class App extends React.Component {
 
     saveSession = ()=>{
         let session_copy = JSON.parse(JSON.stringify(this.props.session));
-        session_copy.boardSpec = "<removed to save space>";
+        session_copy.boardSpec = "<reMoved to save space>";
         session_copy.turns = session_copy.turns.concat(this.state.additionalTurns);
         this.props.saveSession(session_copy);
     };
@@ -316,7 +362,13 @@ class App extends React.Component {
                 </p>
                 <div className="main">
                     <div className="board-container">
-                        <Board clickTerritory={this.clickTerritory} orders={this.state.showOrders ? orders : []} boardSpec={boardSpec} gameState={gameState} orderMode={this.state.orderMode} selectedTerritory={orderable ? this.state.selectedTerritory : false} targetUnitTerritory={this.state.targetUnitTerritory} />
+                        <Board clickTerritory={this.clickTerritory}
+                               orders={this.state.showOrders ? orders : []}
+                               boardSpec={boardSpec}
+                               gameState={gameState}
+                               orderMode={this.state.orderMode}
+                               selectedTerritory={orderable ? this.state.selectedTerritory : false}
+                               targetUnitTerritory={this.state.targetUnitTerritory} />
                         <SupplyCenters boardSpec={boardSpec} gameState={gameState} />
                     </div>
                     <OrdersList
@@ -329,9 +381,7 @@ class App extends React.Component {
                         orderMode={this.state.orderMode}
                         resolveOrders={this.resolveOrders}
                         revertOrders={this.revertToCurrentTurn}
-                        setOrderMode={(orderMode)=>{
-                            this.setState({orderMode: orderMode});
-                        }}
+                        setOrderMode={this.setOrderMode}
                         toggleShowOrders={()=>{
                             this.setState({showOrders: !this.state.showOrders});
                         }}

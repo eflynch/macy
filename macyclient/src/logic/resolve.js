@@ -17,8 +17,45 @@ let strip_coast = (fleet) => {
 
 // removes orders that are malformed (not orders that FAIL)
 let filterInvalidOrders = (boardSpec, gameState, orders) => {
+    const factions = Object.keys(gameState.factions);
+
     return orders.filter((order) => {
-        if (order.action === "Build") {
+        if (order.action === "Retreat") {
+            if (order.action === "Retreat") {
+
+                let thisDislodgement = false;
+                for (let dislodgement of gameState.dislodged) {
+                    if (dislodgement.source === order.unit && dislodgement.power === order.power) {
+                        thisDislodgement = dislodgement;
+                        if (order.target === dislodgement.restriction){
+                            console.log("invalid retreat", order);
+                            return false;
+                        }
+                    }
+                }
+                if (!thisDislodgement){
+                    console.log("Invalid retreat", order);
+                    return false;
+                }
+                for (let faction of factions) {
+                    for (let unit of gameState.factions[faction][thisDislodgement.unitType]) {
+                        if (strip_coast(unit) === strip_coast(order.target)) {
+                            console.log("Invalid retreat", order);
+                            return false;
+                        }
+                    }
+                }
+                if (boardSpec.graph[thisDislodgement.unitType].distance(order.unit, order.target) != 1) {
+                    console.log("Invalid retreat", order);
+                    return false;
+                }
+                if (gameState.retreatRestrictions.includes(order.target)){
+                    console.log("Invalid retreat", order);
+                    return false;
+                }
+                order.unitType = thisDislodgement.unitType;
+            }
+        } else if (order.action === "Build") {
 
         } else {
             let unitType;
@@ -27,6 +64,7 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
             } else if (gameState.factions[order.power].fleet.includes(order.unit)) {
                 unitType = "fleet";
             } else {
+                console.log("Not a real unit");
                 return false;
             }
 
@@ -37,6 +75,8 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
                     return false;
                 }
             }
+
+            
             if (order.action === "Support") {
                 if (order.target !== undefined && order.target !== null) { // Move Support
                     let target = unitType === "army" ? strip_coast(order.target) : order.target;
@@ -213,12 +253,14 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
         gameState.factions[faction].army.forEach((a) => {holds[a] = {
             holdStrength: 1,
             power: faction,
-            unit: a
+            unit: a,
+            unitType: "army"
         };});
         gameState.factions[faction].fleet.forEach((f) => {holds[strip_coast(f)] = {
             holdStrength: 1,
             power: faction,
-            unit: strip_coast(f)
+            unit: strip_coast(f),
+            unitType: "fleet"
         };});
     }
 
@@ -263,10 +305,12 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
             let targetUnit = strip_coast(order.targetUnit);
             if (order.target !== undefined && order.target !== null) {
                 let target = strip_coast(order.target);
-                for (let move of moves[target]) {
-                    if (move.source === order.targetUnit) {
-                        move.moveStrength += 1;
-                        move.supporters.push(order.unit);
+                if (moves[target] !== undefined) {
+                    for (let move of moves[target]) {
+                        if (move.source === order.targetUnit) {
+                            move.moveStrength += 1;
+                            move.supporters.push(order.unit);
+                        }
                     }
                 }
             } else {
@@ -286,17 +330,9 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
 let resolveHeadToHead = (conflictGraph) => {
     const moveDests = Object.keys(conflictGraph.moves);
 
-    let dislodged = [];
     let cancel = (move) => {
-        if (conflictGraph.holds[move.source].holdStrength !== "?") {
-            dislodged.push({
-                source: move.source,
-                restriction: conflictGraph.holds[move.source].unitOrigin
-            });
-        } else {
-            conflictGraph.holds[move.source].holdStrength = 1;
-            removeFromArray(conflictGraph.moves[move.destination], move);
-        }
+        conflictGraph.holds[move.source].holdStrength = 1;
+        removeFromArray(conflictGraph.moves[move.destination], move);
     }
     for (let dest of moveDests) {
         for (let move of conflictGraph.moves[dest]) {
@@ -331,7 +367,9 @@ let resolveUnambiguous = (conflictGraph) => {
     let cancel = (move) => {
         if (conflictGraph.holds[move.source].holdStrength !== "?") {
             dislodged.push({
+                power: conflictGraph.holds[move.source].power,
                 source: move.source,
+                unitType: conflictGraph.holds[move.source].unitType,
                 restriction: conflictGraph.holds[move.source].unitOrigin
             });
         } else {
@@ -351,7 +389,9 @@ let resolveUnambiguous = (conflictGraph) => {
         }
         if (conflictGraph.holds[move.destination] !== undefined && conflictGraph.holds[move.destination].holdStrength >= 1) {
             dislodged.push({
+                power: conflictGraph.holds[move.destination].power,
                 source: move.destination,
+                unitType: conflictGraph.holds[move.destination].unitType,
                 restriction: move.source
             });
         }
@@ -388,15 +428,27 @@ let resolveUnambiguous = (conflictGraph) => {
                         continue;
                     }
 
+                    let toSucceed = [];
+                    let toCancel = [];
                     for (let move of conflictGraph.moves[dest]) {
                         if (move.moveStrength === maxMoveStrength) {
-                            succeed(move);
+                            toSucceed.push(move);
                         } else {
-                            cancel(move);
+                            toCancel.push(move);
                         }
                     }
+                    for (let move of toSucceed){
+                        succeed(move);
+                    }
+                    for (let move of toCancel){
+                        cancel(move);
+                    }
                 } else {
+                    let toCancel = [];
                     for (let move of conflictGraph.moves[dest]) {
+                        toCancel.push(move);
+                    }
+                    for (let move of toCancel){
                         cancel(move);
                     }
                 }
@@ -405,7 +457,11 @@ let resolveUnambiguous = (conflictGraph) => {
                 continue;
             }
             if (maxMoveStrength <= minHoldStrength) {
+                let toCancel = [];
                 for (let move of conflictGraph.moves[dest]) {
+                    toCancel.push(move);
+                }
+                for (let move of toCancel){
                     cancel(move);
                 }
                 resolvedOne = true;
@@ -432,6 +488,64 @@ let resolveUnambiguous = (conflictGraph) => {
 
 let resolve = (boardSpec, gameState, orders) => {
     let newGameState = JSON.parse(JSON.stringify(gameState));
+    console.log(gameState.season);
+
+    if (["Spring Retreat", "Fall Retreat"].includes(gameState.season)) {
+        let validOrders = filterInvalidOrders(boardSpec, gameState, orders);
+
+        let retreats = {};
+        let disbands = [];
+        let managedDislodgements = [];
+        for (let order of validOrders) {
+            if (order.action === "Retreat") {
+                let prevOrder = retreats[strip_coast(order.target)];
+                if (prevOrder !== undefined) {
+                    disbands.push({
+                        power: prevOrder.power,
+                        unit: prevOrder.source
+                    });
+                    disbands.push({
+                        power: order.power,
+                        unit: order.unit
+                    });
+                } else {
+                    retreats[strip_coast(order.target)] = {
+                        power: order.power,
+                        source: order.unit,
+                        destination: order.target,
+                        unitType: order.unitType
+                    }
+                }
+                managedDislodgements.push(order.unit); 
+            } else if (order.action === "Disband") {
+                disbands.push({
+                    power: order.power,
+                    unit: order.unit
+                });
+                managedDislodgements.push(order.unit); 
+            }
+        }
+        for (let dislodgement of gameState.dislodged) {
+            if (!managedDislodgements.includes(dislodgement.source)){
+                disbands.push({
+                    power: dislodgement.power,
+                    unit: dislodgement.source
+                });
+            }
+        }
+        for (let retreat of Object.values(retreats)){
+            newGameState.factions[retreat.power][retreat.unitType].push(retreat.destination);
+        }
+        // for (let disband of disbands) {
+        //     if (newGameState.factions[disband.power].army.includes(disband.unit)){
+        //         removeFromArray(newGameState.factions[disband.power].army, disband.unit);
+        //     }
+        //     if (newGameState.factions[disband.power].fleet.includes(disband.unit)){
+        //         removeFromArray(newGameState.factions[disband.power].fleet, disband.unit);
+        //     }
+        // }
+        newGameState.dislodged = [];
+    }
 
     if (["Spring", "Fall"].includes(gameState.season)) {
         let validOrders = filterInvalidOrders(boardSpec, gameState, orders);
@@ -454,6 +568,15 @@ let resolve = (boardSpec, gameState, orders) => {
                 newGameState.factions[move.power].fleet[gameState.factions[move.power].fleet.indexOf(move.source)] = move.destination;
             }
         }
+        for (let dislodgement of dislodged) {
+            if (gameState.factions[dislodgement.power].army.includes(dislodgement.source)){
+                removeFromArray(newGameState.factions[dislodgement.power].army, dislodgement.source);
+            }
+            if (gameState.factions[dislodgement.power].fleet.includes(dislodgement.source)){
+                removeFromArray(newGameState.factions[dislodgement.power].fleet, dislodgement.source);
+            }
+        }
+        newGameState.dislodged = dislodged;
     }
 
     // In the fall update supply center occupations
@@ -495,11 +618,11 @@ let resolve = (boardSpec, gameState, orders) => {
             }
 
             if (order.action === "Disband") {
-                if (newGamestate.factions[order.power].army.includes(order.unit)){
-                    removeFromArray(newGamestate.factions[order.power].army, order.target);
+                if (newGameState.factions[order.power].army.includes(order.unit)){
+                    removeFromArray(newGameState.factions[order.power].army, order.unit);
                 }
-                if (newGamestate.factions[order.power].fleet.includes(order.unit)){
-                    removeFromArray(newGamestate.factions[order.power].fleet, order.unit);
+                if (newGameState.factions[order.power].fleet.includes(order.unit)){
+                    removeFromArray(newGameState.factions[order.power].fleet, order.unit);
                 }
             }
         }
@@ -507,8 +630,20 @@ let resolve = (boardSpec, gameState, orders) => {
     
 
     if (gameState.season === "Spring"){
+        if (newGameState.dislodged.length) {
+            newGameState.season = "Spring Retreat";
+        } else {
+            newGameState.season = "Fall";
+        }
+    } else if (gameState.season === "Spring Retreat") {
         newGameState.season = "Fall";
     } else if (gameState.season === "Fall"){
+        if (newGameState.dislodged.length) {
+            newGameState.season = "Fall Retreat";
+        } else {
+            newGameState.season = "Winter";
+        }
+    } else if (gameState.season === "Fall Retreat") {
         newGameState.season = "Winter";
     } else if (gameState.season === "Winter") {
         newGameState.season = "Spring";

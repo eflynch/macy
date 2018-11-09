@@ -1,5 +1,7 @@
 import React from 'react';
 
+import utils from './utils';
+
 let Order = (props) => {
     let {order} = props;
     let unit = order.unit ? order.unit.toLowerCase(): undefined;
@@ -35,18 +37,22 @@ let Order = (props) => {
     if (order.action === "Disband") {
         return <div>disband {unit}</div>;
     }
+
+    if (order.action === "Retreat") {
+        return <div>retreat {unit} → {target}</div>;
+    }
 };
 
 class OrdersList extends React.PureComponent {
     render () {
+        let {orderMode, setOrderMode, gameState} = this.props;
+
         let showOrdersIcon = <span>[&nbsp;&nbsp;]</span>;
         if (this.props.showOrders) {
             showOrdersIcon = <span>[x]</span>;
         }
 
-        const orderModes = ["Move", "Move (Convoy)", "Support", "Convoy", "Build Army", "Build Fleet", "Disband"];
-
-        let {orderMode, setOrderMode} = this.props;
+        let orderModes = utils.getAllowedOrderModes(gameState.season);
 
         let resolve = <span/>;
         if (this.props.showResolve){
@@ -72,7 +78,7 @@ class OrdersList extends React.PureComponent {
             <div className="order-list">
                 <div className="order-types">
                     {orderModes.map((om)=>{
-                        return <li key={om} onClick={()=>{setOrderMode(om.toLowerCase());}} className={orderMode === om.toLowerCase() ? "selected" : ""}>{om}</li>;
+                        return <li key={om} onClick={()=>{setOrderMode(om);}} className={orderMode === om ? "selected" : ""}>{om}</li>;
                     })}
                 </div>
                 <div className="show-button" onClick={this.props.toggleShowOrders}>{showOrdersIcon}Show Orders on Map</div>

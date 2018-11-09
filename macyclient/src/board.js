@@ -11,6 +11,19 @@ class Unit extends React.PureComponent {
     }
 }
 
+class DislodgedUnit extends React.PureComponent {
+    render () {
+        let {boardSpec, faction, unitType, size, territory, restriction} = this.props;
+        let [x, y] = boardSpec.unitPositions[territory];
+        return (
+            <g>
+                <circle cx={x+2} cy={y+2} r={size * 0.5} style={{fillOpacity: 0.3, fill: "red"}}/>
+                <image style={{opacity: 0.3}} xlinkHref={boardSpec.factions[faction].unitImages[unitType]} x={x-size*0.5} y={y-size*0.5} width={size} height={size} />
+            </g>
+        );
+    }
+}
+
 class Build extends React.PureComponent {
     render () {
         let {boardSpec, faction, unitType, size, territory} = this.props;
@@ -50,6 +63,21 @@ class Move extends React.PureComponent {
         return (
             <g>
                 <line x1={x1} y1={y1} x2={x2} y2={y2} style={{stroke: color, strokeWidth:12}} markerEnd={markerEnd}/>
+            </g>
+        );
+    }
+}
+
+class Retreat extends React.PureComponent {
+    render () {
+        let {boardSpec, source, destination, viaConvoy} = this.props;
+
+        let [x1, y1] = boardSpec.unitPositions[source];
+        let [x2, y2] = boardSpec.unitPositions[destination];
+
+        return (
+            <g>
+                <line x1={x1} y1={y1} x2={x2} y2={y2} style={{stroke: "red", strokeWidth:12}} markerEnd={"url(#rarrow)"}/>
             </g>
         );
     }
@@ -134,6 +162,11 @@ class Board extends React.Component {
             }
         }
 
+        let dislodgements = [];
+        for (let dislodgement of gameState.dislodged) {
+            dislodgements.push(<DislodgedUnit unitType={dislodgement.unitType} key={dislodgement.source + "dislodged"} territory={dislodgement.source} faction={dislodgement.power} size={120} restriction={dislodgement.restriction} boardSpec={boardSpec}/>);
+        }
+
         let underTokens = orders.map((order, i) => {
             if (order.action === "Move") {
                 return <Move key={i} boardSpec={boardSpec} source={order.unit} destination={order.target} viaConvoy={order.viaConvoy} />;
@@ -155,6 +188,9 @@ class Board extends React.Component {
             }
             if (order.action === "Disband") {
                 return <Disband key={i} boardSpec={boardSpec} territory={order.unit} size={100}/>;
+            }
+            if (order.action === "Retreat") {
+                return <Retreat key={i} boardSpec={boardSpec} source={order.unit} destination={order.target} size={100}/>;
             }
             return false;
         }).filter((order)=>order);
@@ -234,7 +270,36 @@ class Board extends React.Component {
             }
         };
 
-        if (orderMode === "move" || orderMode === "move c") {
+        if (gameState.season.includes("Retreat")) {
+            if (armySelected) {
+                all_territories = all_territories.filter(t => {
+                    for (let dislodgement of gameState.dislodged){
+                        if (boardSpec.graph.army.distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction){
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            } else if (fleetSelected) {
+                all_territories = all_territories.filter(t => {
+                    for (let dislodgement of gameState.dislodged){
+                        if (boardSpec.graph.fleet.distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction){
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            } else {
+                all_territories = all_territories.filter(t => {
+                    for (let dislodgement of gameState.dislodged){
+                        if (dislodgement.source === t){
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+        } else if (orderMode === "Move" || orderMode === "Move (Convoy)") {
             if (armySelected){
                 filterMultiCoasts("Hide Coasts");
             } else if (fleetSelected) {
@@ -242,7 +307,7 @@ class Board extends React.Component {
             } else {
                 filterMultiCoasts("");
             }
-        } else if (orderMode === "support") {
+        } else if (orderMode === "Support") {
             if (armySelected || targetUnitArmySelected) {
                 filterMultiCoasts("Hide Coasts");
             } else if (fleetSelected) {
@@ -254,7 +319,7 @@ class Board extends React.Component {
             } else {
                 filterMultiCoasts("");
             }
-        } else if (orderMode === "convoy") {
+        } else if (orderMode === "Convoy") {
             if (fleetSelected) {
                 filterMultiCoasts("Hide Coasts");
             } else {
@@ -263,6 +328,8 @@ class Board extends React.Component {
         } else {
             filterMultiCoasts("");
         }
+
+        
 
         for (let territory of all_territories) {
             const filePath = territory.toLowerCase().replace(/\./g, "").replace(/ /g, "-").replace("-::-", "-coast-");
@@ -292,6 +359,9 @@ class Board extends React.Component {
                         <marker id="barrow" markerWidth={arrowWidth} markerHeight={arrowHeight} refX={arrowWidth / 2 - 1} refY={arrowHeight / 2} orient="auto" markerUnits="strokeWidth">
                             <path d={`M0,0 L0,${arrowHeight} L${arrowWidth / 2},${arrowHeight / 2} z`} fill="#00f" />
                         </marker>
+                        <marker id="rarrow" markerWidth={arrowWidth} markerHeight={arrowHeight} refX={arrowWidth / 2 - 1} refY={arrowHeight / 2} orient="auto" markerUnits="strokeWidth">
+                            <path d={`M0,0 L0,${arrowHeight} L${arrowWidth / 2},${arrowHeight / 2} z`} fill="#f00" />
+                        </marker>
                     </defs>
                     <image xlinkHref={boardSpec.boardImage} x="0" y="0" width={boardSpec.boardSize[0]} height={boardSpec.boardSize[1]}></image>
                     {territories}
@@ -300,6 +370,7 @@ class Board extends React.Component {
                         </g>
                     <g className="units">
                         {units}
+                        {dislodgements}
                     </g>
                     <g className="tokens">
                         {overTokens}

@@ -537,6 +537,8 @@ let dip1900 = {
     startingGameState: {
         year: 1900,
         season: "Spring",
+        dislodged: [],
+        retreatRestrictions: [],
         factions : {
             "Great Britain": {
                 fleet: ["Edinburgh", "Gibraltar", "Egypt", "London"],

@@ -50,7 +50,7 @@ class App extends React.Component {
                 this.revertToCurrentTurn();
             } else if (e.keyCode === 76) { // l
                 this.loadSession();
-            } else if (e.keyCode === 83) { // r
+            } else if (e.keyCode === 87) { // w
                 this.saveSession();
             }
         };

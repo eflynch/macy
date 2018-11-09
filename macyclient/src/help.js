@@ -110,7 +110,7 @@ class Help extends React.PureComponent {
                                 <td>Load session from clipboard</td> 
                             </tr>
                             <tr>
-                                <td>r</td>
+                                <td>w</td>
                                 <td>Save session to clipboard</td>
                             </tr>
                             <tr>

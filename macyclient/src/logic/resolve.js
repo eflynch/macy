@@ -441,7 +441,6 @@ let resolve = (boardSpec, gameState, orders) => {
         filterFailedConvoyMovesAndCutSupportOrdersByConvoyed(boardSpec, gameState, validOrders);
 
         let conflictGraph = generateConflictGraph(boardSpec, gameState, validOrders);
-        console.log(JSON.parse(JSON.stringify(conflictGraph)));
         resolveHeadToHead(conflictGraph);
         let {dislodged, moved} = resolveUnambiguous(conflictGraph);
 

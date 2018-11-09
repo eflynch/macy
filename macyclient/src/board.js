@@ -122,7 +122,7 @@ class Convoy extends React.PureComponent {
 
 class Board extends React.Component {
     render () {
-        let {boardSpec, gameState, orders, selectedTerritory, orderMode} = this.props;
+        let {boardSpec, gameState, orders, selectedTerritory, targetUnitSelected, orderMode} = this.props;
         const factions = Object.keys(gameState.factions);
         const unitTypes = ["army", "fleet"];
         let units = [];
@@ -187,37 +187,83 @@ class Board extends React.Component {
             }
         }
 
-        let all_territories = Object.keys(boardSpec.unitPositions);
-        // If we have a fleet selected but not in convoy orderMode, do not add non-coastal variants
-        if (fleetSelected && orderMode != "convoy"){
-            all_territories = all_territories.filter(t => !boardSpec.multiCoast.includes(t));
-        // If we have an army selected or in convoy orderMode, do not add coastal variants
-        } else if (armySelected || orderMode == "convoy"){
-            all_territories = all_territories.filter(t => !t.includes("::"));
+        let targetUnitFleetSelected = false;
+        let targetUnitArmySelected = false;
+        if (targetUnitSelected) {
+            for (let faction of factions) {
+                if (gameState.factions[faction].fleet.includes(targetUnitSelected)) {
+                    fleetSelected = true;
+                    break;
+                }
+                if (gameState.factions[faction].army.includes(targetUnitSelected)) {
+                    armySelected = true;
+                    break;
+                }
+            }
+        }
 
-        // If we have nothing selected, add coastal graphs only in territories where fleets are
-        } else {
-            all_territories = all_territories.filter(t => {
-                if (t.includes("::")) {
-                    for (let faction of factions) {
-                        if (gameState.factions[faction].fleet.includes(t)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                } else if (boardSpec.multiCoast.includes(t)) {
-                    for (let faction of factions) {
-                        for (let territory of gameState.factions[faction].fleet) {
-                            if (territory.includes(t)){
-                                return false;
+
+
+        let all_territories = Object.keys(boardSpec.unitPositions);
+        let filterMultiCoasts = (filterType) => {
+            if (filterType === "Show Coasts") {
+                all_territories = all_territories.filter(t => !boardSpec.multiCoast.includes(t));
+            } else if (filterType === "Hide Coasts") {
+                all_territories = all_territories.filter(t => !t.includes("::"));
+            } else {
+                all_territories = all_territories.filter(t => {
+                    if (t.includes("::")) {
+                        for (let faction of factions) {
+                            if (gameState.factions[faction].fleet.includes(t)) {
+                                return true;
                             }
                         }
+                        return false;
+                    } else if (boardSpec.multiCoast.includes(t)) {
+                        for (let faction of factions) {
+                            for (let territory of gameState.factions[faction].fleet) {
+                                if (territory.includes(t)){
+                                    return false;
+                                }
+                            }
+                        }
+                        return true;
                     }
                     return true;
+                });
+            }
+        };
+
+        if (orderMode === "move" || orderMode === "move c") {
+            if (armySelected){
+                filterMultiCoasts("Hide Coasts");
+            } else if (fleetSelected) {
+                filterMultiCoasts("Show Coasts");
+            } else {
+                filterMultiCoasts("");
+            }
+        } else if (orderMode === "support") {
+            if (armySelected || targetUnitArmySelected) {
+                filterMultiCoasts("Hide Coasts");
+            } else if (fleetSelected) {
+                if (targetUnitFleetSelected) {
+                    filterMultiCoasts("Show Coasts");
+                } else {
+                    filterMultiCoasts("");
                 }
-                return true;
-            });
+            } else {
+                filterMultiCoasts("");
+            }
+        } else if (orderMode === "convoy") {
+            if (fleetSelected) {
+                filterMultiCoasts("Hide Coasts");
+            } else {
+                filterMultiCoasts("");
+            }
+        } else {
+            filterMultiCoasts("");
         }
+
         for (let territory of all_territories) {
             const filePath = territory.toLowerCase().replace(/\./g, "").replace(/ /g, "-").replace("-::-", "-coast-");
             if (boardSpec.territoryPaths[filePath] !== undefined) {

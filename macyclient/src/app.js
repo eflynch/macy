@@ -316,7 +316,7 @@ class App extends React.Component {
                 </p>
                 <div className="main">
                     <div className="board-container">
-                        <Board clickTerritory={this.clickTerritory} orders={this.state.showOrders ? orders : []} boardSpec={boardSpec} gameState={gameState} orderMode={this.state.orderMode} selectedTerritory={orderable ? this.state.selectedTerritory : false}/>
+                        <Board clickTerritory={this.clickTerritory} orders={this.state.showOrders ? orders : []} boardSpec={boardSpec} gameState={gameState} orderMode={this.state.orderMode} selectedTerritory={orderable ? this.state.selectedTerritory : false} targetUnitTerritory={this.state.targetUnitTerritory} />
                         <SupplyCenters boardSpec={boardSpec} gameState={gameState} />
                     </div>
                     <OrdersList

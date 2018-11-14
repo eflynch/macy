@@ -227,6 +227,37 @@ class Board extends React.Component {
             } else {
                 return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
             }
+        } else if (orderMode === "Disband") {
+            let all_territories = Object.keys(boardSpec.unitPositions);
+            return all_territories.filter((t) => {
+                return units[t] !== undefined;
+            });
+        } else if (orderMode === "Build Fleet") {
+            let all_territories = Object.keys(boardSpec.unitPositions);
+            return all_territories.filter((t) => {
+                if (units[t] !== undefined || units[utils.stripCoast(t)] !== undefined){
+                    return false;
+                }
+                for (let faction of factions) {
+                    if (boardSpec.factions[faction].fleetBuildPoints.includes(t)){
+                        return true;
+                    }
+                }
+                return false;
+            });
+        } else if (orderMode === "Build Army") {
+            let all_territories = Object.keys(boardSpec.unitPositions);
+            return all_territories.filter((t) => {
+                if (units[t] !== undefined){
+                    return false;
+                }
+                for (let faction of factions) {
+                    if (boardSpec.factions[faction].armyBuildPoints.includes(t)){
+                        return true;
+                    }
+                }
+                return false;
+            });
         } else {
             return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
         }

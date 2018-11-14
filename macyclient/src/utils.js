@@ -1,6 +1,13 @@
         
 
 module.exports = {
+    stripCoast: (fleet) => {
+        return fleet
+            .replace(" :: NC", "")
+            .replace(" :: SC", "")
+            .replace(" :: WC", "")
+            .replace(" :: EC", "");
+    },
     getAllowedOrderModes: (season) => {
         let orderModes = [];
         if (season === "Spring" || season === "Fall"){

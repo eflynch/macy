@@ -256,7 +256,7 @@ class App extends React.Component {
             } else {
                 this.setState({selectedTerritory: territory});
             }
-        } else if (this.state.orderMode === "Build army") {
+        } else if (this.state.orderMode === "Build Army") {
             if (units[territory] === undefined) {
                 this.state.additionalOrders[territory] = {
                     power: buildPoints[territory].power,
@@ -267,7 +267,7 @@ class App extends React.Component {
                 this.setState({additionalOrders: this.state.additionalOrders});
                 this.setState({selectedTargetUnit: false, selectedTerritory: false});
             }
-        } else if (this.state.orderMode === "Build fleet") {
+        } else if (this.state.orderMode === "Build Fleet") {
             if (units[territory] === undefined) {
                 this.state.additionalOrders[territory] = {
                     power: buildPoints[territory].power,

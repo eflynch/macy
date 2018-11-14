@@ -64,7 +64,7 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
             } else if (gameState.factions[order.power].fleet.includes(order.unit)) {
                 unitType = "fleet";
             } else {
-                console.log("Not a real unit");
+                console.log("Not a real unit", order);
                 return false;
             }
 
@@ -254,12 +254,14 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
             holdStrength: 1,
             power: faction,
             unit: a,
+            realUnit: a,
             unitType: "army"
         };});
         gameState.factions[faction].fleet.forEach((f) => {holds[strip_coast(f)] = {
             holdStrength: 1,
             power: faction,
             unit: strip_coast(f),
+            realUnit: f,
             unitType: "fleet"
         };});
     }
@@ -267,6 +269,12 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
     let moves = {};
     for (let order of orders) {
         if (order.action === "Move") {
+            let unitType;
+            if (gameState.factions[order.power].army.includes(order.unit)) {
+                unitType = "army";
+            } else if (gameState.factions[order.power].fleet.includes(order.unit)) {
+                unitType = "fleet";
+            }
             let unit = strip_coast(order.unit);
             let target = strip_coast(order.target);
             holds[unit].holdStrength = "?";
@@ -276,6 +284,7 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
                         moveStrength: 1,
                         power: order.power,
                         source: order.unit,
+                        unitType: unitType,
                         destination: target,
                         realDestination: order.target,
                         viaConvoy: order.viaConvoy,
@@ -288,6 +297,7 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
                         moveStrength: 1,
                         power: order.power,
                         source: order.unit,
+                        unitType: unitType,
                         destination: target,
                         realDestination: order.target,
                         viaConvoy: order.viaConvoy,
@@ -367,9 +377,9 @@ let resolveUnambiguous = (conflictGraph) => {
     let cancel = (move) => {
         if (conflictGraph.holds[move.source].holdStrength !== "?") {
             dislodged.push({
-                power: conflictGraph.holds[move.source].power,
+                power: move.power,
                 source: move.source,
-                unitType: conflictGraph.holds[move.source].unitType,
+                unitType: move.unitType,
                 restriction: conflictGraph.holds[move.source].unitOrigin
             });
         } else {
@@ -390,7 +400,7 @@ let resolveUnambiguous = (conflictGraph) => {
         if (conflictGraph.holds[move.destination] !== undefined && conflictGraph.holds[move.destination].holdStrength >= 1) {
             dislodged.push({
                 power: conflictGraph.holds[move.destination].power,
-                source: move.destination,
+                source: conflictGraph.holds[move.destination].realUnit,
                 unitType: conflictGraph.holds[move.destination].unitType,
                 restriction: move.source
             });
@@ -399,7 +409,8 @@ let resolveUnambiguous = (conflictGraph) => {
             holdStrength: 1,
             power: move.power,
             unit: move.destination,
-            unitOrigin: move.source
+            unitOrigin: move.source,
+            unitType: move.unitType,
         };
     };
 
@@ -488,7 +499,6 @@ let resolveUnambiguous = (conflictGraph) => {
 
 let resolve = (boardSpec, gameState, orders) => {
     let newGameState = JSON.parse(JSON.stringify(gameState));
-    console.log(gameState.season);
 
     if (["Spring Retreat", "Fall Retreat"].includes(gameState.season)) {
         let validOrders = filterInvalidOrders(boardSpec, gameState, orders);

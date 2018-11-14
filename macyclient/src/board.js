@@ -271,7 +271,18 @@ class Board extends React.Component {
         };
 
         if (gameState.season.includes("Retreat")) {
-            if (armySelected) {
+            let fleetRetreatSelected = false;
+            let armyRetreatSelected = false;
+            if (selectedTerritory) {
+                for (let dislodgement of gameState.dislodged) {
+                    if (selectedTerritory === dislodgement.source) {
+                        fleetRetreatSelected = dislodgement.unitType === "fleet";
+                        armyRetreatSelected = dislodgement.unitType === "army";
+                        break;
+                    }
+                }
+            }
+            if (armyRetreatSelected) {
                 all_territories = all_territories.filter(t => {
                     for (let dislodgement of gameState.dislodged){
                         if (boardSpec.graph.army.distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction){
@@ -280,10 +291,10 @@ class Board extends React.Component {
                     }
                     return false;
                 });
-            } else if (fleetSelected) {
+            } else if (fleetRetreatSelected) {
                 all_territories = all_territories.filter(t => {
                     for (let dislodgement of gameState.dislodged){
-                        if (boardSpec.graph.fleet.distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction){
+                        if (boardSpec.graph.fleet.distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction && !gameState.retreatRestrictions.includes(t)){
                             return true;
                         }
                     }

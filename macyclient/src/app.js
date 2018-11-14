@@ -287,9 +287,7 @@ class App extends React.Component {
                     this.setState({selectedTargetUnit: false, selectedTerritory: false});
                 }
             } else {
-                if (units[territory] !== undefined) {
-                    this.setState({selectedTerritory: territory});
-                }
+                this.setState({selectedTerritory: territory});
             }
         } else if (this.state.orderMode === "Build army") {
             if (units[territory] === undefined) {

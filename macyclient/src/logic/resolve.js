@@ -546,14 +546,7 @@ let resolve = (boardSpec, gameState, orders) => {
         for (let retreat of Object.values(retreats)){
             newGameState.factions[retreat.power][retreat.unitType].push(retreat.destination);
         }
-        // for (let disband of disbands) {
-        //     if (newGameState.factions[disband.power].army.includes(disband.unit)){
-        //         removeFromArray(newGameState.factions[disband.power].army, disband.unit);
-        //     }
-        //     if (newGameState.factions[disband.power].fleet.includes(disband.unit)){
-        //         removeFromArray(newGameState.factions[disband.power].fleet, disband.unit);
-        //     }
-        // }
+
         newGameState.dislodged = [];
     }
 
@@ -622,17 +615,77 @@ let resolve = (boardSpec, gameState, orders) => {
     if (gameState.season === "Winter") {
         let validOrders = filterInvalidOrders(boardSpec, gameState, orders);
         ignoreExtraOrders(boardSpec, gameState, validOrders);
+
+
+        let allowedBuilds = {};
+        for (let faction of Object.keys(gameState.factions)) {
+            let factionDeets = newGameState.factions[faction];
+            let unitCount = factionDeets.army.length + factionDeets.fleet.length;
+            allowedBuilds[faction] = factionDeets.supplyCenters.length - unitCount;
+        }
+
         for (let order of validOrders) {
             if (order.action === "Build") {
-                newGameState.factions[order.power][order.unitType].push(order.unit);
+                if (allowedBuilds[order.power] > 0){
+                    newGameState.factions[order.power][order.unitType].push(order.unit);
+                    allowedBuilds[order.power] -= 1;
+                }
             }
 
             if (order.action === "Disband") {
-                if (newGameState.factions[order.power].army.includes(order.unit)){
-                    removeFromArray(newGameState.factions[order.power].army, order.unit);
+                if (allowedBuilds[order.power] < 0) {
+                    if (newGameState.factions[order.power].army.includes(order.unit)){
+                        removeFromArray(newGameState.factions[order.power].army, order.unit);
+                    } else if (newGameState.factions[order.power].fleet.includes(order.unit)){
+                        removeFromArray(newGameState.factions[order.power].fleet, order.unit);
+                    } else {
+                        console.warn("Something went run with a disband", order);
+                    }
+                    allowedBuilds[order.power] += 1;
                 }
-                if (newGameState.factions[order.power].fleet.includes(order.unit)){
-                    removeFromArray(newGameState.factions[order.power].fleet, order.unit);
+                
+            }
+        }
+        for (let faction of Object.keys(allowedBuilds)) {
+            while (allowedBuilds[faction] < 0){
+                // auto disband unit furthest from home (technically should include convoys)
+                let furthestArmy = undefined;
+                let armyDistance = -1;
+                for (let unit of newGameState.factions[faction].army) {
+                    let maxDistance = -1;
+                    for (let buildPoint of boardSpec.factions[faction].armyBuildPoints) {
+                        let distance = boardSpec.graph.army.distance(buildPoint, unit);
+                        if (distance > maxDistance){
+                            maxDistance = distance;
+                        }
+                    }
+                    if (maxDistance > armyDistance){
+                        furthestArmy = unit;
+                        armyDistance = maxDistance;
+                    }
+                }
+
+                let furthestFleet = undefined;
+                let fleetDistance = -1;
+                for (let unit of newGameState.factions[faction].fleet) {
+                    let maxDistance = -1;
+                    for (let buildPoint of boardSpec.factions[faction].fleetBuildPoints) {
+                        let distance = boardSpec.graph.fleet.distance(buildPoint, unit);
+                        if (distance > maxDistance){
+                            maxDistance = distance;
+                        }
+                    }
+                    if (maxDistance > fleetDistance){
+                        furthestFleet = unit;
+                        fleetDistance = maxDistance;
+                    }
+                }
+                if (armyDistance > fleetDistance && furthestArmy != undefined){
+                    removeFromArray(newGameState.factions[faction].army, furthestArmy);
+                    allowedBuilds[faction] += 1;
+                } else {
+                    removeFromArray(newGameState.factions[faction].fleet, furthestFleet);
+                    allowedBuilds[faction] += 1;
                 }
             }
         }

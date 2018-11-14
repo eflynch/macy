@@ -80,40 +80,6 @@ class App extends React.Component {
         }
         return gameState;
     };
-    getUnitMap = (gameState) => {
-        const factions = Object.keys(gameState.factions);
-        const unitTypes = ["army", "fleet"];
-        let units = {};
-        for (let faction of factions) {
-            for (let unitType of unitTypes) {
-                for (let territory of gameState.factions[faction][unitType]) {
-                    units[territory] = {
-                        faction: faction,
-                        unitType: unitType
-                    };
-                }
-            }
-        }
-        return units;
-    };
-    getBuildPoints = (boardSpec) => {
-        const factions = Object.keys(boardSpec.factions);
-        let buildPoints = {};
-        for (let faction of factions) {
-            for (let territory of boardSpec.factions[faction].buildPoints) {
-                buildPoints[territory] = {
-                    power: faction
-                };
-            }
-            for (let territory of boardSpec.factions[faction].emergencyBuildPoints) {
-                buildPoints[territory] = {
-                    power: faction
-                };
-            }
-        }
-        return buildPoints;
-    };
-
     setOrderMode = (orderMode) => {
         let gameState = this.getCurrentGameState();
         let orderModes = utils.getAllowedOrderModes(gameState.season);
@@ -182,8 +148,8 @@ class App extends React.Component {
         if (!orderable) {
             return;
         }
-        const units = this.getUnitMap(gameState);
-        const buildPoints = this.getBuildPoints(boardSpec);
+        const units = utils.getUnitMap(gameState);
+        const buildPoints = utils.getBuildPoints(boardSpec);
         
         if (this.state.orderMode === "Convoy") {
             if (this.state.selectedTerritory) {
@@ -275,6 +241,7 @@ class App extends React.Component {
                     for (let dislodgement of gameState.dislodged) {
                         if (dislodgement.source === this.state.selectedTerritory) {
                             power = dislodgement.power;
+                            break;
                         }
                     }
                     this.state.additionalOrders[this.state.selectedTerritory] = {

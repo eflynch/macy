@@ -1,6 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import utils from './utils';
+
 class Unit extends React.PureComponent {
     render () {
         let {boardSpec, faction, unitType, size, territory} = this.props;
@@ -149,6 +151,86 @@ class Convoy extends React.PureComponent {
 
 
 class Board extends React.Component {
+    getClickableTerritories = () => {
+        let {boardSpec, gameState, orders, selectedTerritory, targetUnitSelected, orderMode} = this.props;
+        const factions = Object.keys(gameState.factions);
+        const units = utils.getUnitMap(gameState);
+        let fleetSelected = units[selectedTerritory] && units[selectedTerritory].unitType === "fleet";
+        let armySelected = units[selectedTerritory] && units[selectedTerritory].unitType === "army";
+
+        if (gameState.season.includes("Retreat")) {
+            let all_territories = Object.keys(boardSpec.unitPositions);
+            let fleetRetreatSelected = false;
+            let armyRetreatSelected = false;
+            if (selectedTerritory) {
+                for (let dislodgement of gameState.dislodged) {
+                    if (selectedTerritory === dislodgement.source) {
+                        fleetRetreatSelected = dislodgement.unitType === "fleet";
+                        armyRetreatSelected = dislodgement.unitType === "army";
+                        break;
+                    }
+                }
+            }
+            if (armyRetreatSelected) {
+                return all_territories.filter(t => {
+                    for (let dislodgement of gameState.dislodged){
+                        if (boardSpec.graph.army.distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction){
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            } else if (fleetRetreatSelected) {
+                return all_territories.filter(t => {
+                    for (let dislodgement of gameState.dislodged){
+                        if (boardSpec.graph.fleet.distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction && !gameState.retreatRestrictions.includes(t)){
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            } else {
+                return all_territories.filter(t => {
+                    for (let dislodgement of gameState.dislodged){
+                        if (dislodgement.source === t){
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+            }
+        } else if (orderMode === "Move" || orderMode === "Move (Convoy)") {
+            if (armySelected){
+                return utils.getTerritories(boardSpec, gameState, "Hide Coasts");
+            } else if (fleetSelected) {
+                return utils.getTerritories(boardSpec, gameState, "Show Coasts");
+            } else {
+                return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
+            }
+        } else if (orderMode === "Support") {
+            let targetUnitFleetSelected = units[targetUnitSelected] && units[targetUnitSelected].unitType === "fleet";
+            let targetUnitArmySelected = units[targetUnitSelected] && units[targetUnitSelected].unitType === "army";
+            if (armySelected || targetUnitArmySelected) {
+                return utils.getTerritories(boardSpec, gameState, "Hide Coasts");
+            } else if (fleetSelected) {
+                if (targetUnitFleetSelected) {
+                    return utils.getTerritories(boardSpec, gameState, "Show Coasts");
+                } else {
+                    return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
+                }
+            } else {
+                return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
+            }
+        } else if (orderMode === "Convoy") {
+            if (fleetSelected) {
+                return utils.getTerritories(boardSpec, gameState, "Hide Coasts");
+            } else {
+                return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
+            }
+        } else {
+            return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
+        }
+    };
     render () {
         let {boardSpec, gameState, orders, selectedTerritory, targetUnitSelected, orderMode} = this.props;
         const factions = Object.keys(gameState.factions);
@@ -207,142 +289,8 @@ class Board extends React.Component {
 
         let territories = [];
         let transform="translate(0.000000,2250.000000) scale(0.100000,-0.100000)";
-        
-        let fleetSelected = false;
-        let armySelected = false;
-        if (selectedTerritory) {
-            for (let faction of factions) {
-                if (gameState.factions[faction].fleet.includes(selectedTerritory)) {
-                    fleetSelected = true;
-                    break;
-                }
-                if (gameState.factions[faction].army.includes(selectedTerritory)) {
-                    armySelected = true;
-                    break;
-                }
-            }
-        }
 
-        let targetUnitFleetSelected = false;
-        let targetUnitArmySelected = false;
-        if (targetUnitSelected) {
-            for (let faction of factions) {
-                if (gameState.factions[faction].fleet.includes(targetUnitSelected)) {
-                    fleetSelected = true;
-                    break;
-                }
-                if (gameState.factions[faction].army.includes(targetUnitSelected)) {
-                    armySelected = true;
-                    break;
-                }
-            }
-        }
-
-
-
-        let all_territories = Object.keys(boardSpec.unitPositions);
-        let filterMultiCoasts = (filterType) => {
-            if (filterType === "Show Coasts") {
-                all_territories = all_territories.filter(t => !boardSpec.multiCoast.includes(t));
-            } else if (filterType === "Hide Coasts") {
-                all_territories = all_territories.filter(t => !t.includes("::"));
-            } else {
-                all_territories = all_territories.filter(t => {
-                    if (t.includes("::")) {
-                        for (let faction of factions) {
-                            if (gameState.factions[faction].fleet.includes(t)) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    } else if (boardSpec.multiCoast.includes(t)) {
-                        for (let faction of factions) {
-                            for (let territory of gameState.factions[faction].fleet) {
-                                if (territory.includes(t)){
-                                    return false;
-                                }
-                            }
-                        }
-                        return true;
-                    }
-                    return true;
-                });
-            }
-        };
-
-        if (gameState.season.includes("Retreat")) {
-            let fleetRetreatSelected = false;
-            let armyRetreatSelected = false;
-            if (selectedTerritory) {
-                for (let dislodgement of gameState.dislodged) {
-                    if (selectedTerritory === dislodgement.source) {
-                        fleetRetreatSelected = dislodgement.unitType === "fleet";
-                        armyRetreatSelected = dislodgement.unitType === "army";
-                        break;
-                    }
-                }
-            }
-            if (armyRetreatSelected) {
-                all_territories = all_territories.filter(t => {
-                    for (let dislodgement of gameState.dislodged){
-                        if (boardSpec.graph.army.distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction){
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-            } else if (fleetRetreatSelected) {
-                all_territories = all_territories.filter(t => {
-                    for (let dislodgement of gameState.dislodged){
-                        if (boardSpec.graph.fleet.distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction && !gameState.retreatRestrictions.includes(t)){
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-            } else {
-                all_territories = all_territories.filter(t => {
-                    for (let dislodgement of gameState.dislodged){
-                        if (dislodgement.source === t){
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-            }
-        } else if (orderMode === "Move" || orderMode === "Move (Convoy)") {
-            if (armySelected){
-                filterMultiCoasts("Hide Coasts");
-            } else if (fleetSelected) {
-                filterMultiCoasts("Show Coasts");
-            } else {
-                filterMultiCoasts("");
-            }
-        } else if (orderMode === "Support") {
-            if (armySelected || targetUnitArmySelected) {
-                filterMultiCoasts("Hide Coasts");
-            } else if (fleetSelected) {
-                if (targetUnitFleetSelected) {
-                    filterMultiCoasts("Show Coasts");
-                } else {
-                    filterMultiCoasts("");
-                }
-            } else {
-                filterMultiCoasts("");
-            }
-        } else if (orderMode === "Convoy") {
-            if (fleetSelected) {
-                filterMultiCoasts("Hide Coasts");
-            } else {
-                filterMultiCoasts("");
-            }
-        } else {
-            filterMultiCoasts("");
-        }
-
-        
-
-        for (let territory of all_territories) {
+        for (let territory of this.getClickableTerritories()) {
             const filePath = territory.toLowerCase().replace(/\./g, "").replace(/ /g, "-").replace("-::-", "-coast-");
             if (boardSpec.territoryPaths[filePath] !== undefined) {
                 let isSelected = selectedTerritory === territory;

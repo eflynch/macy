@@ -579,7 +579,8 @@ let dip1900 = {
     },
     factions : {
         "Great Britain": {
-            buildPoints: ["London", "Edinburgh", "Liverpool"],
+            armyBuildPoints: ["London", "Edinburgh", "Liverpool"],
+            fleetBuildPoints: ["London", "Edinburgh", "Liverpool"],
             startingUnits: {
                 fleet: ["London", "Edinburgh", "Gibraltar", "Egypt"],
                 army: []
@@ -593,7 +594,8 @@ let dip1900 = {
             color: "#336699"
         },
         "Germany": {
-            buildPoints: ["Kiel", "Berlin", "Cologne", "Munich"],
+            armyBuildPoints: ["Kiel", "Berlin", "Cologne", "Munich"],
+            fleetBuildPoints: ["Kiel", "Berlin"],
             startingUnits: {
                 fleet: ["Kiel"],
                 army: ["Berlin", "Cologne", "Munich"]
@@ -607,7 +609,8 @@ let dip1900 = {
             color: "#000000"
         },
         "France": {
-            buildPoints: ["Paris", "Marseilles", "Brest"],
+            armyBuildPoints: ["Paris", "Marseilles", "Brest"],
+            fleetBuildPoints: ["Marseilles", "Brest"],
             startingUnits: {
                 fleet: ["Brest"],
                 army: ["Paris", "Marseilles", "Algeria"]
@@ -621,7 +624,8 @@ let dip1900 = {
             color: "#66CCCC"
         },
         "Italy": {
-            buildPoints: ["Milan", "Rome", "Naples"],
+            armyBuildPoints: ["Milan", "Rome", "Naples"],
+            fleetBuildPoints: ["Rome", "Naples"],
             startingUnits: {
                 fleet: ["Naples"],
                 army: ["Milan", "Rome"]
@@ -635,7 +639,8 @@ let dip1900 = {
             color: "#339933"
         },
         "Austria Hungary": {
-            buildPoints: ["Trieste", "Vienna", "Budapest"],
+            armyBuildPoints: ["Trieste", "Vienna", "Budapest"],
+            fleetBuildPoints: ["Trieste"],
             startingUnits: {
                 fleet: ["Trieste"],
                 army: ["Vienna", "Budapest"]
@@ -649,7 +654,8 @@ let dip1900 = {
             color: "#ff3333"
         },
         "Turkey": {
-            buildPoints: ["Damascus", "Ankara", "Constantinople"],
+            armyBuildPoints: ["Damascus", "Ankara", "Constantinople"],
+            fleetBuildPoints: ["Damascus", "Ankara", "Constantinople"],
             startingUnits: {
                 fleet: ["Ankara"],
                 army: ["Damascus", "Constantinople"]
@@ -663,7 +669,8 @@ let dip1900 = {
             color: "#ffcc66"
         },
         "Russia": {
-            buildPoints: ["Sevastapol", "Moscow", "St. Petersburg", "Warsaw"],
+            armyBuildPoints: ["Sevastapol", "Moscow", "St. Petersburg", "Warsaw"],
+            fleetBuildPoints: ["Sevastapol", "St. Petersburg :: NC", "St. Petersburg :: SC"],
             startingUnits: {
                 fleet: ["Sevastapol", "St. Petersburg :: SC"],
                 army: ["Moscow", "Warsaw"]

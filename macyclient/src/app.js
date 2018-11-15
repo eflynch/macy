@@ -34,9 +34,9 @@ class App extends React.Component {
             } else if (e.keyCode === 67) { // c
                 this.setState({orderMode: "Convoy"});
             } else if (e.keyCode === 65) { // a
-                this.setState({orderMode: "Build army"});
+                this.setState({orderMode: "Build Army"});
             } else if (e.keyCode === 70) { // f
-                this.setState({orderMode: "Build fleet"});
+                this.setState({orderMode: "Build Fleet"});
             } else if (e.keyCode === 68) { // d
                 this.setState({orderMode: "Disband"});
             } else if (e.keyCode === 191) { // /?

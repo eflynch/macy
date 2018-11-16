@@ -84,4 +84,108 @@ module.exports = {
             console.warn("You made a mistake boy");
         }
     },
+    makeOrder: (power, selectedTerritory, targetUnit, target, orderMode) => {
+        switch(orderMode){
+        case "Convoy":
+            return {
+                power: power,
+                unit: selectedTerritory,
+                action: "Convoy",
+                target: target,
+                targetUnit: targetUnit 
+            };
+        case "Move":
+        case "Move (Convoy)":
+            if (selectedTerritory === target) {
+                return {
+                    power: power,
+                    unit: selectedTerritory,
+                    action: "Hold",
+                    target: target,
+                };
+            } else {
+                return {
+                    power: power,
+                    unit: selectedTerritory,
+                    action: "Move",
+                    target: target,
+                    viaConvoy: orderMode === "Move (Convoy)" 
+                };
+            }
+        case "Support":
+            return {
+                power: power,
+                unit: selectedTerritory,
+                action: "Support",
+                target: target,
+                targetUnit: targetUnit,
+            };
+        case "Retreat":
+            return {
+                power: power,
+                unit: selectedTerritory,
+                action: "Retreat",
+                target:target 
+            };
+        case "Build Army":
+            return {
+                power: power,
+                unitType: "army",
+                action: "Build",
+                unit: target 
+            };
+        case "Build Fleet":
+            return {
+                power: power,
+                unitType: "fleet",
+                action: "Build",
+                unit: target 
+            };
+        case "Disband":
+            return {
+                power: power,
+                action: "Disband",
+                unit: target 
+            };
+        }
+    },
+    formatOrder: (order) => {
+        let unit = order.unit ? order.unit.toLowerCase(): "__";
+        let target = order.target ? order.target.toLowerCase() : "__";
+        let targetUnit = order.targetUnit ? order.targetUnit.toLowerCase() : "__";
+        if (order.action === "Move") {
+            if (order.viaConvoy){
+                return `${unit} ⤼ ${target}`;
+            }
+            return `${unit} → ${target}`;
+        }
+
+        if (order.action === "Support") {
+            if (target !== targetUnit) {
+                return `${unit} S ${targetUnit} → ${target}`;
+            } else {
+                return `${unit} S ${targetUnit} H`;
+            }
+        }
+
+        if (order.action === "Hold") {
+            return `${unit} H`;
+        }
+
+        if (order.action === "Convoy") {
+            return `${unit} C ${targetUnit} → ${target}`;
+        }
+
+        if (order.action === "Build") {
+            return `build ${order.unitType} ${order.unit}`;
+        }
+
+        if (order.action === "Disband") {
+            return `disband ${unit}`;
+        }
+
+        if (order.action === "Retreat") {
+            return `retreat ${unit} → ${target}`;
+        }
+    }
 }

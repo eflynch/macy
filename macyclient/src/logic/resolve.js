@@ -313,7 +313,7 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
         if (order.action === "Support") {
             let unit = strip_coast(order.unit);
             let targetUnit = strip_coast(order.targetUnit);
-            if (order.target !== undefined && order.target !== null) {
+            if (order.target !== order.targetUnit) {
                 let target = strip_coast(order.target);
                 if (moves[target] !== undefined) {
                     for (let move of moves[target]) {

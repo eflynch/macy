@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Board from './board';
+import MouseFollower from './mouse-follower';
 import {resolve} from './logic/resolve';
 import utils from './utils';
 import OrdersList from './orders-list';
@@ -15,7 +16,7 @@ class App extends React.Component {
             turn: props.session.turns.length,
             showOrders: true,
             selectedTerritory: false,
-            targetUnitTerritory: false,
+            selectedTargetUnit: false,
             selectionMode: "unit", 
             orderMode: "Move",
             showHelp: false,
@@ -150,92 +151,64 @@ class App extends React.Component {
         }
         const units = utils.getUnitMap(gameState);
         const buildPoints = utils.getBuildPoints(boardSpec);
-        
-        if (this.state.orderMode === "Convoy") {
-            if (this.state.selectedTerritory) {
-                if (this.state.selectedTargetUnit) {
-                    this.state.additionalOrders[this.state.selectedTerritory] ={
-                        power: units[this.state.selectedTerritory].faction,
-                        unit: this.state.selectedTerritory,
-                        action: "Convoy",
-                        target: territory,
-                        targetUnit: this.state.selectedTargetUnit
-                    };
-                    this.setState({additionalOrders: this.state.additionalOrders});
-                    this.setState({selectedTargetUnit: false, selectedTerritory: false});
-                } else {
-                    if (units[territory] !== undefined){
-                        if (units[territory].unitType === "army") {
-                            this.setState({selectedTargetUnit: territory});
-                        }
-                    }
+
+        let setUnit = (territory) => {
+            switch (this.state.orderMode) {
+            case "Convoy":
+                if (units[territory] !== undefined && units[territory].unitType === "fleet") {
+                    this.setState({selectedTerritory: territory});
                 }
-            } else {
+                break;
+            case "Move":
+            case "Move (Convoy)":
+            case "Support":
                 if (units[territory] !== undefined) {
-                    if (units[territory].unitType === "fleet"){
-                        this.setState({selectedTerritory: territory});
-                    }
+                    this.setState({selectedTerritory: territory});
                 }
+                break;
+            case "Retreat":
+                this.setState({selectedTerritory: territory});
+                break;
             }
-        } else if (this.state.orderMode === "Support") {
-            if (this.state.selectedTerritory) {
-                if (this.state.selectedTargetUnit) {
-                    if (this.state.selectedTargetUnit === territory) {
-                        this.state.additionalOrders[this.state.selectedTerritory] = {
-                            power: units[this.state.selectedTerritory].faction,
-                            unit: this.state.selectedTerritory,
-                            action: "Support",
-                            target: null,
-                            targetUnit: this.state.selectedTargetUnit,
-                        };
-                    } else {
-                        this.state.additionalOrders[this.state.selectedTerritory] = {
-                            power: units[this.state.selectedTerritory].faction,
-                            unit: this.state.selectedTerritory,
-                            action: "Support",
-                            target: territory,
-                            targetUnit: this.state.selectedTargetUnit,
-                        };
-                    }
-                    this.setState({additionalOrders: this.state.additionalOrders});
-                    this.setState({selectedTargetUnit: false, selectedTerritory: false});
-                } else {
-                    if (units[territory] !== undefined){
+        };
+
+        let setTargetUnit = (territory) => {
+            switch (this.state.orderMode) {
+            case "Convoy":
+                if (units[territory] !== undefined){
+                    if (units[territory].unitType === "army") {
                         this.setState({selectedTargetUnit: territory});
                     }
                 }
-            } else {
+                break;
+            case "Support":
                 if (units[territory] !== undefined) {
-                    this.setState({selectedTerritory: territory});
+                    this.setState({selectedTargetUnit: territory});
                 }
+                break;
             }
-        } else if (this.state.orderMode === "Move" || this.state.orderMode === "Move (Convoy)") {
-            if (this.state.selectedTerritory) {
-                if (this.state.selectedTerritory === territory) {
-                    this.state.additionalOrders[this.state.selectedTerritory] = {
-                        power: units[this.state.selectedTerritory].faction,
-                        unit: this.state.selectedTerritory,
-                        action: "Hold",
-                        target: territory,
-                    };
-                } else {
-                    this.state.additionalOrders[this.state.selectedTerritory] = {
-                        power: units[this.state.selectedTerritory].faction,
-                        unit: this.state.selectedTerritory,
-                        action: "Move",
-                        target: territory,
-                        viaConvoy: this.state.orderMode === "Move (Convoy)" 
-                    };
-                }
+        };
+
+        let setOrder = (territory) => {
+            let setOrderState = (target, power) => {
+                let order = utils.makeOrder(
+                    power, this.state.selectedTerritory,
+                    this.state.selectedTargetUnit, territory, this.state.orderMode);
+                this.state.additionalOrders[target] = order;
                 this.setState({additionalOrders: this.state.additionalOrders});
                 this.setState({selectedTargetUnit: false, selectedTerritory: false});
-            } else {
-                if (units[territory] !== undefined) {
-                    this.setState({selectedTerritory: territory});
-                }
-            }
-        } else if (this.state.orderMode === "Retreat") {
-            if (this.state.selectedTerritory) {
+            };
+
+            switch (this.state.orderMode) {
+            case "Convoy":
+            case "Move":
+            case "Move (Convoy)":
+            case "Support":
+                let power = units[this.state.selectedTerritory].faction;
+                console.log(power);
+                setOrderState(this.state.selectedTerritory, power);
+                break;
+            case "Retreat":
                 if (this.state.selectedTerritory !== territory) {
                     let power = false;
                     for (let dislodgement of gameState.dislodged) {
@@ -244,52 +217,61 @@ class App extends React.Component {
                             break;
                         }
                     }
-                    this.state.additionalOrders[this.state.selectedTerritory] = {
-                        power: power,
-                        unit: this.state.selectedTerritory,
-                        action: "Retreat",
-                        target: territory
-                    };
-                    this.setState({additionalOrders: this.state.additionalOrders});
-                    this.setState({selectedTargetUnit: false, selectedTerritory: false});
+                    setOrderState(this.state.selectedTerritory, power);
                 }
+                break;
+            case "Build Army":
+            case "Build Fleet":
+                if (units[territory] === undefined) {
+                    let power = buildPoints[territory].power;
+                    setOrderState(territory, power);
+                }
+                break;
+            case "Disband":
+                if (units[territory] !== undefined) {
+                    let power = units[territory].faction;
+                    setOrderState(territory, power);
+                }
+                break;
+            }
+        };
+
+
+        switch (this.state.orderMode) {
+        case "Convoy":
+        case "Support":
+            if (!this.state.selectedTerritory){
+                setUnit(territory);
+            } else if (!this.state.selectedTargetUnit) {
+                setTargetUnit(territory);
             } else {
-                this.setState({selectedTerritory: territory});
+                setOrder(territory);
             }
-        } else if (this.state.orderMode === "Build Army") {
-            if (units[territory] === undefined) {
-                this.state.additionalOrders[territory] = {
-                    power: buildPoints[territory].power,
-                    unitType: "army",
-                    action: "Build",
-                    unit: territory
-                };
-                this.setState({additionalOrders: this.state.additionalOrders});
-                this.setState({selectedTargetUnit: false, selectedTerritory: false});
+            break;
+        case "Move":
+        case "Move (Convoy)":
+        case "Retreat":
+            if (!this.state.selectedTerritory){
+                setUnit(territory);
+            } else {
+                setOrder(territory);
             }
-        } else if (this.state.orderMode === "Build Fleet") {
-            if (units[territory] === undefined) {
-                this.state.additionalOrders[territory] = {
-                    power: buildPoints[territory].power,
-                    unitType: "fleet",
-                    action: "Build",
-                    unit: territory
-                };
-                this.setState({additionalOrders: this.state.additionalOrders});
-                this.setState({selectedTargetUnit: false, selectedTerritory: false});
-            }
-        } else if (this.state.orderMode === "Disband") {
-            if (units[territory] !== undefined) {
-                this.state.additionalOrders[territory] = {
-                    power: units[territory].faction,
-                    action: "Disband",
-                    unit: territory
-                };
-                this.setState({additionalOrders: this.state.additionalOrders});
-                this.setState({selectedTargetUnit: false, selectedTerritory: false});
-            }
+            break;
+        case "Build Fleet":
+        case "Build Army":
+        case "Disband":
+            setOrder(territory);
+            break;
         }
     };
+
+    getMouseFollower = () => {
+        if (this.state.hoverTerritory === undefined){
+            return "";
+        } else {
+            return this.state.hoverTerritory;
+        }
+    }
 
     saveSession = ()=>{
         let session_copy = JSON.parse(JSON.stringify(this.props.session));
@@ -315,6 +297,8 @@ class App extends React.Component {
         if (this.state.showHelp){
             keybindings = <Help/>;
         }
+
+        let mouseFollower = this.getMouseFollower();
         return (
             <div>
                 {keybindings}
@@ -327,13 +311,15 @@ class App extends React.Component {
                 </p>
                 <div className="main">
                     <div className="board-container">
-                        <Board clickTerritory={this.clickTerritory}
-                               orders={this.state.showOrders ? orders : []}
-                               boardSpec={boardSpec}
-                               gameState={gameState}
-                               orderMode={this.state.orderMode}
-                               selectedTerritory={orderable ? this.state.selectedTerritory : false}
-                               targetUnitTerritory={this.state.targetUnitTerritory} />
+                        <MouseFollower follower={mouseFollower}>
+                            <Board clickTerritory={this.clickTerritory}
+                                   orders={this.state.showOrders ? orders : []}
+                                   boardSpec={boardSpec}
+                                   gameState={gameState}
+                                   orderMode={this.state.orderMode}
+                                   selectedTerritory={orderable ? this.state.selectedTerritory : false}
+                                   selectedTargetUnit={this.state.selectedTargetUnit} />
+                        </MouseFollower>
                         <SupplyCenters boardSpec={boardSpec} gameState={gameState} />
                     </div>
                     <OrdersList

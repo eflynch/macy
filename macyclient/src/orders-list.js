@@ -4,43 +4,7 @@ import utils from './utils';
 
 let Order = (props) => {
     let {order} = props;
-    let unit = order.unit ? order.unit.toLowerCase(): undefined;
-    let target = order.target ? order.target.toLowerCase() : undefined;
-    let targetUnit = order.targetUnit ? order.targetUnit.toLowerCase() : undefined;
-    if (order.action === "Move") {
-        if (order.viaConvoy){
-            return <div>{unit} ⤼ {target}</div>;
-        }
-        return <div>{unit} → {target}</div>;
-    }
-
-    if (order.action === "Support") {
-        if (order.target) {
-            return <div>{unit} S {targetUnit} → {target}</div>;
-        } else {
-            return <div>{unit} S {targetUnit} H</div>;
-        }
-    }
-
-    if (order.action === "Hold") {
-        return <div>{unit} H</div>;
-    }
-
-    if (order.action === "Convoy") {
-        return <div>{unit} C {targetUnit} → {target}</div>;
-    }
-
-    if (order.action === "Build") {
-        return <div>build {order.unitType} {order.unit}</div>;
-    }
-
-    if (order.action === "Disband") {
-        return <div>disband {unit}</div>;
-    }
-
-    if (order.action === "Retreat") {
-        return <div>retreat {unit} → {target}</div>;
-    }
+    return <div>{utils.formatOrder(order)}</div>;
 };
 
 class OrdersList extends React.PureComponent {

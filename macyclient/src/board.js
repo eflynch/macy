@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import MouseFollower from './mouse-follower';
 import utils from './utils';
 
 class Unit extends React.PureComponent {
@@ -150,9 +151,16 @@ class Convoy extends React.PureComponent {
 }
 
 
-class Board extends React.Component {
+class Board extends React.PureComponent {
+    constructor (props) {
+        super(props);
+        this.state = {
+            hoverTerritory: undefined
+        };
+    }
+
     getClickableTerritories = () => {
-        let {boardSpec, gameState, orders, selectedTerritory, targetUnitSelected, orderMode} = this.props;
+        let {boardSpec, gameState, orders, selectedTerritory, selectedTargetUnit, orderMode} = this.props;
         const factions = Object.keys(gameState.factions);
         const units = utils.getUnitMap(gameState);
         let fleetSelected = units[selectedTerritory] && units[selectedTerritory].unitType === "fleet";
@@ -208,8 +216,8 @@ class Board extends React.Component {
                 return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
             }
         } else if (orderMode === "Support") {
-            let targetUnitFleetSelected = units[targetUnitSelected] && units[targetUnitSelected].unitType === "fleet";
-            let targetUnitArmySelected = units[targetUnitSelected] && units[targetUnitSelected].unitType === "army";
+            let targetUnitFleetSelected = units[selectedTargetUnit] && units[selectedTargetUnit].unitType === "fleet";
+            let targetUnitArmySelected = units[selectedTargetUnit] && units[selectedTargetUnit].unitType === "army";
             if (armySelected || targetUnitArmySelected) {
                 return utils.getTerritories(boardSpec, gameState, "Hide Coasts");
             } else if (fleetSelected) {
@@ -262,8 +270,15 @@ class Board extends React.Component {
             return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
         }
     };
+
+    enterTerritory = (territory) => {
+        this.setState({
+            hoverTerritory: territory
+        });
+    };
+
     render () {
-        let {boardSpec, gameState, orders, selectedTerritory, targetUnitSelected, orderMode} = this.props;
+        let {boardSpec, gameState, orders, selectedTerritory, selectedTargetUnit, orderMode} = this.props;
         const factions = Object.keys(gameState.factions);
         const unitTypes = ["army", "fleet"];
         let units = [];
@@ -327,7 +342,10 @@ class Board extends React.Component {
                 let isSelected = selectedTerritory === territory;
 
                 territories.push(
-                    <g className={`territory${isSelected ? " selected": ""}`} onClick={()=>{this.props.clickTerritory(territory);}} key={territory +"path"} transform={transform}>
+                    <g className={`territory${isSelected ? " selected": ""}`}
+                        onClick={()=>{this.props.clickTerritory(territory);}}
+                        onMouseEnter={()=>{this.enterTerritory(territory);}}
+                        key={territory +"path"} transform={transform}>
                         {boardSpec.territoryPaths[filePath].map((p, i)=><path key={i} d={p}/>)}
                     }}
                     </g>
@@ -338,9 +356,15 @@ class Board extends React.Component {
 
         const arrowWidth = 12;
         const arrowHeight = 3;
-            
+
+        let mouseFollower = (
+            <div className="mouseFollower">
+                {this.state.hoverTerritory}
+            </div>
+        );
+
         return (
-            <div className="board">
+            <MouseFollower className="board" follower={mouseFollower}>
                 <svg ref={d=>this.svgDiv=d} width="100%" height="100%" viewBox={`0 0 ${boardSpec.boardSize[0]} ${boardSpec.boardSize[1]}`}>
                     <defs>
                         <marker id="warrow" markerWidth={arrowWidth} markerHeight={arrowHeight} refX={arrowWidth / 2 - 1} refY={arrowHeight / 2} orient="auto" markerUnits="strokeWidth">
@@ -366,7 +390,7 @@ class Board extends React.Component {
                         {overTokens}
                     </g>
                 </svg>
-            </div>
+            </MouseFollower>
         );
     }
 }

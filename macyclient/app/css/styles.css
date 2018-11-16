@@ -252,3 +252,10 @@ h1 {
     stroke: white;
     stroke-width: 80px;
 }
+
+.mouseFollower {
+    color: white;
+    font-family: "Raleway", sans-serif;
+    font-weight: bold;
+    font-size: 12px;
+}

@@ -483,11 +483,13 @@ let resolveUnambiguous = (conflictGraph) => {
     }
 
 
-    // All remaining moves succeed
+    // All remaining moves succeed unless they lead to self dislodgement
     const moveDests = Object.keys(conflictGraph.moves);
     for (let dest of moveDests) {
         for (let move of conflictGraph.moves[dest]) {
-            succeed(move);
+            if (move.faction !== conflictGraph.holds[dest].faction){
+                succeed(move);
+            }
         }
     }
 

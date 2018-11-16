@@ -40,6 +40,8 @@ class App extends React.Component {
                 this.setState({orderMode: "Build Fleet"});
             } else if (e.keyCode === 68) { // d
                 this.setState({orderMode: "Disband"});
+            } else if (e.keyCode === 81) { // q
+                this.setState({orderMode: "Retreat"});
             } else if (e.keyCode === 191) { // /?
                 this.toggleHelp();
             } else if (e.keyCode === 78) { // n
@@ -50,7 +52,7 @@ class App extends React.Component {
                 this.resolveOrders();
             } else if (e.keyCode === 88) { // x
                 this.revertToCurrentTurn();
-            } else if (e.keyCode === 76) { // l
+            } else if (e.keyCode === 79) { // o
                 this.loadSession();
             } else if (e.keyCode === 87) { // w
                 this.saveSession();

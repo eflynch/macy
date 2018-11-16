@@ -54,7 +54,7 @@ body {
     -ms-user-select: none;
 }
 
-.order-power {
+.order-faction {
     margin-top: 10px;
     width: 100px;
     font-size: 10px;
@@ -251,4 +251,11 @@ h1 {
     fill: black;
     stroke: white;
     stroke-width: 80px;
+}
+
+.mouseFollower {
+    color: white;
+    font-family: "Raleway", sans-serif;
+    font-weight: bold;
+    font-size: 12px;
 }

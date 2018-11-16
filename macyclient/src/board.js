@@ -357,14 +357,41 @@ class Board extends React.PureComponent {
         const arrowWidth = 12;
         const arrowHeight = 3;
 
+        let partialOrder;
+        switch (orderMode) {
+        case "Convoy":
+        case "Support":
+            if (!selectedTerritory){
+                partialOrder = utils.makeOrder(undefined, this.state.hoverTerritory, undefined, undefined, orderMode);
+            } else if (!selectedTargetUnit) {
+                partialOrder = utils.makeOrder(undefined, selectedTerritory, this.state.hoverTerritory, undefined, orderMode);
+            } else {
+                partialOrder = utils.makeOrder(undefined, selectedTerritory, selectedTargetUnit, this.state.hoverTerritory, orderMode);
+            }
+            break;
+        case "Move":
+        case "Move (Convoy)":
+        case "Retreat":
+            if (!selectedTerritory){
+                partialOrder = utils.makeOrder(undefined, this.state.hoverTerritory, undefined, undefined, orderMode);
+            } else {
+                partialOrder = utils.makeOrder(undefined, selectedTerritory, selectedTargetUnit, this.state.hoverTerritory, orderMode);
+            }
+            break;
+        case "Build Fleet":
+        case "Build Army":
+        case "Disband":
+            partialOrder = utils.makeOrder(undefined, undefined, undefined, this.state.hoverTerritory, orderMode);
+            break;
+        }
         let mouseFollower = (
             <div className="mouseFollower">
-                {this.state.hoverTerritory}
+                {utils.formatOrder(partialOrder)}
             </div>
         );
 
         return (
-            <MouseFollower className="board" follower={mouseFollower}>
+            <MouseFollower className="board" follower={mouseFollower} follow={false}>
                 <svg ref={d=>this.svgDiv=d} width="100%" height="100%" viewBox={`0 0 ${boardSpec.boardSize[0]} ${boardSpec.boardSize[1]}`}>
                     <defs>
                         <marker id="warrow" markerWidth={arrowWidth} markerHeight={arrowHeight} refX={arrowWidth / 2 - 1} refY={arrowHeight / 2} orient="auto" markerUnits="strokeWidth">

@@ -265,14 +265,6 @@ class App extends React.Component {
         }
     };
 
-    getMouseFollower = () => {
-        if (this.state.hoverTerritory === undefined){
-            return "";
-        } else {
-            return this.state.hoverTerritory;
-        }
-    }
-
     saveSession = ()=>{
         let session_copy = JSON.parse(JSON.stringify(this.props.session));
         session_copy.boardSpec = "<reMoved to save space>";
@@ -298,7 +290,6 @@ class App extends React.Component {
             keybindings = <Help/>;
         }
 
-        let mouseFollower = this.getMouseFollower();
         return (
             <div>
                 {keybindings}
@@ -311,15 +302,13 @@ class App extends React.Component {
                 </p>
                 <div className="main">
                     <div className="board-container">
-                        <MouseFollower follower={mouseFollower}>
-                            <Board clickTerritory={this.clickTerritory}
-                                   orders={this.state.showOrders ? orders : []}
-                                   boardSpec={boardSpec}
-                                   gameState={gameState}
-                                   orderMode={this.state.orderMode}
-                                   selectedTerritory={orderable ? this.state.selectedTerritory : false}
-                                   selectedTargetUnit={this.state.selectedTargetUnit} />
-                        </MouseFollower>
+                        <Board clickTerritory={this.clickTerritory}
+                               orders={this.state.showOrders ? orders : []}
+                               boardSpec={boardSpec}
+                               gameState={gameState}
+                               orderMode={this.state.orderMode}
+                               selectedTerritory={orderable ? this.state.selectedTerritory : false}
+                               selectedTargetUnit={this.state.selectedTargetUnit} />
                         <SupplyCenters boardSpec={boardSpec} gameState={gameState} />
                     </div>
                     <OrdersList

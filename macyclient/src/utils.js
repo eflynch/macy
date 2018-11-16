@@ -150,9 +150,9 @@ module.exports = {
         }
     },
     formatOrder: (order) => {
-        let unit = order.unit ? order.unit.toLowerCase(): "__";
-        let target = order.target ? order.target.toLowerCase() : "__";
-        let targetUnit = order.targetUnit ? order.targetUnit.toLowerCase() : "__";
+        let unit = order.unit ? order.unit.toLowerCase(): "_";
+        let target = order.target ? order.target.toLowerCase() : "_";
+        let targetUnit = order.targetUnit ? order.targetUnit.toLowerCase() : "_";
         if (order.action === "Move") {
             if (order.viaConvoy){
                 return `${unit} ⤼ ${target}`;

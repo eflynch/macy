@@ -25,7 +25,7 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
 
                 let thisDislodgement = false;
                 for (let dislodgement of gameState.dislodged) {
-                    if (dislodgement.source === order.unit && dislodgement.power === order.power) {
+                    if (dislodgement.source === order.unit && dislodgement.faction === order.faction) {
                         thisDislodgement = dislodgement;
                         if (order.target === dislodgement.restriction){
                             console.log("invalid retreat", order);
@@ -59,9 +59,9 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
 
         } else {
             let unitType;
-            if (gameState.factions[order.power].army.includes(order.unit)) {
+            if (gameState.factions[order.faction].army.includes(order.unit)) {
                 unitType = "army";
-            } else if (gameState.factions[order.power].fleet.includes(order.unit)) {
+            } else if (gameState.factions[order.faction].fleet.includes(order.unit)) {
                 unitType = "fleet";
             } else {
                 console.log("Not a real unit", order);
@@ -126,7 +126,7 @@ let cutSupportOrdersByNonConvoyed = (boardSpec, gameState, orders) => {
     let brokenSupports = [];
     for (let moveOrder of moveOrders) {
         for (let supportOrder of supportOrders) {
-            if (moveOrder.target === supportOrder.unit && moveOrder.power !== supportOrder.power) {
+            if (moveOrder.target === supportOrder.unit && moveOrder.faction !== supportOrder.faction) {
                 brokenSupports.push(supportOrder);
             }
         }
@@ -200,7 +200,7 @@ let filterFailedConvoyMovesAndCutSupportOrdersByConvoyed = (boardSpec, gameState
     let cutSupports = (moveOrder) => {
         let supportOrders = orders.filter((order) => order.action === "Support");
         for (let supportOrder of supportOrders) {
-            if (moveOrder.target === supportOrder.unit && moveOrder.power !== supportOrder.power) {
+            if (moveOrder.target === supportOrder.unit && moveOrder.faction !== supportOrder.faction) {
                 removFromArray(orders, supportOrder);
                 break;
             }
@@ -252,14 +252,14 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
     for (let faction of factions) {
         gameState.factions[faction].army.forEach((a) => {holds[a] = {
             holdStrength: 1,
-            power: faction,
+            faction: faction,
             unit: a,
             realUnit: a,
             unitType: "army"
         };});
         gameState.factions[faction].fleet.forEach((f) => {holds[strip_coast(f)] = {
             holdStrength: 1,
-            power: faction,
+            faction: faction,
             unit: strip_coast(f),
             realUnit: f,
             unitType: "fleet"
@@ -270,9 +270,9 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
     for (let order of orders) {
         if (order.action === "Move") {
             let unitType;
-            if (gameState.factions[order.power].army.includes(order.unit)) {
+            if (gameState.factions[order.faction].army.includes(order.unit)) {
                 unitType = "army";
-            } else if (gameState.factions[order.power].fleet.includes(order.unit)) {
+            } else if (gameState.factions[order.faction].fleet.includes(order.unit)) {
                 unitType = "fleet";
             }
             let unit = strip_coast(order.unit);
@@ -282,7 +282,7 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
                 moves[target].push(
                     {
                         moveStrength: 1,
-                        power: order.power,
+                        faction: order.faction,
                         source: order.unit,
                         unitType: unitType,
                         destination: target,
@@ -295,7 +295,7 @@ let generateConflictGraph = (boardSpec, gameState, orders) => {
                 moves[target] = [
                     {
                         moveStrength: 1,
-                        power: order.power,
+                        faction: order.faction,
                         source: order.unit,
                         unitType: unitType,
                         destination: target,
@@ -352,7 +352,7 @@ let resolveHeadToHead = (conflictGraph) => {
                         if (move.viaConvoy && move2.viaConvoy){
                             continue;
                         }
-                        if (move.power === move2.power) {
+                        if (move.faction === move2.faction) {
                             cancel(move);
                             cancel(move2);
                         } else if (move.moveStrength === move2.moveStrength) {
@@ -377,7 +377,7 @@ let resolveUnambiguous = (conflictGraph) => {
     let cancel = (move) => {
         if (conflictGraph.holds[move.source].holdStrength !== "?") {
             dislodged.push({
-                power: move.power,
+                faction: move.faction,
                 source: move.source,
                 unitType: move.unitType,
                 restriction: conflictGraph.holds[move.source].unitOrigin
@@ -390,7 +390,7 @@ let resolveUnambiguous = (conflictGraph) => {
 
     let succeed = (move) => {
         moved.push({
-            power: move.power,
+            faction: move.faction,
             source: move.source,
             destination: move.realDestination
         });
@@ -399,7 +399,7 @@ let resolveUnambiguous = (conflictGraph) => {
         }
         if (conflictGraph.holds[move.destination] !== undefined && conflictGraph.holds[move.destination].holdStrength >= 1) {
             dislodged.push({
-                power: conflictGraph.holds[move.destination].power,
+                faction: conflictGraph.holds[move.destination].faction,
                 source: conflictGraph.holds[move.destination].realUnit,
                 unitType: conflictGraph.holds[move.destination].unitType,
                 restriction: move.source
@@ -407,7 +407,7 @@ let resolveUnambiguous = (conflictGraph) => {
         }
         conflictGraph.holds[move.destination] = {
             holdStrength: 1,
-            power: move.power,
+            faction: move.faction,
             unit: move.destination,
             unitOrigin: move.source,
             unitType: move.unitType,
@@ -435,7 +435,7 @@ let resolveUnambiguous = (conflictGraph) => {
                 if (moveStrengths.indexOf(maxMoveStrength) == moveStrengths.lastIndexOf(maxMoveStrength)) {
 
                     // prevent self-dislodgement in this ambiguous case
-                    if (maxHoldStrength >= 1 && conflictGraph.holds[dest] !== undefined && conflictGraph.moves[dest][moveStrengths.indexOf(maxMoveStrength)].power === conflictGraph.holds[dest].power){
+                    if (maxHoldStrength >= 1 && conflictGraph.holds[dest] !== undefined && conflictGraph.moves[dest][moveStrengths.indexOf(maxMoveStrength)].faction === conflictGraph.holds[dest].faction){
                         continue;
                     }
 
@@ -511,16 +511,16 @@ let resolve = (boardSpec, gameState, orders) => {
                 let prevOrder = retreats[strip_coast(order.target)];
                 if (prevOrder !== undefined) {
                     disbands.push({
-                        power: prevOrder.power,
+                        faction: prevOrder.faction,
                         unit: prevOrder.source
                     });
                     disbands.push({
-                        power: order.power,
+                        faction: order.faction,
                         unit: order.unit
                     });
                 } else {
                     retreats[strip_coast(order.target)] = {
-                        power: order.power,
+                        faction: order.faction,
                         source: order.unit,
                         destination: order.target,
                         unitType: order.unitType
@@ -529,7 +529,7 @@ let resolve = (boardSpec, gameState, orders) => {
                 managedDislodgements.push(order.unit); 
             } else if (order.action === "Disband") {
                 disbands.push({
-                    power: order.power,
+                    faction: order.faction,
                     unit: order.unit
                 });
                 managedDislodgements.push(order.unit); 
@@ -538,13 +538,13 @@ let resolve = (boardSpec, gameState, orders) => {
         for (let dislodgement of gameState.dislodged) {
             if (!managedDislodgements.includes(dislodgement.source)){
                 disbands.push({
-                    power: dislodgement.power,
+                    faction: dislodgement.faction,
                     unit: dislodgement.source
                 });
             }
         }
         for (let retreat of Object.values(retreats)){
-            newGameState.factions[retreat.power][retreat.unitType].push(retreat.destination);
+            newGameState.factions[retreat.faction][retreat.unitType].push(retreat.destination);
         }
 
         newGameState.dislodged = [];
@@ -563,20 +563,20 @@ let resolve = (boardSpec, gameState, orders) => {
 
         // Update gameState
         for (let move of moved){
-            if (gameState.factions[move.power].army.includes(move.source)){
-                newGameState.factions[move.power].army[gameState.factions[move.power].army.indexOf(move.source)] = move.destination;
+            if (gameState.factions[move.faction].army.includes(move.source)){
+                newGameState.factions[move.faction].army[gameState.factions[move.faction].army.indexOf(move.source)] = move.destination;
             }
 
-            if (gameState.factions[move.power].fleet.includes(move.source)){
-                newGameState.factions[move.power].fleet[gameState.factions[move.power].fleet.indexOf(move.source)] = move.destination;
+            if (gameState.factions[move.faction].fleet.includes(move.source)){
+                newGameState.factions[move.faction].fleet[gameState.factions[move.faction].fleet.indexOf(move.source)] = move.destination;
             }
         }
         for (let dislodgement of dislodged) {
-            if (gameState.factions[dislodgement.power].army.includes(dislodgement.source)){
-                removeFromArray(newGameState.factions[dislodgement.power].army, dislodgement.source);
+            if (gameState.factions[dislodgement.faction].army.includes(dislodgement.source)){
+                removeFromArray(newGameState.factions[dislodgement.faction].army, dislodgement.source);
             }
-            if (gameState.factions[dislodgement.power].fleet.includes(dislodgement.source)){
-                removeFromArray(newGameState.factions[dislodgement.power].fleet, dislodgement.source);
+            if (gameState.factions[dislodgement.faction].fleet.includes(dislodgement.source)){
+                removeFromArray(newGameState.factions[dislodgement.faction].fleet, dislodgement.source);
             }
         }
         newGameState.dislodged = dislodged;
@@ -626,22 +626,22 @@ let resolve = (boardSpec, gameState, orders) => {
 
         for (let order of validOrders) {
             if (order.action === "Build") {
-                if (allowedBuilds[order.power] > 0){
-                    newGameState.factions[order.power][order.unitType].push(order.unit);
-                    allowedBuilds[order.power] -= 1;
+                if (allowedBuilds[order.faction] > 0){
+                    newGameState.factions[order.faction][order.unitType].push(order.unit);
+                    allowedBuilds[order.faction] -= 1;
                 }
             }
 
             if (order.action === "Disband") {
-                if (allowedBuilds[order.power] < 0) {
-                    if (newGameState.factions[order.power].army.includes(order.unit)){
-                        removeFromArray(newGameState.factions[order.power].army, order.unit);
-                    } else if (newGameState.factions[order.power].fleet.includes(order.unit)){
-                        removeFromArray(newGameState.factions[order.power].fleet, order.unit);
+                if (allowedBuilds[order.faction] < 0) {
+                    if (newGameState.factions[order.faction].army.includes(order.unit)){
+                        removeFromArray(newGameState.factions[order.faction].army, order.unit);
+                    } else if (newGameState.factions[order.faction].fleet.includes(order.unit)){
+                        removeFromArray(newGameState.factions[order.faction].fleet, order.unit);
                     } else {
                         console.warn("Something went run with a disband", order);
                     }
-                    allowedBuilds[order.power] += 1;
+                    allowedBuilds[order.faction] += 1;
                 }
                 
             }

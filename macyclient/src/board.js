@@ -292,7 +292,7 @@ class Board extends React.PureComponent {
 
         let dislodgements = [];
         for (let dislodgement of gameState.dislodged) {
-            dislodgements.push(<DislodgedUnit unitType={dislodgement.unitType} key={dislodgement.source + "dislodged"} territory={dislodgement.source} faction={dislodgement.power} size={120} restriction={dislodgement.restriction} boardSpec={boardSpec}/>);
+            dislodgements.push(<DislodgedUnit unitType={dislodgement.unitType} key={dislodgement.source + "dislodged"} territory={dislodgement.source} faction={dislodgement.faction} size={120} restriction={dislodgement.restriction} boardSpec={boardSpec}/>);
         }
 
         let underTokens = orders.map((order, i) => {
@@ -312,7 +312,7 @@ class Board extends React.PureComponent {
                 return <SupportHold key={i} boardSpec={boardSpec} supporter={order.unit} targetUnit={order.targetUnit} />;
             }
             if (order.action === "Build") {
-                return <Build key={i} boardSpec={boardSpec} territory={order.unit} unitType={order.unitType} size={100} faction={order.power}/>;
+                return <Build key={i} boardSpec={boardSpec} territory={order.unit} unitType={order.unitType} size={100} faction={order.faction}/>;
             }
             if (order.action === "Disband") {
                 return <Disband key={i} boardSpec={boardSpec} territory={order.unit} size={100}/>;
@@ -325,7 +325,7 @@ class Board extends React.PureComponent {
 
         let overTokens = orders.map((order, i) => {
             if (order.action === "Build") {
-                return <Build key={i} boardSpec={boardSpec} territory={order.unit} unitType={order.unitType} size={100} faction={order.power}/>;
+                return <Build key={i} boardSpec={boardSpec} territory={order.unit} unitType={order.unitType} size={100} faction={order.faction}/>;
             }
             if (order.action === "Disband") {
                 return <Disband key={i} boardSpec={boardSpec} territory={order.unit} size={100}/>;

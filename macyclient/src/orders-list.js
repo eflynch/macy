@@ -30,13 +30,13 @@ class OrdersList extends React.PureComponent {
 
         let orders = {};
         for (let order of this.props.orders) {
-            if (orders.hasOwnProperty(order.power)) {
-                orders[order.power].push(order);
+            if (orders.hasOwnProperty(order.faction)) {
+                orders[order.faction].push(order);
             } else {
-                orders[order.power] = [order];
+                orders[order.faction] = [order];
             }
         }
-        let powersWithOrders = Object.keys(orders);
+        let factionsWithOrders = Object.keys(orders);
 
         return (
             <div className="order-list">
@@ -51,11 +51,11 @@ class OrdersList extends React.PureComponent {
                     <span>{this.props.gameState.season} {this.props.gameState.year}</span>
                     <span style={{cursor:"pointer"}} onClick={this.props.goForward}>→</span>
                 </div>
-                {powersWithOrders.map((power) => {
+                {factionsWithOrders.map((faction) => {
                     return (
-                        <div key={power}>
-                            <div className="order-power">{power}</div>
-                            {orders[power].map((order, i) => <Order order={order} key={i}/>)}
+                        <div key={faction}>
+                            <div className="order-faction">{faction}</div>
+                            {orders[faction].map((order, i) => <Order order={order} key={i}/>)}
                         </div>);
                 })}
                 {resolve}

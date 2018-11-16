@@ -190,9 +190,9 @@ class App extends React.Component {
         };
 
         let setOrder = (territory) => {
-            let setOrderState = (target, power) => {
+            let setOrderState = (target, faction) => {
                 let order = utils.makeOrder(
-                    power, this.state.selectedTerritory,
+                    faction, this.state.selectedTerritory,
                     this.state.selectedTargetUnit, territory, this.state.orderMode);
                 this.state.additionalOrders[target] = order;
                 this.setState({additionalOrders: this.state.additionalOrders});
@@ -204,33 +204,33 @@ class App extends React.Component {
             case "Move":
             case "Move (Convoy)":
             case "Support":
-                let power = units[this.state.selectedTerritory].faction;
-                console.log(power);
-                setOrderState(this.state.selectedTerritory, power);
+                let faction = units[this.state.selectedTerritory].faction;
+                console.log(faction);
+                setOrderState(this.state.selectedTerritory, faction);
                 break;
             case "Retreat":
                 if (this.state.selectedTerritory !== territory) {
-                    let power = false;
+                    let faction = false;
                     for (let dislodgement of gameState.dislodged) {
                         if (dislodgement.source === this.state.selectedTerritory) {
-                            power = dislodgement.power;
+                            faction = dislodgement.faction;
                             break;
                         }
                     }
-                    setOrderState(this.state.selectedTerritory, power);
+                    setOrderState(this.state.selectedTerritory, faction);
                 }
                 break;
             case "Build Army":
             case "Build Fleet":
                 if (units[territory] === undefined) {
-                    let power = buildPoints[territory].power;
-                    setOrderState(territory, power);
+                    let faction = buildPoints[territory].faction;
+                    setOrderState(territory, faction);
                 }
                 break;
             case "Disband":
                 if (units[territory] !== undefined) {
-                    let power = units[territory].faction;
-                    setOrderState(territory, power);
+                    let faction = units[territory].faction;
+                    setOrderState(territory, faction);
                 }
                 break;
             }

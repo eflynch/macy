@@ -41,12 +41,12 @@ module.exports = {
         for (let faction of factions) {
             for (let territory of boardSpec.factions[faction].armyBuildPoints) {
                 buildPoints[territory] = {
-                    power: faction
+                    faction: faction
                 };
             }
             for (let territory of boardSpec.factions[faction].emergencyBuildPoints) {
                 buildPoints[territory] = {
-                    power: faction
+                    faction: faction
                 };
             }
         }
@@ -84,11 +84,11 @@ module.exports = {
             console.warn("You made a mistake boy");
         }
     },
-    makeOrder: (power, selectedTerritory, targetUnit, target, orderMode) => {
+    makeOrder: (faction, selectedTerritory, targetUnit, target, orderMode) => {
         switch(orderMode){
         case "Convoy":
             return {
-                power: power,
+                faction: faction,
                 unit: selectedTerritory,
                 action: "Convoy",
                 target: target,
@@ -98,14 +98,14 @@ module.exports = {
         case "Move (Convoy)":
             if (selectedTerritory === target) {
                 return {
-                    power: power,
+                    faction: faction,
                     unit: selectedTerritory,
                     action: "Hold",
                     target: target,
                 };
             } else {
                 return {
-                    power: power,
+                    faction: faction,
                     unit: selectedTerritory,
                     action: "Move",
                     target: target,
@@ -114,7 +114,7 @@ module.exports = {
             }
         case "Support":
             return {
-                power: power,
+                faction: faction,
                 unit: selectedTerritory,
                 action: "Support",
                 target: target,
@@ -122,28 +122,28 @@ module.exports = {
             };
         case "Retreat":
             return {
-                power: power,
+                faction: faction,
                 unit: selectedTerritory,
                 action: "Retreat",
                 target:target 
             };
         case "Build Army":
             return {
-                power: power,
+                faction: faction,
                 unitType: "army",
                 action: "Build",
                 unit: target 
             };
         case "Build Fleet":
             return {
-                power: power,
+                faction: faction,
                 unitType: "fleet",
                 action: "Build",
                 unit: target 
             };
         case "Disband":
             return {
-                power: power,
+                faction: faction,
                 action: "Disband",
                 unit: target 
             };

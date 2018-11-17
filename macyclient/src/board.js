@@ -181,6 +181,9 @@ class Board extends React.PureComponent {
             }
             if (armyRetreatSelected) {
                 return all_territories.filter(t => {
+                    if (units[t] !== undefined) {
+                        return false;
+                    }
                     for (let dislodgement of gameState.dislodged){
                         if (boardSpec.graph.army.distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction){
                             return true;
@@ -190,6 +193,9 @@ class Board extends React.PureComponent {
                 });
             } else if (fleetRetreatSelected) {
                 return all_territories.filter(t => {
+                    if (units[t] !== undefined) {
+                        return false;
+                    }
                     for (let dislodgement of gameState.dislodged){
                         if (boardSpec.graph.fleet.distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction && !gameState.retreatRestrictions.includes(t)){
                             return true;

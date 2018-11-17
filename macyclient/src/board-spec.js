@@ -688,7 +688,7 @@ let dip1900 = {
     territoryImages: "png/map/",
     territoryPaths: paths,
     boardSize: [2250, 2250],
-    title: "1900 Diplomacy",
+    title: "1900 Variant",
     unitPositions: {
         "North Atlantic Ocean": [305, 648],
         "Norwegian Sea": [747, 408],

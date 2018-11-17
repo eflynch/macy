@@ -1,9 +1,12 @@
 body {
     font-family: 'Raleway', sans-serif;
-    padding: 10px;
+    margin: 0px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .help {
+    z-index: 10;
     max-height: 80vh;
     padding: 30px;
     position: fixed;
@@ -18,22 +21,6 @@ body {
 
 .help th {
     text-align: left;
-}
-
-.saveload {
-    user-select: none;
-    margin: 0px;
-    font-size: 11px;
-}
-
-.saveload a {
-    padding-right: 10px;
-    color: red;
-    cursor: pointer;
-}
-
-.saveload a:hover {
-    color: black;
 }
 
 .main {
@@ -203,11 +190,39 @@ li {
     flex-wrap: wrap;
 }
 
+.main-header {
+    display: flex;
+    flex-direction: row;
+    align-items:center;
+}
 
-h1 {
+
+.main-header .site-title{
     font-family: 'Italiana', serif;
-    height: 40px;
-    margin: 0;
+    font-size: 40px;
+    padding-right: 30px;
+}
+
+.main-header .session-title {
+    font-family: 'Raleway', serif;
+    font-size: 16px;
+    padding-right: 10px;
+}
+
+.main-header .spec-title {
+        font-family: 'Raleway', serif;
+    font-size: 16px;
+    padding-right: 10px;
+}
+
+.main-header a {
+    padding-right: 10px;
+    color: red;
+    cursor: pointer;
+}
+
+.main-header a:hover {
+    color: black;
 }
 
 .order-header {

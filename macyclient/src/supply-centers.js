@@ -14,7 +14,7 @@ class SupplyCenters extends React.PureComponent {
             <div className="supply-centers">
                 {factions.map((faction) => {
                     let show = "";
-                    if (this.state.show === faction){
+                    if (this.state.show){
                         show = (
                             <div className="supply-center-item-list">
                                 {gameState.factions[faction].supplyCenters.map((center)=><span>{center}</span>)}
@@ -23,7 +23,7 @@ class SupplyCenters extends React.PureComponent {
                     }
                     return (
                         <div className="supply-center-item" key={faction} style={{background: boardSpec.factions[faction].color}} onClick={(e) => {
-                                this.setState({show: this.state.show === faction ? null : faction});
+                                this.setState({show: !this.state.show});
                             }}>
                             <div className="supply-center-item-content">
                                 <div className="supply-center-item-title">

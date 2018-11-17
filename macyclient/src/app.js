@@ -12,6 +12,7 @@ import Help from './help';
 class App extends React.Component {
     constructor(props){
         super(props);
+        this.gameStateCache = {};
         this.state = {
             turn: props.session.turns.length,
             showOrders: true,
@@ -42,7 +43,7 @@ class App extends React.Component {
                 this.setState({orderMode: "Disband"});
             } else if (e.keyCode === 81) { // q
                 this.setState({orderMode: "Retreat"});
-            } else if (e.keyCode === 191) { // /?
+            } else if (e.keyCode === 191) { // ?
                 this.toggleHelp();
             } else if (e.keyCode === 78) { // n
                 this.goForward();
@@ -75,13 +76,17 @@ class App extends React.Component {
         this.setState({showHelp: !this.state.showHelp});
     };
     getCurrentGameState = () => {
-        let boardSpec = this.props.session.boardSpec;
-        let gameState = JSON.parse(JSON.stringify(boardSpec.startingGameState));
-        let turns = this.props.session.turns.concat(this.state.additionalTurns);
-        for (let orders of turns.slice(0, this.state.turn)) {
-            gameState = resolve(boardSpec, gameState, orders);
+        if (this.gameStateCache[this.state.turn] === undefined) {
+            console.log("Cache miss", this.state.turn);
+            let boardSpec = this.props.session.boardSpec;
+            let gameState = JSON.parse(JSON.stringify(boardSpec.startingGameState));
+            let turns = this.props.session.turns.concat(this.state.additionalTurns);
+            for (let orders of turns.slice(0, this.state.turn)) {
+                gameState = resolve(boardSpec, gameState, orders);
+            }
+            this.gameStateCache[this.state.turn] = gameState;
         }
-        return gameState;
+        return this.gameStateCache[this.state.turn];
     };
     setOrderMode = (orderMode) => {
         let gameState = this.getCurrentGameState();
@@ -111,6 +116,7 @@ class App extends React.Component {
             return;
         }
         const newLastAdditionalTurn = this.state.turn - this.props.session.turns.length;
+        // TODO:: Do this immutable instead
         this.state.additionalTurns.length = newLastAdditionalTurn + 1;
         let theseOrders = this.state.additionalTurns[newLastAdditionalTurn];
         let additionalOrders = {}
@@ -118,6 +124,13 @@ class App extends React.Component {
             additionalOrders[order.unit] = order;
         }
         theseOrders.length = 0;
+
+        // Invalidate cache for all turns after and including this.state.turn
+        for (let cacheTurn of Object.keys(this.gameStateCache)) {
+            if (cacheTurn >= this.state.turn){
+                this.gameStateCache[cacheTurn] = undefined;
+            }
+        }
         this.setState({
             additionalOrders: additionalOrders,
             additionalTurns: this.state.additionalTurns,
@@ -134,8 +147,15 @@ class App extends React.Component {
         if (!orderable || this.state.turn != turns.length - 1){
             return;
         }
-        this.state.additionalTurns[this.state.additionalTurns.length - 1].push(...orders);
+
+        let turnToModify = this.state.additionalTurns.length - 1;
+
+        // TODO:: DO this immutably instead
+        this.state.additionalTurns[turnToModify].push(...orders);
         this.state.additionalTurns.push([]);
+
+        // Invalidate modified turn
+        this.gameStateCache[turnToModify] = undefined;
         this.setState({
             additionalOrders: {},
             additionalTurns: this.state.additionalTurns,
@@ -197,8 +217,12 @@ class App extends React.Component {
                     faction, this.state.selectedTerritory,
                     this.state.selectedTargetUnit, territory, this.state.orderMode);
                 this.state.additionalOrders[target] = order;
-                this.setState({additionalOrders: this.state.additionalOrders});
-                this.setState({selectedTargetUnit: false, selectedTerritory: false});
+
+                this.setState({
+                    additionalOrders: this.state.additionalOrders,
+                    selectedTargetUnit: false,
+                    selectedTerritory: false
+                });
             };
 
             switch (this.state.orderMode) {
@@ -269,7 +293,7 @@ class App extends React.Component {
 
     saveSession = ()=>{
         let session_copy = JSON.parse(JSON.stringify(this.props.session));
-        session_copy.boardSpec = "<reMoved to save space>";
+        session_copy.boardSpec = "<removed to save space>";
         session_copy.turns = session_copy.turns.concat(this.state.additionalTurns);
         this.props.saveSession(session_copy);
     };
@@ -287,21 +311,22 @@ class App extends React.Component {
         if (orderable){
             orders = Object.values(this.state.additionalOrders);
         }
-        let keybindings = <span/>;
+        let help = <span/>;
         if (this.state.showHelp){
-            keybindings = <Help/>;
+            help = <Help/>;
         }
 
         return (
             <div>
-                {keybindings}
-                <h1>{this.props.session.title} ({boardSpec.title})</h1>
-                <p className="saveload">
+                {help}
+                <div className="main-header">
+                    <span className="site-title">MACY</span>
+                    <span className="session-title">{this.props.session.title}</span>
+                    <span className="spec-title">({boardSpec.title})</span>
                     <a onClick={this.toggleHelp}>help</a>
-                    clipboard: <span/> 
                     <a onClick={this.saveSession}>save</a>
                     <a onClick={this.loadSession}>load</a>
-                </p>
+                </div>
                 <div className="main">
                     <div className="board-container">
                         <Board clickTerritory={this.clickTerritory}

@@ -67,6 +67,11 @@ class Help extends React.PureComponent {
                                 <td>Disband</td> 
                                 <td>Select unit to disband</td>
                             </tr>
+                            <tr>
+                                <td>q</td>
+                                <td>Retreat</td> 
+                                <td>Select unit, destination</td>
+                            </tr>
                         </table>
                         <p style={{maxWidth: 400}}>
                             * Move and Move (Convoy) are separate actions in this implementation because there are edge cases where specifying whether or not an army is to be moved by convoy is ambiguous potentially allowing an enemy to "convoynap" an army allowing units to trade places.

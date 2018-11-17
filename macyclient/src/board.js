@@ -345,6 +345,7 @@ class Board extends React.PureComponent {
                     <g className={`territory${isSelected ? " selected": ""}`}
                         onClick={()=>{this.props.clickTerritory(territory);}}
                         onMouseEnter={()=>{this.enterTerritory(territory);}}
+                        onMouseLeave={()=>{this.enterTerritory(null);}}
                         key={territory +"path"} transform={transform}>
                         {boardSpec.territoryPaths[filePath].map((p, i)=><path key={i} d={p}/>)}
                     }}
@@ -389,6 +390,10 @@ class Board extends React.PureComponent {
                 {utils.formatOrder(partialOrder)}
             </div>
         );
+
+        if (this.state.hoverTerritory === null && !selectedTerritory && !selectedTargetUnit) {
+            mouseFollower = <span/>;
+        }
 
         return (
             <MouseFollower className="board" follower={mouseFollower} follow={false}>

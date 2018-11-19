@@ -2,11 +2,7 @@
 
 module.exports = {
     stripCoast: (fleet) => {
-        return fleet
-            .replace(" :: NC", "")
-            .replace(" :: SC", "")
-            .replace(" :: WC", "")
-            .replace(" :: EC", "");
+        return fleet.split(" :: ")[0];
     },
     getAllowedOrderModes: (season) => {
         let orderModes = [];
@@ -56,7 +52,7 @@ module.exports = {
         const factions = Object.keys(gameState.factions);
         let all_territories = Object.keys(boardSpec.unitPositions);
         if (filterType === "Show Coasts") {
-            return all_territories.filter(t => !boardSpec.multiCoast.includes(t));
+            return all_territories.filter(t => !boardSpec.multiCoast[t]);
         } else if (filterType === "Hide Coasts") {
             return all_territories.filter(t => !t.includes("::"));
         } else if (filterType === "Show Coasts with Fleets Only") {
@@ -68,7 +64,7 @@ module.exports = {
                         }
                     }
                     return false;
-                } else if (boardSpec.multiCoast.includes(t)) {
+                } else if (boardSpec.multiCoast[t]) {
                     for (let faction of factions) {
                         for (let territory of gameState.factions[faction].fleet) {
                             if (territory.includes(t)){

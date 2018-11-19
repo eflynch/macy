@@ -184,11 +184,11 @@ let seas = [
     "Gibraltar"
 ];
 
-let multiCoast = [
-    "St. Petersburg",
-    "Spain",
-    "Macedonia"
-];
+let multiCoast = {
+    "St. Petersburg": ["NC", "SC"],
+    "Spain": ["WC", "NC", "EC"],
+    "Macedonia": ["WC", "EC"]
+};
 
 let armyGraph = new Graph();
 provinces.forEach((p) => {armyGraph.addNode(p);});
@@ -431,6 +431,7 @@ bij(fleetGraph, "Norwegian Sea", "Iceland");
 bij(fleetGraph, "Norwegian Sea", "North Atlantic Ocean");
 bij(fleetGraph, "Norwegian Sea", "Clyde");
 bij(fleetGraph, "Norwegian Sea", "Edinburgh");
+bij(fleetGraph, "Norwegian Sea", "North Sea");
 bij(fleetGraph, "North Atlantic Ocean", "Clyde");
 bij(fleetGraph, "North Atlantic Ocean", "Iceland");
 bij(fleetGraph, "North Atlantic Ocean", "Liverpool");

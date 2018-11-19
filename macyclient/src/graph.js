@@ -8,18 +8,38 @@ class Graph {
     }
 
     clone() {
-        let g = new Graph();
-        for (let node of this.nodes) {
-            g.addNode(node);
+        return Graph.fromSimple(JSON.parse(JSON.stringify(Graph.toSimple(this))));
+    }
+
+    static toSimple(graph) {
+        const edges = {};
+        for (let [fromNode, toNodes] of graph.edges){
+            edges[fromNode] = Array.from(toNodes);
         }
-        for (let edge of this.edges) {
-            let [fromNode, toNodes] = edge;
-            for (let toNode of toNodes) {
-                g.addEdge(fromNode, toNode, this.distances.get(makeKey(fromNode, toNode)));
+        const distances = {};
+        for (let [edge, distance] of graph.distances){
+            distances[edge] = distance;
+        }
+        return JSON.stringify({
+            nodes: Array.from(graph.nodes),
+            edges: edges,
+            distances: distances,
+        });
+    }
+
+    static fromSimple(string) {
+        const {nodes, edges, distances} = JSON.parse(string);
+        let graph = new Graph();
+        for (let node of nodes){
+            graph.addNode(node);
+        }
+        for (let fromNode of Object.keys(edges)){
+            for (let toNode of edges[fromNode]){
+                graph.addEdge(fromNode, toNode, distances[makeKey(fromNode, toNode)]);
             }
         }
-        return g;
-    }
+        return graph;
+    }    
 
     addNode(value){
         this.nodes.add(value);

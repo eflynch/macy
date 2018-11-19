@@ -57,6 +57,8 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
             }
         } else if (order.action === "Build") {
 
+        } else if (order.action === "Disband") {
+
         } else {
             let unitType;
             if (gameState.factions[order.faction].army.includes(order.unit)) {

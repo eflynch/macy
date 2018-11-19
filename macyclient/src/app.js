@@ -231,7 +231,6 @@ class App extends React.Component {
             case "Move (Convoy)":
             case "Support":
                 let faction = units[this.state.selectedTerritory].faction;
-                console.log(faction);
                 setOrderState(this.state.selectedTerritory, faction);
                 break;
             case "Retreat":
@@ -254,10 +253,22 @@ class App extends React.Component {
                 }
                 break;
             case "Disband":
-                if (units[territory] !== undefined) {
-                    let faction = units[territory].faction;
+                if (gameState.season.includes("Retreat")) {
+                    let faction = false;
+                    for (let dislodgement of gameState.dislodged) {
+                        if (dislodgement.source === territory) {
+                            faction = dislodgement.faction;
+                            break;
+                        }
+                    }
                     setOrderState(territory, faction);
+                } else {
+                    if (units[territory] !== undefined) {
+                        let faction = units[territory].faction;
+                        setOrderState(territory, faction);
+                    }
                 }
+                
                 break;
             }
         };

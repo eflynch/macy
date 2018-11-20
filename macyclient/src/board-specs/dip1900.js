@@ -687,7 +687,6 @@ let dip1900 = {
         },
     },
     boardImage: "png/board.jpg",
-    territoryImages: "png/map/",
     territoryPaths: paths,
     boardSize: [2250, 2250],
     title: "1900 Variant",

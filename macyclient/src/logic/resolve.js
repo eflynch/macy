@@ -624,8 +624,22 @@ let resolve = (boardSpec, gameState, orders) => {
         let allowedBuilds = {};
         for (let faction of Object.keys(gameState.factions)) {
             let factionDeets = newGameState.factions[faction];
+            let factionSpec = boardSpec.factions[faction];
             let unitCount = factionDeets.army.length + factionDeets.fleet.length;
-            allowedBuilds[faction] = factionDeets.supplyCenters.length - unitCount;
+            let supplyCount = factionDeets.supplyCenters.length;
+            if (factionSpec.emergencyBuildPoints) {
+                let buildPoints = factionSpec.armyBuildPoints.concat(factionSpec.fleetBuildPoints).filter((bp)=>{return !bp.includes(" :: ");});
+                let hasLostBuildPoints = buildPoints.some((buildPoint)=>{
+                    return !factionDeets.supplyCenters.includes(buildPoint);
+                });
+                let hasNotLostAllBuildPoints = buildPoints.some((buildPoint)=>{
+                    return factionDeets.supplyCenters.includes(buildPoint);
+                })
+                if (hasLostBuildPoints && hasNotLostAllBuildPoints) {
+                    supplyCount += factionSpec.emergencyBuildPoints.length;
+                }
+            }
+            allowedBuilds[faction] = supplyCount - unitCount;
         }
 
         for (let order of validOrders) {

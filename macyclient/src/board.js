@@ -342,22 +342,56 @@ class Board extends React.PureComponent {
         let territories = [];
         let transform="translate(0.000000,2250.000000) scale(0.100000,-0.100000)";
 
-        for (let territory of this.getClickableTerritories()) {
+        let all_territories = Object.keys(boardSpec.unitPositions);
+        let clickableTerritories = this.getClickableTerritories();
+        for (let territory of all_territories) {
             const filePath = territory.toLowerCase().replace(/\./g, "").replace(/ /g, "-").replace("-::-", "-coast-");
-            if (boardSpec.territoryPaths[filePath] !== undefined) {
-                let isSelected = selectedTerritory === territory;
-
-                territories.push(
-                    <g className={`territory${isSelected ? " selected": ""}`}
-                        onClick={()=>{this.props.clickTerritory(territory);}}
-                        onMouseEnter={()=>{this.enterTerritory(territory);}}
-                        onMouseLeave={()=>{this.enterTerritory(null);}}
-                        key={territory +"path"} transform={transform}>
-                        {boardSpec.territoryPaths[filePath].map((p, i)=><path key={i} d={p}/>)}
-                    }}
-                    </g>
-                );
+            if (boardSpec.territoryPaths[filePath] === undefined) {
+                console.warn("Missing path for ", filePath);
+                continue;
             }
+
+            // Skip coasts unless they are clickable
+            let strippedTerritory = utils.stripCoast(territory);
+            if (boardSpec.multiCoast[strippedTerritory] !== undefined) {
+                // If coast is clickable, then not-coast should be skipped
+                if (strippedTerritory === territory) {  // i.e. we are a not a coast
+                   let atleastOneCoastIsClickable = boardSpec.multiCoast[utils.stripCoast(territory)].some((coast) => {
+                        return clickableTerritories.includes(`${strippedTerritory} :: ${coast}`)
+                    });
+                    if (atleastOneCoastIsClickable) {
+                        continue;
+                    } 
+
+                // skip all coasts unless they are clickable
+                } else {
+                    if (!clickableTerritories.includes(territory)) {
+                        continue;
+                    }
+                }
+            }
+
+            let isSelected = selectedTerritory === territory;
+            let clickable = clickableTerritories.includes(territory);
+
+            let className = `territory${isSelected ? " selected": ""}${clickable ? " clickable": ""}`;
+
+            territories.push(
+                <g className={className}
+                    onClick={()=>{
+                        if (clickable){
+                            this.props.clickTerritory(territory);
+                        } else {
+                            this.props.clickTerritory(undefined);
+                        }
+                    }}
+                    onMouseEnter={()=>{this.enterTerritory(territory);}}
+                    onMouseLeave={()=>{this.enterTerritory(null);}}
+                    key={territory +"path"} transform={transform}>
+                    {boardSpec.territoryPaths[filePath].map((p, i)=><path key={i} d={p}/>)}
+                }}
+                </g>
+            );
         }
 
 

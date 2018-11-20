@@ -164,6 +164,13 @@ class App extends React.Component {
     };
 
     clickTerritory = (territory) => {
+        if (territory === undefined) {
+            this.setState({
+                selectedTerritory: false,
+                selectedTargetUnit: false
+            });
+            return;
+        }
         let boardSpec = this.props.session.boardSpec;
         let gameState = this.getCurrentGameState();
         let turns = this.props.session.turns.concat(this.state.additionalTurns);
@@ -225,6 +232,15 @@ class App extends React.Component {
                 });
             };
 
+            let deleteOrder = (target) => {
+                delete this.state.additionalOrders[target];
+                this.setState({
+                    additionalOrders: this.state.additionalOrders,
+                    selectedTargetUnit: false,
+                    selectedTerritory: false
+                });
+            }
+
             switch (this.state.orderMode) {
             case "Convoy":
             case "Move":
@@ -246,13 +262,24 @@ class App extends React.Component {
                 }
                 break;
             case "Build Army":
-            case "Build Fleet":
+            case "Build Fleet": {
+                let existingOrder = this.state.additionalOrders[territory];
+                if (existingOrder !== undefined && existingOrder.action === "Build") {
+                    deleteOrder(territory);
+                    break;
+                }
                 if (units[territory] === undefined) {
                     let faction = buildPoints[territory].faction;
                     setOrderState(territory, faction);
                 }
                 break;
-            case "Disband":
+            }
+            case "Disband": {
+                let existingOrder = this.state.additionalOrders[territory];
+                if (existingOrder !== undefined && existingOrder.action === "Disband") {
+                    deleteOrder(territory);
+                    break;
+                }
                 if (gameState.season.includes("Retreat")) {
                     let faction = false;
                     for (let dislodgement of gameState.dislodged) {
@@ -270,6 +297,7 @@ class App extends React.Component {
                 }
                 
                 break;
+            }
             }
         };
 

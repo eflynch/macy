@@ -80,29 +80,29 @@ module.exports = {
             console.warn("You made a mistake boy");
         }
     },
-    makeOrder: (faction, selectedTerritory, targetUnit, target, orderMode) => {
+    makeOrder: (faction, unit, targetUnit, target, orderMode) => {
         switch(orderMode){
         case "Convoy":
             return {
                 faction: faction,
-                unit: selectedTerritory,
+                unit: unit,
                 action: "Convoy",
                 target: target,
                 targetUnit: targetUnit 
             };
         case "Move":
         case "Move (Convoy)":
-            if (selectedTerritory === target) {
+            if (unit === target) {
                 return {
                     faction: faction,
-                    unit: selectedTerritory,
+                    unit: unit,
                     action: "Hold",
                     target: target,
                 };
             } else {
                 return {
                     faction: faction,
-                    unit: selectedTerritory,
+                    unit: unit,
                     action: "Move",
                     target: target,
                     viaConvoy: orderMode === "Move (Convoy)" 
@@ -111,7 +111,7 @@ module.exports = {
         case "Support":
             return {
                 faction: faction,
-                unit: selectedTerritory,
+                unit: unit,
                 action: "Support",
                 target: target,
                 targetUnit: targetUnit,
@@ -119,7 +119,7 @@ module.exports = {
         case "Retreat":
             return {
                 faction: faction,
-                unit: selectedTerritory,
+                unit: unit,
                 action: "Retreat",
                 target:target 
             };

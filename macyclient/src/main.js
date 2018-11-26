@@ -6,6 +6,7 @@ import Graph from './graph';
 import App from './app';
 import {loadSession, saveSession} from './session';
 import {copyTextToClipboard, getTextFromClipboard, getJSON} from './web-utils';
+import update from 'immutability-helper';  
 
 const main = () => {
     let saveSessionToClipboard = (session) => {
@@ -26,6 +27,7 @@ const main = () => {
     
     
 };
+
 
 document.addEventListener("DOMContentLoaded", function (){
     main();

@@ -284,7 +284,11 @@ class Board extends React.PureComponent {
     };
 
     render () {
-        let {boardSpec, gameState, orders, selectedTerritory, selectedTargetUnit, orderMode} = this.props;
+        const {boardSpec, gameState, orders, orderState} = this.props;
+        const unit = orderState.unit;
+        const selectedTargetUnit = orderState.targetUnit;
+        const selectedTerritory = orderState.unit;
+        const orderMode = orderState.orderMode;
         const factions = Object.keys(gameState.factions);
         const unitTypes = ["army", "fleet"];
         let units = [];

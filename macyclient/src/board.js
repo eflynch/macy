@@ -160,49 +160,30 @@ class Board extends React.PureComponent {
     }
 
     getClickableTerritories = () => {
-        let {boardSpec, gameState, orders, selectedTerritory, selectedTargetUnit, orderMode} = this.props;
+        let {boardSpec, gameState, orderState} = this.props;
         const factions = Object.keys(gameState.factions);
         const units = utils.getUnitMap(gameState);
-        let fleetSelected = units[selectedTerritory] && units[selectedTerritory].unitType === "fleet";
-        let armySelected = units[selectedTerritory] && units[selectedTerritory].unitType === "army";
+        let fleetSelected = units[orderState.unit] && units[orderState.unit].unitType === "fleet";
+        let armySelected = units[orderState.unit] && units[orderState.unit].unitType === "army";
 
         if (gameState.season.includes("Retreat")) {
             let all_territories = Object.keys(boardSpec.unitPositions);
             let fleetRetreatSelected = false;
             let armyRetreatSelected = false;
-            if (selectedTerritory) {
+            if (orderState.unit) {
                 for (let dislodgement of gameState.dislodged) {
-                    if (selectedTerritory === dislodgement.source) {
-                        fleetRetreatSelected = dislodgement.unitType === "fleet";
-                        armyRetreatSelected = dislodgement.unitType === "army";
-                        break;
+                    if (orderState.unit === dislodgement.source) {
+                        return all_territories.filter(t => {
+                            if (units[t] !== undefined) {
+                                return false;
+                            }
+                            if (boardSpec.graph[dislodgement.unitType].distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction){
+                                return true;
+                            }
+                            return false;
+                        });
                     }
                 }
-            }
-            if (armyRetreatSelected) {
-                return all_territories.filter(t => {
-                    if (units[t] !== undefined) {
-                        return false;
-                    }
-                    for (let dislodgement of gameState.dislodged){
-                        if (boardSpec.graph.army.distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction){
-                            return true;
-                        }
-                    }
-                    return false;
-                });
-            } else if (fleetRetreatSelected) {
-                return all_territories.filter(t => {
-                    if (units[t] !== undefined) {
-                        return false;
-                    }
-                    for (let dislodgement of gameState.dislodged){
-                        if (boardSpec.graph.fleet.distance(t, dislodgement.source) <= 1 && t !== dislodgement.restriction && !gameState.retreatRestrictions.includes(t)){
-                            return true;
-                        }
-                    }
-                    return false;
-                });
             } else {
                 return all_territories.filter(t => {
                     for (let dislodgement of gameState.dislodged){
@@ -213,7 +194,7 @@ class Board extends React.PureComponent {
                     return false;
                 });
             }
-        } else if (orderMode === "Move" || orderMode === "Move (Convoy)") {
+        } else if (orderState.orderMode === "Move" || orderState.orderMode === "Move (Convoy)") {
             if (armySelected){
                 return utils.getTerritories(boardSpec, gameState, "Hide Coasts");
             } else if (fleetSelected) {
@@ -221,9 +202,9 @@ class Board extends React.PureComponent {
             } else {
                 return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
             }
-        } else if (orderMode === "Support") {
-            let targetUnitFleetSelected = units[selectedTargetUnit] && units[selectedTargetUnit].unitType === "fleet";
-            let targetUnitArmySelected = units[selectedTargetUnit] && units[selectedTargetUnit].unitType === "army";
+        } else if (orderState.orderMode === "Support") {
+            let targetUnitFleetSelected = units[orderState.targetUnit] && units[orderState.targetUnit].unitType === "fleet";
+            let targetUnitArmySelected = units[orderState.targetUnit] && units[orderState.targetUnit].unitType === "army";
             if (armySelected || targetUnitArmySelected) {
                 return utils.getTerritories(boardSpec, gameState, "Hide Coasts");
             } else if (fleetSelected) {
@@ -235,18 +216,18 @@ class Board extends React.PureComponent {
             } else {
                 return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
             }
-        } else if (orderMode === "Convoy") {
+        } else if (orderState.orderMode === "Convoy") {
             if (fleetSelected) {
                 return utils.getTerritories(boardSpec, gameState, "Hide Coasts");
             } else {
                 return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
             }
-        } else if (orderMode === "Disband") {
+        } else if (orderState.orderMode === "Disband") {
             let all_territories = Object.keys(boardSpec.unitPositions);
             return all_territories.filter((t) => {
                 return units[t] !== undefined;
             });
-        } else if (orderMode === "Build Fleet") {
+        } else if (orderState.orderMode === "Build Fleet") {
             let all_territories = Object.keys(boardSpec.unitPositions);
             return all_territories.filter((t) => {
                 if (units[t] !== undefined || units[utils.stripCoast(t)] !== undefined){
@@ -259,7 +240,7 @@ class Board extends React.PureComponent {
                 }
                 return false;
             });
-        } else if (orderMode === "Build Army") {
+        } else if (orderState.orderMode === "Build Army") {
             let all_territories = Object.keys(boardSpec.unitPositions);
             return all_territories.filter((t) => {
                 if (units[t] !== undefined){
@@ -285,10 +266,6 @@ class Board extends React.PureComponent {
 
     render () {
         const {boardSpec, gameState, orders, orderState} = this.props;
-        const unit = orderState.unit;
-        const selectedTargetUnit = orderState.targetUnit;
-        const selectedTerritory = orderState.unit;
-        const orderMode = orderState.orderMode;
         const factions = Object.keys(gameState.factions);
         const unitTypes = ["army", "fleet"];
         let units = [];
@@ -304,7 +281,6 @@ class Board extends React.PureComponent {
         for (let dislodgement of gameState.dislodged) {
             dislodgements.push(<DislodgedUnit unitType={dislodgement.unitType} key={dislodgement.source + "dislodged"} territory={dislodgement.source} faction={dislodgement.faction} size={120} restriction={dislodgement.restriction} boardSpec={boardSpec}/>);
         }
-
         let underTokens = orders.map((order, i) => {
             if (order.action === "Move") {
                 return <Move key={i} boardSpec={boardSpec} source={order.unit} destination={order.target} viaConvoy={order.viaConvoy} />;
@@ -375,7 +351,7 @@ class Board extends React.PureComponent {
                 }
             }
 
-            let isSelected = selectedTerritory === territory;
+            let isSelected = orderState.unit === territory;
             let clickable = clickableTerritories.includes(territory);
 
             let className = `territory${isSelected ? " selected": ""}${clickable ? " clickable": ""}`;
@@ -403,30 +379,30 @@ class Board extends React.PureComponent {
         const arrowHeight = 3;
 
         let partialOrder;
-        switch (orderMode) {
+        switch (orderState.orderMode) {
         case "Convoy":
         case "Support":
-            if (!selectedTerritory){
-                partialOrder = utils.makeOrder(undefined, this.state.hoverTerritory, undefined, undefined, orderMode);
-            } else if (!selectedTargetUnit) {
-                partialOrder = utils.makeOrder(undefined, selectedTerritory, this.state.hoverTerritory, undefined, orderMode);
+            if (!orderState.unit){
+                partialOrder = utils.makeOrder(undefined, this.state.hoverTerritory, undefined, undefined, orderState.orderMode);
+            } else if (!orderState.targetUnit) {
+                partialOrder = utils.makeOrder(undefined, orderState.unit, this.state.hoverTerritory, undefined, orderState.orderMode);
             } else {
-                partialOrder = utils.makeOrder(undefined, selectedTerritory, selectedTargetUnit, this.state.hoverTerritory, orderMode);
+                partialOrder = utils.makeOrder(undefined, orderState.unit, orderState.targetUnit, this.state.hoverTerritory, orderState.orderMode);
             }
             break;
         case "Move":
         case "Move (Convoy)":
         case "Retreat":
-            if (!selectedTerritory){
-                partialOrder = utils.makeOrder(undefined, this.state.hoverTerritory, undefined, undefined, orderMode);
+            if (!orderState.unit){
+                partialOrder = utils.makeOrder(undefined, this.state.hoverTerritory, undefined, undefined, orderState.orderMode);
             } else {
-                partialOrder = utils.makeOrder(undefined, selectedTerritory, selectedTargetUnit, this.state.hoverTerritory, orderMode);
+                partialOrder = utils.makeOrder(undefined, orderState.unit, orderState.targetUnit, this.state.hoverTerritory, orderState.orderMode);
             }
             break;
         case "Build Fleet":
         case "Build Army":
         case "Disband":
-            partialOrder = utils.makeOrder(undefined, undefined, undefined, this.state.hoverTerritory, orderMode);
+            partialOrder = utils.makeOrder(undefined, undefined, undefined, this.state.hoverTerritory, orderState.orderMode);
             break;
         }
         let mouseFollower = (
@@ -435,7 +411,7 @@ class Board extends React.PureComponent {
             </div>
         );
 
-        if (this.state.hoverTerritory === null && !selectedTerritory && !selectedTargetUnit) {
+        if (this.state.hoverTerritory === null && !orderState.unit && !orderState.targetUnit) {
             mouseFollower = <span/>;
         }
 

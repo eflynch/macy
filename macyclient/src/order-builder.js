@@ -159,7 +159,7 @@ class OrderBuilder {
             }
             if (units[territory] === undefined) {
                 let faction = buildPoints[territory].faction;
-                this.orderUnit(faction, territory, state.targetUnit, false, state.orderMode);
+                this.orderUnit(faction, false, false, territory, state.orderMode);
             }
             break;
         }
@@ -177,11 +177,11 @@ class OrderBuilder {
                         break;
                     }
                 }
-                this.orderUnit(territory, faction);
+                this.orderUnit(faction, territory, state.targetUnit, territory, state.orderMode);
             } else {
                 if (units[territory] !== undefined) {
                     let faction = units[territory].faction;
-                    this.orderUnit(faction, territory, state.targetUnit, false, state.orderMode);
+                    this.orderUnit(faction, false, false, territory, state.orderMode);
                 }
             }
             

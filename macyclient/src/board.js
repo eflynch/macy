@@ -200,7 +200,9 @@ class Board extends React.PureComponent {
             } else if (fleetSelected) {
                 return utils.getTerritories(boardSpec, gameState, "Show Coasts");
             } else {
-                return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
+                return Object.keys(boardSpec.unitPositions).filter((t) => {
+                    return units[t] !== undefined;
+                });
             }
         } else if (orderState.orderMode === "Support") {
             let targetUnitFleetSelected = units[orderState.targetUnit] && units[orderState.targetUnit].unitType === "fleet";
@@ -211,7 +213,9 @@ class Board extends React.PureComponent {
                 if (targetUnitFleetSelected) {
                     return utils.getTerritories(boardSpec, gameState, "Show Coasts");
                 } else {
-                    return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");
+                    return Object.keys(boardSpec.unitPositions).filter((t) => {
+                        return units[t] !== undefined;
+                    });
                 }
             } else {
                 return utils.getTerritories(boardSpec, gameState, "Show Coasts with Fleets Only");

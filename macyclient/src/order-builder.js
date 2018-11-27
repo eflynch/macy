@@ -159,7 +159,7 @@ class OrderBuilder {
             }
             if (units[territory] === undefined) {
                 let faction = buildPoints[territory].faction;
-                this.orderUnit(faction, false, false, territory, state.orderMode);
+                this.orderUnit(faction, territory, false, territory, state.orderMode);
             }
             break;
         }
@@ -181,7 +181,7 @@ class OrderBuilder {
             } else {
                 if (units[territory] !== undefined) {
                     let faction = units[territory].faction;
-                    this.orderUnit(faction, false, false, territory, state.orderMode);
+                    this.orderUnit(faction, territory, false, territory, state.orderMode);
                 }
             }
             
@@ -191,7 +191,10 @@ class OrderBuilder {
     }
 
     tapTerritory = (territory, gameState, boardSpec) => {
-        if (territory === undefined) { this.selectNone(); }
+        if (territory === undefined) {
+            this.selectNone();
+            return;
+        }
         const state = this.getState();
         switch (state.orderMode) {
         case "Convoy":

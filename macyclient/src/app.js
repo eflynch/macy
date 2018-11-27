@@ -107,7 +107,7 @@ class App extends React.Component {
         let turns = this.sw.getTurns();
         const turn = this.state.turnState.turn;
         let orders = turns[turn];
-        let orderable = orders.length === 0;
+        let orderable = orders.length === 0 && turns.length === turn + 1;
         if (orderable){
             orders = Object.values(this.state.orderState.orders);
         }

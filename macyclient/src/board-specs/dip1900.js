@@ -812,6 +812,28 @@ let dip1900 = {
         army: armyGraph,
         fleet: fleetGraph
     },
+    customEdges: {
+        "Mid Atlantic Ocean,Egypt": {
+            move: 0.5,
+            convoy: 0.5,
+            support: 0.0
+        },
+        "Mid Atlantic Ocean,Hejaz": {
+            move: 0.5,
+            convoy: 0.5,
+            support: 0.0
+        },
+        "Egypt,Mid Atlantic Ocean": {
+            move: 0.5,
+            convoy: 1.0,
+            support: 0.0
+        },
+        "Hejaz,Mid Atlantic Ocean": {
+            move: 0.5,
+            convoy: 1.0,
+            support: 0.0
+        },
+    },
     multiCoast: multiCoast,
     supplyCenters: [
         "Edinburgh",

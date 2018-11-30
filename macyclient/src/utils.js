@@ -1,6 +1,10 @@
         
 
 module.exports = {
+    removeFromArray: (array, item) => {
+        var index = array.indexOf(item);
+        if (index !== -1) array.splice(index, 1);
+    },
     stripCoast: (fleet) => {
         return fleet.split(" :: ")[0];
     },

@@ -65,18 +65,25 @@ class SessionWrapper {
     }
     getOrderBuilder = () => { return this.orderBuilder; }
 
-    computeCurrentGameState = () => {
-        if (this.gameStateCache[this.state.turn] === undefined) {
+    computeGameState = (turn) => {
+        if (this.gameStateCache[turn] === undefined) {
             const boardSpec =  this.session.boardSpec;
-            const turns =  this.session.turns.concat(this.state.mutableTurns);
+            const turns = this.session.turns.concat(this.state.mutableTurns);
 
-            let gameState = JSON.parse(JSON.stringify(boardSpec.startingGameState));
-            for (let orders of turns.slice(0, this.state.turn)) {
-                gameState = resolve(boardSpec, gameState, orders);
+            let gameState;
+            if (turn === 0) {
+                gameState = JSON.parse(JSON.stringify(boardSpec.startingGameState));
+            } else {
+                gameState = this.computeGameState(turn - 1);
+                gameState = resolve(boardSpec, gameState, turns[turn - 1]);
             }
-            this.gameStateCache[this.state.turn] = gameState;
+            this.gameStateCache[turn] = gameState;
         }
-        return this.gameStateCache[this.state.turn];
+        return this.gameStateCache[turn];
+    }
+
+    computeCurrentGameState = () => {
+        return this.computeGameState(this.state.turn);
     }
 
     update = (hash) => {

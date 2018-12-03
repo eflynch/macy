@@ -14,40 +14,37 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
 
     return orders.filter((order) => {
         if (order.action === "Retreat") {
-            if (order.action === "Retreat") {
-
-                let thisDislodgement = false;
-                for (let dislodgement of gameState.dislodged) {
-                    if (dislodgement.source === order.unit && dislodgement.faction === order.faction) {
-                        thisDislodgement = dislodgement;
-                        if (order.target === dislodgement.restriction){
-                            console.warn("invalid retreat", order);
-                            return false;
-                        }
+            let thisDislodgement = false;
+            for (let dislodgement of gameState.dislodged) {
+                if (dislodgement.source === order.unit && dislodgement.faction === order.faction) {
+                    thisDislodgement = dislodgement;
+                    if (order.target === dislodgement.restriction){
+                        console.warn("invalid retreat", order);
+                        return false;
                     }
                 }
-                if (!thisDislodgement){
-                    console.warn("Invalid retreat", order);
-                    return false;
-                }
-                for (let faction of factions) {
-                    for (let unit of gameState.factions[faction][thisDislodgement.unitType]) {
-                        if (stripCoast(unit) === stripCoast(order.target)) {
-                            console.warn("Invalid retreat", order);
-                            return false;
-                        }
-                    }
-                }
-                if (boardSpec.graph[thisDislodgement.unitType].distance(order.unit, order.target) != 1) {
-                    console.warn("Invalid retreat", order);
-                    return false;
-                }
-                if (gameState.retreatRestrictions.includes(order.target)){
-                    console.warn("Invalid retreat", order);
-                    return false;
-                }
-                order.unitType = thisDislodgement.unitType;
             }
+            if (!thisDislodgement){
+                console.warn("Invalid retreat", order);
+                return false;
+            }
+            for (let faction of factions) {
+                for (let unit of gameState.factions[faction][thisDislodgement.unitType]) {
+                    if (stripCoast(unit) === stripCoast(order.target)) {
+                        console.warn("Invalid retreat", order);
+                        return false;
+                    }
+                }
+            }
+            if (boardSpec.graph[thisDislodgement.unitType].distance(order.unit, order.target) != 1) {
+                console.warn("Invalid retreat", order);
+                return false;
+            }
+            if (gameState.retreatRestrictions.includes(order.target)){
+                console.warn("Invalid retreat", order);
+                return false;
+            }
+            order.unitType = thisDislodgement.unitType;
         } else if (order.action === "Build") {
 
         } else if (order.action === "Disband") {
@@ -69,9 +66,7 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
                     console.warn(boardSpec.graph.fleet);
                     return false;
                 }
-            }
-
-            if (order.action === "Support") {
+            } else if (order.action === "Support") {
                 let strippedTarget = stripCoast(order.target);
                 let allowedTargets = [strippedTarget];
                 if (boardSpec.multiCoast[strippedTarget] !== undefined) {
@@ -90,8 +85,7 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
                     console.warn("Invalid support", order, "allowed targets", allowedTargets);
                     return false;
                 }
-            }
-            if (order.action === "Convoy") {
+            } else if (order.action === "Convoy") {
                 if (unitType !== "fleet") {
                     return false;
                 }
@@ -117,6 +111,7 @@ let ignoreExtraOrders = (boardSpec, gameState, orders) => {
         }
     }
     for (let order of toRemove) {
+        console.warn("Ignoring extra order", order);
         removeFromArray(orders, order);
     }
 };
@@ -128,7 +123,10 @@ let cutSupportOrdersByNonConvoyed = (boardSpec, gameState, orders) => {
     let brokenSupports = [];
     for (let moveOrder of moveOrders) {
         for (let supportOrder of supportOrders) {
-            if (moveOrder.target === supportOrder.unit && moveOrder.faction !== supportOrder.faction) {
+            const moveTargetsSupporter = moveOrder.target === supportOrder.unit;
+            const supportDoesNotTargetMover = supportOrder.target !== moveOrder.unit;
+            const moveDoesNotCutOwnSupport = moveOrder.faction !== supportOrder.faction;
+            if (moveTargetsSupporter && supportDoesNotTargetMover && moveDoesNotCutOwnSupport) {
                 brokenSupports.push(supportOrder);
             }
         }
@@ -494,6 +492,7 @@ let resolveUnambiguous = (conflictGraph) => {
             }
         }
     }
+
 
     return {
         dislodged: dislodged,

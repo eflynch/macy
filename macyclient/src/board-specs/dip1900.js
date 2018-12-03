@@ -243,6 +243,7 @@ bij(armyGraph, "Rome", "Apulia");
 bij(armyGraph, "Rome", "Naples");
 bij(armyGraph, "Venetia", "Tyrolia");
 bij(armyGraph, "Venetia", "Apulia");
+bij(armyGraph, "Venetia", "Trieste");
 bij(armyGraph, "Apulia", "Naples");
 
 bij(armyGraph, "Alsace", "Cologne");

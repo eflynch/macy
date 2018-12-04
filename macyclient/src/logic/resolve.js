@@ -104,7 +104,6 @@ let filterFailedConvoyMovesAndCutSupportOrdersByConvoyed = (boardSpec, gameState
         // BUT that is equivalent to cutting:
         //    supports to hold
         const convoyOrders = orders.filter((order) => order.action === "Convoy");
-        const definitelySafeConvoyers = [];
         let ordersExcludingInvasionSupport = orders.filter((order)=>{
             if (order.action === "Support"){
                 // We must only cut hold supports
@@ -115,9 +114,16 @@ let filterFailedConvoyMovesAndCutSupportOrdersByConvoyed = (boardSpec, gameState
         let cutSupportOrders = getCutSupportOrders(boardSpec, gameState, ordersExcludingInvasionSupport);
         let relevantOrders = orders.filter((order) => !cutSupportOrders.includes(order));
         let {dislodged, moves} = resolveOrders(boardSpec, gameState, relevantOrders);
-        for (let convoyOrder of convoyOrders) {
-            // if not in dislodged, then safe 
-        }
+        const definitelySafeConvoyers = convoyOrders.filter((convoyOrder) => {
+            for (let dislodgement of dislodged) {
+                if (dislodgement.source === convoyOrder.unit) {
+                    return false;
+                }
+            }
+            return true;
+        }).map((convoyOrder) => {
+            return convoyOrder.unit;
+        });
         return definitelySafeConvoyers;
     };
 
@@ -134,11 +140,30 @@ let filterFailedConvoyMovesAndCutSupportOrdersByConvoyed = (boardSpec, gameState
         // But That is equivalnet to cutting:
         //     supports to move (except threatened by convoyOrder's move)
         const convoyOrders = orders.filter((order) => order.action === "Convoy");
-        const conflictGraph = generateConflictGraph(boardSpec, gameState, orders);
-        const definitelyDislodgedConvoyers = [];
-        for (let convoyOrder of convoyOrders) {
-            let cg = JSON.parse(JSON.stringify(conflictGraph));
-        }
+
+        const definitelyDislodgedConvoyers = convoyOrders.filter((convoyOrder) => {
+            let ordersExcludingHoldSupportsAndSupportsFromConvoyTarget = orders.filter((order)=>{
+                if (order.action === "Support"){
+                    if (convoyOrder.target === order.unit){
+                        return false;
+                    }
+                    // We must only cut invasion supports
+                    return order.target !== order.targetUnit;
+                }
+                return true;
+            });
+            let cutSupportOrders = getCutSupportOrders(boardSpec, gameState, ordersExcludingHoldSupportsAndSupportsFromConvoyTarget);
+            let relevantOrders = orders.filter((order) => !cutSupportOrders.includes(order));
+            let {dislodged, moves} = resolveOrders(boardSpec, gameState, relevantOrders);
+            for (let dislodgement of dislodged) {
+                if (dislodgement.source === convoyOrder.unit) {
+                    return true;
+                }
+            }
+            return false;
+        }).map((convoyOrder) => {
+            return convoyOrder.unit;
+        });
         return definitelyDislodgedConvoyers;
     };
 

@@ -198,6 +198,7 @@ bij(armyGraph, "Clyde", "Ireland");
 bij(armyGraph, "Clyde", "Edinburgh");
 bij(armyGraph, "Clyde", "Liverpool");
 bij(armyGraph, "Edinburgh", "Yorkshire");
+bij(armyGraph, "Edinburgh", "Liverpool");
 bij(armyGraph, "Liverpool", "Yorkshire");
 bij(armyGraph, "Liverpool", "Wales");
 bij(armyGraph, "Yorkshire", "Wales");

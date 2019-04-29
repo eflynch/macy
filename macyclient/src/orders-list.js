@@ -1,5 +1,6 @@
 import React from 'react';
 
+import Actions from './actions';
 import utils from './utils';
 
 let Order = (props) => {
@@ -9,7 +10,7 @@ let Order = (props) => {
 
 class OrdersList extends React.PureComponent {
     render () {
-        let {orderMode, setOrderMode, gameState} = this.props;
+        let {orderMode, gameState} = this.props;
 
         let showOrdersIcon = <span>[&nbsp;&nbsp;]</span>;
         if (this.props.showOrders) {
@@ -20,12 +21,12 @@ class OrdersList extends React.PureComponent {
 
         let resolve = <span/>;
         if (this.props.showResolve){
-            resolve = <div className="resolve-button" onClick={this.props.resolveOrders}>Resolve Orders</div>;
+            resolve = <div className="resolve-button" onClick={Actions.resolveOrders}>Resolve Orders</div>;
         }
 
         let revert = <span/>;
         if (this.props.showRevert){
-            revert = <div className="revert-button" onClick={this.props.revertOrders}>Revert To This Season</div>;
+            revert = <div className="revert-button" onClick={Actions.revertToCurrentTurn}>Revert To This Season</div>;
         }
 
         let orders = {};
@@ -42,14 +43,18 @@ class OrdersList extends React.PureComponent {
             <div className="order-list">
                 <div className="order-types">
                     {orderModes.map((om)=>{
-                        return <li key={om} onClick={()=>{setOrderMode(om);}} className={orderMode === om ? "selected" : ""}>{om}</li>;
+                        return <li key={om} onClick={()=>{Actions.setOrderMode(om);}} className={orderMode === om ? "selected" : ""}>{om}</li>;
                     })}
                 </div>
                 <div className="show-button" onClick={this.props.toggleShowOrders}>{showOrdersIcon}Show Orders on Map</div>
                 <div className="order-header">
-                    <span style={{cursor:"pointer"}} onClick={this.props.goBack}>←</span>
+                    <span style={{cursor:"pointer"}} onClick={()=>{
+                        Actions.setTurn(this.props.turn - 1);
+                    }}>←</span>
                     <span>{this.props.gameState.season} {this.props.gameState.year}</span>
-                    <span style={{cursor:"pointer"}} onClick={this.props.goForward}>→</span>
+                    <span style={{cursor:"pointer"}} onClick={()=>{
+                        Actions.setTurn(this.props.turn + 1);
+                    }}>→</span>
                 </div>
                 {factionsWithOrders.map((faction) => {
                     return (

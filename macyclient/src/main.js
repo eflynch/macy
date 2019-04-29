@@ -1,31 +1,16 @@
 import React from 'react';
-import $ from 'jquery';
 import {render} from 'react-dom';
 
-import Graph from './graph';
 import App from './app';
-import {loadSession, saveSession} from './session';
-import {copyTextToClipboard, getTextFromClipboard, getJSON} from './web-utils';
-import update from 'immutability-helper';  
+import Store from './store';
+import Actions from './actions';
 
 const main = () => {
-    let saveSessionToClipboard = (session) => {
-        copyTextToClipboard(JSON.stringify(saveSession(session)));
-    };
-
-    let loadSessionFromClipboard = () => {
-        loadSession(JSON.parse(getTextFromClipboard()), (session) => {
-            render(<App session={session} saveSession={saveSessionToClipboard} loadSession={loadSessionFromClipboard}/>, document.getElementById("content"));
-        });
-    };
-
-    getJSON("testSession.json", (err, data) => {
-        loadSession(data, (session) => {
-            render(<App session={session} saveSession={saveSessionToClipboard} loadSession={loadSessionFromClipboard}/>, document.getElementById("content"));
-        });
+    Store.addOnChange(() => {
+        const state = Store.getState();
+        render(<App {...state} />, document.getElementById("content"));
     });
-    
-    
+    Actions.loadSession("testSession.json");
 };
 
 

@@ -3,35 +3,30 @@ import update from 'immutability-helper';
 import {OrderBuilder} from './order-builder';
 
 import {resolve} from './logic/resolve';
-import {loadBoardSpec} from './board-spec';
+import {LoadBoardSpecFromSerializable} from './board-spec';
 import {getJSON} from './web-utils';
 
-const newSession = (title, boardSpecURI, callback) => {
-    getJSON(boardSpecURI, (err, data) => {
-        const session = {
-            title: title,
-            boardSpec: loadBoardSpec(boardSpec),
-            turns: []
-        };
-        const boardSpec = loadBoardSpec(data);
-        session.boardSpec = boardSpec;
-        callback(session);
+const NewSession = (title, serializableBoardSpec) => {
+    return {
+        title: title,
+        boardSpec: LoadBoardSpecFromSerializable(serializableBoardSpec),
+        turns: []
+    };
+}
+
+const LoadSessionFromSerializable = (serializableSession, callback) => {
+    getJSON(serializableSession.boardSpecURI, (err, serializableBoardSpec) => {
+        const clone = JSON.parse(JSON.stringify(serializableSession));
+        const boardSpec = LoadBoardSpecFromSerializable(serializableBoardSpec);
+        clone.boardSpec = boardSpec;
+        callback(clone);
     });
 }
 
-const loadSession = (session, callback) => {
-    const boardSpecURI = session.boardSpecURI;
-
-    getJSON(session.boardSpecURI, (err, data) => {
-        const boardSpec = loadBoardSpec(data);
-        session.boardSpec = boardSpec;
-        callback(session);
-    });
-}
-
-const saveSession = (session) => {
-    delete session.boardSpec;
-    return session;
+const SaveSessionToSerializable = (session) => {
+    const clone = JSON.parse(JSON.stringify(boardSpec));
+    delete clone.boardSpec;
+    return clone;
 }
 
 
@@ -60,10 +55,15 @@ class SessionWrapper {
     getState = () => {
         return {
             turnState: this.state,
-            orderState: this.orderBuilder.getState()
+            orderState: this.orderBuilder.getState(),
+            gameState: this.getCurrentGameState(),
+            session: this.session
         };
     }
-    getOrderBuilder = () => { return this.orderBuilder; }
+
+    setOrderMode = (orderMode) => {
+        this.orderBuilder.setMode(orderMode);
+    }
 
     computeGameState = (turn) => {
         if (this.gameStateCache[turn] === undefined) {
@@ -82,11 +82,15 @@ class SessionWrapper {
         return this.gameStateCache[turn];
     }
 
-    computeCurrentGameState = () => {
+    getCurrentGameState = () => {
         return this.computeGameState(this.state.turn);
     }
 
     update = (hash) => {
+        // let gameState = this.getCurrentGameState();
+        // if (!orderModes.includes(this.state.orderState.orderMode)) {
+        //     Actions.setOrderMode(orderModes[0]);
+        // }
         const newState = update(this.state, hash);
         this.state = newState;
         this.onMutate(this.getState());
@@ -156,7 +160,7 @@ class SessionWrapper {
     }
 
     tapTerritory = (territory) => {
-        const gameState = this.computeCurrentGameState();
+        const gameState = this.getCurrentGameState();
         const boardSpec = this.session.boardSpec;
         this.orderBuilder.tapTerritory(territory, gameState, boardSpec);
     }
@@ -164,8 +168,8 @@ class SessionWrapper {
 
 
 module.exports = {
-    newSession: newSession,
-    loadSession: loadSession,
-    saveSession: saveSession,
+    NewSession: NewSession,
+    LoadSessionFromSerializable: LoadSessionFromSerializable,
+    SaveSessionToSerializable: SaveSessionToSerializable,
     SessionWrapper: SessionWrapper,
 };

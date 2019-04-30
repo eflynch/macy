@@ -1,4 +1,4 @@
-import {removeFromArray, stripCoast} from '../utils';
+import {removeFromArray, stripCoast} from './utils';
 
 // remove any extra orders given to units
 let ignoreExtraOrders = (orders) => {

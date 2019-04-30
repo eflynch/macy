@@ -8,6 +8,20 @@ class Actions {
     newSession(title, boardSpecURI) {
         getJSON(boardSpecURI, (err, serializableBoardSpec) => {
             const session = NewSession(title, serializableBoardSpec);
+            const serializableSession = SaveSessionToSerializable(session);
+            // TODO: post new session
+            Dispatcher.dispatch({
+                actionType: ActionTypes.NEW_SESSION,
+                payload: session
+            });
+        });
+    }
+
+    cloneSession(session, title) {
+        const serializableSession = SaveSessionToSerializable(session);
+        serializableSession.title = title;
+        // TODO: post new session
+        LoadSessionFromSerializable(serializableSession, (session) => {
             Dispatcher.dispatch({
                 actionType: ActionTypes.NEW_SESSION,
                 payload: session
@@ -75,6 +89,14 @@ class Actions {
         Dispatcher.dispatch({
             actionType: ActionTypes.REVERT_TO_CURRENT_TURN,
         });
+    }
+
+    submitOrders() {
+        // TODO : submit orders 
+    }
+
+    adjudicate() {
+        // TODO : submit orders
     }
 }
 

@@ -2,12 +2,11 @@ import React from 'react';
 
 import Board from './board';
 import MouseFollower from './mouse-follower';
-import {resolve} from './logic/resolve';
-import utils from './utils';
+import {resolve} from '../game/resolve';
 import OrdersList from './orders-list';
 import SupplyCenters from './supply-centers';
 import Help from './help';
-import Actions from './actions';
+import Actions from '../actions';
 
 
 class App extends React.Component {

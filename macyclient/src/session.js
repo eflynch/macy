@@ -2,7 +2,8 @@ import update from 'immutability-helper';
 
 import {OrderBuilder} from './order-builder';
 
-import {resolve} from './logic/resolve';
+import {getAllowedOrderModes} from './game/utils';
+import {resolve} from './game/resolve';
 import {LoadBoardSpecFromSerializable} from './board-spec';
 import {getJSON} from './web-utils';
 
@@ -62,7 +63,11 @@ class SessionWrapper {
     }
 
     setOrderMode = (orderMode) => {
-        this.orderBuilder.setMode(orderMode);
+        const gameState = this.getCurrentGameState();
+        const allowedOrderModes = getAllowedOrderModes(gameState.season);
+        if (allowedOrderModes.includes(orderMode)) {
+            this.orderBuilder.setMode(orderMode);
+        }
     }
 
     computeGameState = (turn) => {
@@ -87,31 +92,25 @@ class SessionWrapper {
     }
 
     update = (hash) => {
-        // let gameState = this.getCurrentGameState();
-        // if (!orderModes.includes(this.state.orderState.orderMode)) {
-        //     Actions.setOrderMode(orderModes[0]);
-        // }
         const newState = update(this.state, hash);
         this.state = newState;
-        this.onMutate(this.getState());
-    }
 
-    getNumTurns = () => {
-        return  this.session.turns.length + this.state.mutableTurns.length;
-    }
-
-    getTurns = () => {
-        return this.session.turns.concat(this.state.mutableTurns);
+        // Update orderMode if not valid
+        const gameState = this.getCurrentGameState();
+        const allowedOrderModes = getAllowedOrderModes(gameState.season);
+        if (!allowedOrderModes.includes(this.orderBuilder.getState().orderMode)) {
+            // this takes care of the onMutate
+            this.orderBuilder.setMode(allowedOrderModes[0]);
+        } else {
+            this.onMutate(this.getState());
+        }
     }
 
     setTurn = (turn) => {
-        const clampedTurn = Math.min(this.getNumTurns() - 1, Math.max(0, turn));
+        const numTurns = this.session.turns.length + this.state.mutableTurns.length;
+        const clampedTurn = Math.min(numTurns - 1, Math.max(0, turn));
         this.update({turn: {$set: clampedTurn}});
     }
-
-    goForward = () => { this.setTurn(this.state.turn + 1); }
-
-    goBack = () => { this.setTurn(this.state.turn - 1); }
 
     revertToCurrentTurn = () => {
         // Only revert mutable turns
@@ -156,7 +155,7 @@ class SessionWrapper {
                 $push: [[]]
             }
         });
-        this.goForward();
+        this.setTurn(this.state.turn + 1);
     }
 
     tapTerritory = (territory) => {

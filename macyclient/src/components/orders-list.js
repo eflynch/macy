@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Actions from './actions';
-import utils from './utils';
+import Actions from '../actions';
+import utils from '../game/utils';
 
 let Order = (props) => {
     let {order} = props;

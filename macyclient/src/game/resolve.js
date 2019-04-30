@@ -1,7 +1,7 @@
 
 import {dip1900} from '../board-spec';
-import {Graph, dijsktra} from '../graph';
-import {stripCoast, removeFromArray} from '../utils';
+import {Graph, dijsktra} from './graph';
+import {stripCoast, removeFromArray} from './utils';
 import {resolveOrders, generateConflictGraph} from './conflict';
 import {filterInvalidOrders} from './filter';
 

@@ -1,6 +1,6 @@
 import update from 'immutability-helper';  
 
-import utils from './utils';
+import utils from './game/utils';
 
 class ImmutableUndoState {
     constructor(maxUndo, initialState, onMutate) {

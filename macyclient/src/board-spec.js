@@ -1,4 +1,4 @@
-import Graph from './graph';
+import Graph from './game/graph';
 
 module.exports = {
     LoadBoardSpecFromSerializable: (boardSpec) => {

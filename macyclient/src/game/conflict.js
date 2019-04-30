@@ -1,4 +1,4 @@
-import {stripCoast, removeFromArray} from '../utils';
+import {stripCoast, removeFromArray} from './utils';
 
 // This assumes all remaining move orders are valid
 // And all remaining support orders are NOT cut

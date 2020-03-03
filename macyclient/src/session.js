@@ -25,7 +25,7 @@ export const LoadSessionFromSerializable = (serializableSession, callback) => {
 }
 
 export const SaveSessionToSerializable = (session) => {
-    const clone = JSON.parse(JSON.stringify(boardSpec));
+    const clone = JSON.parse(JSON.stringify(session));
     delete clone.boardSpec;
     return clone;
 }

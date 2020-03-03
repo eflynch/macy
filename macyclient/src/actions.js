@@ -41,10 +41,12 @@ class Actions {
     }
 
     loadSessionFromClipboard() {
-        LoadSessionFromSerializable(JSON.parse(getTextFromClipboard()), (session) => {
-            Dispatcher.dispatch({
-                actionType: ActionTypes.LOAD_SESSION,
-                payload: session
+        getTextFromClipboard().then((text) => {
+            LoadSessionFromSerializable(JSON.parse(text), (session) => {
+                Dispatcher.dispatch({
+                    actionType: ActionTypes.LOAD_SESSION,
+                    payload: session
+                });
             });
         });
     }

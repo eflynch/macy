@@ -58,6 +58,14 @@ export default class App extends React.Component {
         this.setState({showHelp: !this.state.showHelp});
     };
 
+    saveSession = () => {
+        Actions.saveSessionToClipboard(this.props.session);
+    };
+
+    loadSession = () => {
+        Actions.loadSessionFromClipboard();
+    };
+
     render () {
         const boardSpec = this.props.session.boardSpec;
         const gameState = this.props.gameState;

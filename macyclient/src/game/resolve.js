@@ -460,7 +460,7 @@ let resolveWinter = (boardSpec, gameState, orders) => {
 }
 
 
-let resolve = (boardSpec, gameState, orders) => {
+export const resolve = (boardSpec, gameState, orders) => {
     if (["Spring Retreat", "Fall Retreat"].includes(gameState.season)) {
         return resolveRetreat(boardSpec, gameState, orders);
     }
@@ -470,8 +470,4 @@ let resolve = (boardSpec, gameState, orders) => {
     if (gameState.season === "Winter") {
         return resolveWinter(boardSpec, gameState, orders);
     }
-};
-
-module.exports = {
-    resolve: resolve,
 };

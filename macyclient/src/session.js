@@ -7,7 +7,7 @@ import {resolve} from './game/resolve';
 import {LoadBoardSpecFromSerializable} from './board-spec';
 import {getJSON} from './web-utils';
 
-const NewSession = (title, serializableBoardSpec) => {
+export const NewSession = (title, serializableBoardSpec) => {
     return {
         title: title,
         boardSpec: LoadBoardSpecFromSerializable(serializableBoardSpec),
@@ -15,7 +15,7 @@ const NewSession = (title, serializableBoardSpec) => {
     };
 }
 
-const LoadSessionFromSerializable = (serializableSession, callback) => {
+export const LoadSessionFromSerializable = (serializableSession, callback) => {
     getJSON(serializableSession.boardSpecURI, (err, serializableBoardSpec) => {
         const clone = JSON.parse(JSON.stringify(serializableSession));
         const boardSpec = LoadBoardSpecFromSerializable(serializableBoardSpec);
@@ -24,14 +24,14 @@ const LoadSessionFromSerializable = (serializableSession, callback) => {
     });
 }
 
-const SaveSessionToSerializable = (session) => {
+export const SaveSessionToSerializable = (session) => {
     const clone = JSON.parse(JSON.stringify(boardSpec));
     delete clone.boardSpec;
     return clone;
 }
 
 
-class SessionWrapper {
+export class SessionWrapper {
     constructor(session, onMutate) {
         this.session = session;
         this.state = {
@@ -164,11 +164,3 @@ class SessionWrapper {
         this.orderBuilder.tapTerritory(territory, gameState, boardSpec);
     }
 }
-
-
-module.exports = {
-    NewSession: NewSession,
-    LoadSessionFromSerializable: LoadSessionFromSerializable,
-    SaveSessionToSerializable: SaveSessionToSerializable,
-    SessionWrapper: SessionWrapper,
-};

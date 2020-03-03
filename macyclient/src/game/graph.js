@@ -1,6 +1,6 @@
 let makeKey = (a, b) => [a, b].join(",");
 
-class Graph {
+export default class Graph {
     constructor() {
         this.nodes = new Set();
         this.edges = new Map();
@@ -150,5 +150,3 @@ var dijsktra = function(graph, initial) {
 }
 window.dijsktra = dijsktra;
 window.graph = Graph;
-
-module.exports = Graph;

@@ -2,7 +2,7 @@ import {stripCoast, removeFromArray} from './utils';
 
 // This assumes all remaining move orders are valid
 // And all remaining support orders are NOT cut
-let generateConflictGraph = (boardSpec, gameState, orders) => {
+export const generateConflictGraph = (boardSpec, gameState, orders) => {
     const factions = Object.keys(gameState.factions);
     let holds = {};
     for (let faction of factions) {
@@ -269,14 +269,8 @@ let resolveUnambiguous = (conflictGraph) => {
 
 
 // WARNING: This does not consider cut supports, so remove cut support orders before calling this
-let resolveOrders = (boardSpec, gameState, orders) => {
+export const resolveOrders = (boardSpec, gameState, orders) => {
     let conflictGraph = generateConflictGraph(boardSpec, gameState, orders);
     resolveHeadToHead(conflictGraph);
     return resolveUnambiguous(conflictGraph); 
-};
-
-
-module.exports = {
-    generateConflictGraph: generateConflictGraph,
-    resolveOrders: resolveOrders
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 
-class MouseFollower extends React.PureComponent {
+export default class MouseFollower extends React.PureComponent {
     constructor(props){
         super(props);
         this.state = {
@@ -65,5 +65,3 @@ class MouseFollower extends React.PureComponent {
         );
     }
 }
-
-module.exports = MouseFollower;

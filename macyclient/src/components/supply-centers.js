@@ -1,6 +1,6 @@
 import React from 'react';
 
-class SupplyCenters extends React.PureComponent {
+export default class SupplyCenters extends React.PureComponent {
 
     constructor(props){
         super(props);
@@ -39,5 +39,3 @@ class SupplyCenters extends React.PureComponent {
         );
     }
 }
-
-module.exports = SupplyCenters;

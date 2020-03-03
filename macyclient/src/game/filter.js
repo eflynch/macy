@@ -17,7 +17,7 @@ let ignoreExtraOrders = (orders) => {
 };
 
 // removes orders that are malformed (not orders that FAIL)
-let filterInvalidOrders = (boardSpec, gameState, orders) => {
+export const filterInvalidOrders = (boardSpec, gameState, orders) => {
     const factions = Object.keys(gameState.factions);
 
     let validOrders = orders.filter((order) => {
@@ -109,9 +109,3 @@ let filterInvalidOrders = (boardSpec, gameState, orders) => {
     ignoreExtraOrders(validOrders);
     return validOrders;
 };
-
-
-module.exports = {
-    filterInvalidOrders: filterInvalidOrders
-};
-

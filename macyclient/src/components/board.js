@@ -150,7 +150,7 @@ class Convoy extends React.PureComponent {
 }
 
 
-class Board extends React.PureComponent {
+export default class Board extends React.PureComponent {
     constructor (props) {
         super(props);
         this.state = {
@@ -346,6 +346,3 @@ class Board extends React.PureComponent {
         );
     }
 }
-
-
-module.exports = Board;

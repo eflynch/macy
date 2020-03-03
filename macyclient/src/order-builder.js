@@ -2,7 +2,7 @@ import update from 'immutability-helper';
 
 import utils from './game/utils';
 
-class ImmutableUndoState {
+export class ImmutableUndoState {
     constructor(maxUndo, initialState, onMutate) {
         this.maxUndo = maxUndo;
         this.state = initialState;
@@ -53,7 +53,7 @@ class ImmutableUndoState {
     }
 }
 
-class OrderBuilder {
+export class OrderBuilder {
     static makeEmpty(){
         return {
             unit: false,
@@ -224,10 +224,3 @@ class OrderBuilder {
         }
     }
 }
-
-
-module.exports = {
-    ImmutableUndoState: ImmutableUndoState,
-    OrderBuilder: OrderBuilder
-};
-        

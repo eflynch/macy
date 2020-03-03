@@ -3,33 +3,38 @@
   "version": "1.0.0",
   "description": "Macy Website Client",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack-dev-server --content-base app/",
-    "build": "webpack -p",
-    "watch": "webpack --watch"
+    "build": "webpack --mode=development",
+    "watch": "webpack --mode=development -w",
+    "release": "webpack --mode=production"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env",
+      "@babel/preset-react"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties"
+    ]
   },
   "author": "Evan Lynch",
   "license": "ISC",
   "devDependencies": {
-    "webpack-cli": "^3.1.0",
-    "webpack-dev-server": "^3.3.1"
+    "@babel/cli": "^7.2.0",
+    "@babel/core": "^7.2.0",
+    "@babel/plugin-proposal-class-properties": "7.8.3",
+    "@babel/preset-env": "^7.2.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.4",
+    "webpack": "^4.27.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "3.10.3",
+    "webpack-notifier": "1.8.0"
   },
   "dependencies": {
-    "babel-core": "^6.24.1",
-    "babel-loader": "^7.0.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-react": "^6.24.1",
-    "babel-preset-stage-2": "^6.24.1",
-    "css-loader": "^1.0.0",
-    "flux": "^3.1.3",
-    "immutability-helper": "^2.8.1",
-    "jquery": "^3.2.1",
-    "npm": "^6.3.0",
-    "react": "^16.4.2",
-    "react-addons-update": "^15.6.2",
-    "react-dom": "^16.4.2",
-    "style-loader": "^0.22.1",
-    "webpack": "^4.16.5",
-    "webpack-notifier": "^1.5.0"
+    "flux": "3.1.3",
+    "immutability-helper": "3.0.1",
+    "react": "16.13.0",
+    "react-dom": "16.13.0"
   }
 }

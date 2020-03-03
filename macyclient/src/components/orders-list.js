@@ -8,7 +8,7 @@ let Order = (props) => {
     return <div>{utils.formatOrder(order)}</div>;
 };
 
-class OrdersList extends React.PureComponent {
+export default class OrdersList extends React.PureComponent {
     render () {
         let {orderMode, gameState} = this.props;
 
@@ -69,5 +69,3 @@ class OrdersList extends React.PureComponent {
         );
     }
 }
-
-module.exports = OrdersList;

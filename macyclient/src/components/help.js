@@ -8,7 +8,7 @@ let HelpSection = (props) => {
     );
 }
 
-class Help extends React.PureComponent {
+export default class Help extends React.PureComponent {
     render () {
         return (
             <div className="help">
@@ -129,5 +129,3 @@ class Help extends React.PureComponent {
         );
     }
 }
-
-module.exports = Help;

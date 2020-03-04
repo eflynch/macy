@@ -16,6 +16,7 @@ export const NewSession = (title, serializableBoardSpec) => {
 }
 
 export const LoadSessionFromSerializable = (serializableSession, callback) => {
+
     getJSON(serializableSession.boardSpecURI, (err, serializableBoardSpec) => {
         const clone = JSON.parse(JSON.stringify(serializableSession));
         const boardSpec = LoadBoardSpecFromSerializable(serializableBoardSpec);

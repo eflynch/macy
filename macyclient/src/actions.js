@@ -52,6 +52,8 @@ class Actions {
     }
 
     saveSessionToClipboard(session) {
+        console.log("saving");
+        console.log(session);
         const serializableSession = SaveSessionToSerializable(session);
         copyTextToClipboard(JSON.stringify(serializableSession));
         Dispatcher.dispatch({

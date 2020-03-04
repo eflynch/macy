@@ -8,7 +8,7 @@ import os
 import subprocess
 import json
 
-DIR = "./mapfiles/"
+DIR = "./mapfiles-trad/"
 
 for filename in filter(lambda x: ".png" in x, os.listdir(DIR)):
     name, ext = filename.split(".")

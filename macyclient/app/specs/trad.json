@@ -1,0 +1,113 @@
+{
+    "startingGameState": {
+        "year": 1900,
+        "season": "Spring",
+        "dislodged": [],
+        "retreatRestrictions": [],
+        "factions": {
+            "Great Britain": {
+                "fleet": ["Edinburgh", "London"],
+                "army": ["Liverpool"],
+                "supplyCenters": ["London", "Edinburgh", "Liverpool"]
+            },
+            "Germany": {
+                "fleet": ["Kiel"],
+                "army": ["Munich", "Berlin"],
+                "supplyCenters": ["Kiel", "Munich", "Berlin"]
+            },
+            "France": {
+                "fleet": ["Brest"],
+                "army": ["Paris", "Marseilles"],
+                "supplyCenters": ["Brest", "Paris", "Marseilles"]
+            },
+            "Italy": {
+                "fleet": ["Napoli"],
+                "army": ["Venezia", "Roma"],
+                "supplyCenters": ["Napoli", "Roma", "Venezia"]
+            },
+            "Austria Hungary": {
+                "fleet": ["Trieste"],
+                "army": ["Vienna", "Budapest"],
+                "supplyCenters": ["Trieste", "Vienna", "Budapest"]
+            },
+            "Turkey": {
+                "fleet": ["Ankara"],
+                "army": ["Smyrna", "Constantinople"],
+                "supplyCenters": ["Ankara", "Smyrna", "Constantinople"]
+            },
+            "Russia": {
+                "fleet": ["Sevastapol", "St. Petersburg :: SC"],
+                "army": ["Moscow", "Warsaw"],
+                "supplyCenters": ["Sevastapol", "St. Petersburg", "Moscow", "Warsaw"]
+            }
+        }
+    },
+    "factions": {
+        "Great Britain": {
+            "armyBuildPoints": ["London", "Edinburgh", "Liverpool"],
+            "fleetBuildPoints": ["London", "Edinburgh", "Liverpool"],
+            "startingUnits": {
+                "fleet": ["London", "Edinburgh"],
+                "army": ["Liverpool"]
+            },
+            "startingCenters": ["London", "Edinburgh", "Liverpool"],
+            "emergencyBuildPoints": [],
+            "unitImages": {
+                "army": "png/gb-army.png",
+                "fleet": "png/gb-fleet.png"
+            },
+            "color": "#336699"
+        },
+        "Germany": {
+            "armyBuildPoints": ["Kiel", "Berlin", "Munich"],
+            "fleetBuildPoints": ["Kiel", "Berlin"],
+            "startingUnits": {
+                "fleet": ["Kiel"],
+                "army": ["Berlin", "Munich"]
+            },
+            "startingCenters": ["Berlin", "Munich", "Kiel"],
+            "emergencyBuildPoints": [],
+            "unitImages": {
+                "army": "png/germany-army.png",
+                "fleet": "png/germany-fleet.png"
+            },
+            "color": "#000000"
+        },
+        "France": {
+            "armyBuildPoints": ["Paris", "Marseilles", "Brest"],
+            "fleetBuildPoints": ["Marseilles", "Brest"],
+            "startingUnits": {
+                "fleet": ["Brest"],
+                "army": ["Paris", "Marseilles"]
+            },
+            "startingCenters": ["Brest", "Paris", "Marseilles"],
+            "emergencyBuildPoints": [],
+            "unitImages": {
+                "army": "png/france-army.png",
+                "fleet": "png/france-fleet.png"
+            },
+            "color": "#66CCCC"
+        },
+        "Italy": {
+            "armyBuildPoints": ["Venezia", "Roma", "Napoli"],
+            "fleetBuildPoints": ["Roma", "Napoli"],
+            "startingUnits": {
+                "fleet": ["Napoli"],
+                "army": ["Venezia", "Roma"]
+            },
+            "startingCenters": ["Napoli", "Venezia", "Roma"],
+            "emergencyBuildPoints": [],
+            "unitImages": {
+                "army": "png/italy-army.png",
+                "fleet": "png/italy-fleet.png"
+            },
+            "color": "#339933"
+        },
+        "Austria Hungary": {
+            "armyBuildPoints": ["Trieste", "Vienna", "Budapest"],
+            "fleetBuildPoints": ["Trieste"],
+            "startingUnits": {
+                "fleet": ["Trieste"],
+                "army": ["Vienna", "Budapest"]
+            },
+         

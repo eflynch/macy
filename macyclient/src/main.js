@@ -10,7 +10,7 @@ const main = () => {
         const state = Store.getState();
         render(<App {...state} />, document.getElementById("content"));
     });
-    Actions.loadSession("testSession.json");
+    Actions.loadSession("testSession2.json");
 };
 
 

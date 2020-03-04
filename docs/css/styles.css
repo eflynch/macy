@@ -30,6 +30,7 @@ body {
 }
 
 .board {
+    background-color: black;
     width: calc(90vmin - 50px);
     height: calc(90vmin - 50px);
     cursor: pointer;

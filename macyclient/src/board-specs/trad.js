@@ -152,7 +152,7 @@ let seas = [
     "Gulf of Bothnia",
     "Western Mediterranean",
     "Gulf of Lyon",
-    "Tyrrhenian Sea",
+    "Tyrhennian Sea",
     "Ionian Sea",
     "Aegean Sea",
     "Adriatic Sea",
@@ -211,9 +211,9 @@ bij(armyGraph, "Tuscany", "Roma");
 bij(armyGraph, "Venezia", "Tyrolia");
 bij(armyGraph, "Venezia", "Apulia");
 bij(armyGraph, "Venezia", "Roma");
-bij(armyGraph, "Rome", "Apulia");
-bij(armyGraph, "Rome", "Napoli");
-bij(armyGraph, "Apulia", "Napli");
+bij(armyGraph, "Roma", "Apulia");
+bij(armyGraph, "Roma", "Napoli");
+bij(armyGraph, "Apulia", "Napoli");
 
 bij(armyGraph, "Ruhr", "Kiel");
 bij(armyGraph, "Ruhr", "Munich");
@@ -363,10 +363,8 @@ bij(fleetGraph, "North Atlantic Ocean", "Irish Sea");
 bij(fleetGraph, "Irish Sea", "Mid Atlantic Ocean");
 bij(fleetGraph, "Irish Sea", "Liverpool");
 bij(fleetGraph, "Irish Sea", "Wales");
-bij(fleetGraph, "Irish Sea", "Ireland");
 bij(fleetGraph, "Irish Sea", "English Channel");
 bij(fleetGraph, "Mid Atlantic Ocean", "English Channel");
-bij(fleetGraph, "Mid Atlantic Ocean", "Ireland");
 bij(fleetGraph, "Mid Atlantic Ocean", "Brest");
 bij(fleetGraph, "Mid Atlantic Ocean", "Gascony");
 bij(fleetGraph, "Mid Atlantic Ocean", "Spain :: NC");
@@ -409,18 +407,18 @@ bij(fleetGraph, "Gulf of Bothnia", "Sweden");
 bij(fleetGraph, "Western Mediterranean", "Spain :: SC");
 bij(fleetGraph, "Western Mediterranean", "North Africa");
 bij(fleetGraph, "Western Mediterranean", "Gulf of Lyon");
-bij(fleetGraph, "Western Mediterranean", "Tyrrhenian Sea");
+bij(fleetGraph, "Western Mediterranean", "Tyrhennian Sea");
 bij(fleetGraph, "Gulf of Lyon", "Spain :: SC");
 bij(fleetGraph, "Gulf of Lyon", "Marseilles");
 bij(fleetGraph, "Gulf of Lyon", "Piedmont");
 bij(fleetGraph, "Gulf of Lyon", "Roma");
-bij(fleetGraph, "Gulf of Lyon", "Tyrrhenian Sea");
-bij(fleetGraph, "Tyrrhenian Sea", "Tunisia");
-bij(fleetGraph, "Tyrrhenian Sea", "Roma");
-bij(fleetGraph, "Tyrrhenian Sea", "Napoli");
-bij(fleetGraph, "Tyrrhenian Sea", "Ionian Sea");
+bij(fleetGraph, "Gulf of Lyon", "Tyrhennian Sea");
+bij(fleetGraph, "Tyrhennian Sea", "Tunisia");
+bij(fleetGraph, "Tyrhennian Sea", "Roma");
+bij(fleetGraph, "Tyrhennian Sea", "Napoli");
+bij(fleetGraph, "Tyrhennian Sea", "Ionian Sea");
 bij(fleetGraph, "Ionian Sea", "Tunisia");
-bij(fleetGraph, "Ionian Sea", "Naploli");
+bij(fleetGraph, "Ionian Sea", "Napoli");
 bij(fleetGraph, "Ionian Sea", "Apulia");
 bij(fleetGraph, "Ionian Sea", "Greece");
 bij(fleetGraph, "Ionian Sea", "Albania");
@@ -596,7 +594,7 @@ let dipTrad = {
             color: "#ffffff"
         },
     },
-    boardImage: "png/trad-board.jpg",
+    boardImage: "png/trad-board.png",
     territoryPaths: paths,
     boardSize: [1152, 965],
     title: "Traditional",
@@ -613,7 +611,7 @@ let dipTrad = {
         "Mid Atlantic Ocean": [354, 1222],
         "Western Mediterranean": [504, 1742],
         "Gulf of Lyon": [800, 1510],
-        "Tyrrhenian Sea": [974, 1622],
+        "Tyrhennian Sea": [974, 1622],
         "Ionian Sea": [1252, 1818],
         "Aegean Sea": [1550, 1776],
         "Adriatic Sea": [1139, 1470],
@@ -632,13 +630,12 @@ let dipTrad = {
         "Sweden": [1108, 670],
         "Denmark": [1001, 824],
 
-        "Cologne": [865, 1068],
+        "Ruhr": [865, 1068],
         "Munich": [956, 1087],
         "Kiel": [966, 919],
         "Berlin": [1090, 940],
         "Prussia": [1243, 933],
         "Silesia": [1167, 1054],
-        "Alsace": [840, 1171],
 
         "Paris": [689, 1260],
         "Marseilles": [660, 1427],
@@ -649,13 +646,8 @@ let dipTrad = {
 
         "Spain": [458, 1512],
         "Spain :: NC": [369, 1391],
-        "Spain :: WC": [244, 1676],
-        "Spain :: EC": [484, 1647],
+        "Spain :: SC": [244, 1676],
         "Portugal": [242, 1466],
-
-        "Gibraltar": [267, 1735],
-
-        "Morocco": [307, 1856],
 
         "North Africa": [533, 1840],
         "Tunisia": [896, 1831],
@@ -666,6 +658,7 @@ let dipTrad = {
         "Ankara": [1820, 1520],
         "Constantinople": [1653, 1573],
         "Greece": [1401, 1595],
+        "Bulgaria": [1330, 1612],
         "Bulgaria :: EC": [1330, 1612],
         "Bulgaria :: SC": [1511, 1559],
 

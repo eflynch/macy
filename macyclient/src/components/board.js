@@ -220,7 +220,7 @@ export default class Board extends React.PureComponent {
         }).filter((order)=>order);
 
         let territories = [];
-        let transform="translate(0.000000,2250.000000) scale(0.100000,-0.100000)";
+        let transform=`translate(0.000000,${boardSpec.boardSize[1]}.000000) scale(0.100000,-0.100000)`;
 
         let all_territories = Object.keys(boardSpec.unitPositions);
         let tappableTerritories = utils.getTappableTerritories(boardSpec, gameState, orderState);

@@ -45,8 +45,8 @@ class Disband extends React.PureComponent {
         let [x, y] = boardSpec.unitPositions[territory];
         return (
             <g>
-                <line x1={x-size*0.5} y1={y-size*0.5} x2={x+size*0.5} y2={y+size*0.5} style={{stroke: "red", strokeWidth:12}} />
-                <line x1={x-size*0.5} y1={y+size*0.5} x2={x+size*0.5} y2={y-size*0.5} style={{stroke: "red", strokeWidth:12}} />
+                <line x1={x-size*0.5} y1={y-size*0.5} x2={x+size*0.5} y2={y+size*0.5} style={{stroke: "red", strokeWidth:12 * boardSpec.boardSize[1] / 2250}} />
+                <line x1={x-size*0.5} y1={y+size*0.5} x2={x+size*0.5} y2={y-size*0.5} style={{stroke: "red", strokeWidth:12 * boardSpec.boardSize[1] / 2250}} />
             </g>
         );
     }
@@ -64,7 +64,7 @@ class Move extends React.PureComponent {
 
         return (
             <g>
-                <line x1={x1} y1={y1} x2={x2} y2={y2} style={{stroke: color, strokeWidth:12}} markerEnd={markerEnd}/>
+                <line x1={x1} y1={y1} x2={x2} y2={y2} style={{stroke: color, strokeWidth:12 * boardSpec.boardSize[1] / 2250}} markerEnd={markerEnd}/>
             </g>
         );
     }
@@ -79,7 +79,7 @@ class Retreat extends React.PureComponent {
 
         return (
             <g>
-                <line x1={x1} y1={y1} x2={x2} y2={y2} style={{stroke: "red", strokeWidth:12}} markerEnd={"url(#rarrow)"}/>
+                <line x1={x1} y1={y1} x2={x2} y2={y2} style={{stroke: "red", strokeWidth:12 * boardSpec.boardSize[1] / 2250}} markerEnd={"url(#rarrow)"}/>
             </g>
         );
     }
@@ -109,8 +109,8 @@ class SupportMove extends React.PureComponent {
 
         return (
             <g>
-                <line x1={x3} y1={y3} x2={(x1 + x2)/2} y2={(y1+y2)/2} style={{stroke: "white", strokeWidth:4}}/>
-                <line x2={x2} y2={y2} x1={(x1 + x2)/2} y1={(y1+y2)/2} style={{stroke: "white", strokeWidth:4}}/>
+                <line x1={x3} y1={y3} x2={(x1 + x2)/2} y2={(y1+y2)/2} style={{stroke: "white", strokeWidth:4 * boardSpec.boardSize[1] / 2250}}/>
+                <line x2={x2} y2={y2} x1={(x1 + x2)/2} y1={(y1+y2)/2} style={{stroke: "white", strokeWidth:4 * boardSpec.boardSize[1] / 2250}}/>
             </g>
         );
     }
@@ -125,7 +125,7 @@ class SupportHold extends React.PureComponent {
 
         return (
             <g>
-                <line x1={x1} y1={y1} x2={x2} y2={y2} style={{stroke: "white", strokeWidth:4}}/>
+                <line x1={x1} y1={y1} x2={x2} y2={y2} style={{stroke: "white", strokeWidth:4 * boardSpec.boardSize[1] / 2250}}/>
             </g>
         );
     }
@@ -142,8 +142,8 @@ class Convoy extends React.PureComponent {
         return (
             <g>
                 <path d={`m${x - size * 0.5} ${y + size * 0.5} ${` s ${size * 0.05} 14, ${size * 0.1} 0`.repeat(10)}`}  style={{stroke: "rgba(0, 0, 255, 0.8)", fillOpacity: 0, strokeWidth:12}}/>
-                 <line x1={x} y1={y} x2={(x1 + x2)/2} y2={(y1+y2)/2} style={{stroke: "rgba(0, 0, 255, 0.8)", strokeWidth:4}}/>
-                <line x1={x1} y1={y1} x2={x2} y2={y2} style={{stroke: "rgba(0, 0, 255, 0.2)", strokeWidth:60, strokeLinecap:"round"}}/>
+                 <line x1={x} y1={y} x2={(x1 + x2)/2} y2={(y1+y2)/2} style={{stroke: "rgba(0, 0, 255, 0.8)", strokeWidth:4 * boardSpec.boardSize[1] / 2250}}/>
+                <line x1={x1} y1={y1} x2={x2} y2={y2} style={{stroke: "rgba(0, 0, 255, 0.2)", strokeWidth:60 * boardSpec.boardSize[1] / 2250, strokeLinecap:"round"}}/>
             </g>
         );
     }
@@ -169,10 +169,11 @@ export default class Board extends React.PureComponent {
         const factions = Object.keys(gameState.factions);
         const unitTypes = ["army", "fleet"];
         let units = [];
+        const size = 100 * boardSpec.boardSize[1] / 2250;
         for (let faction of factions) {
             for (let unitType of unitTypes) {
                 for (let territory of gameState.factions[faction][unitType]) {
-                    units.push(<Unit unitType={unitType} key={territory + faction + unitType} boardSpec={boardSpec} faction={faction} size={100} territory={territory}/>);
+                    units.push(<Unit unitType={unitType} key={territory + faction + unitType} boardSpec={boardSpec} faction={faction} size={size} territory={territory}/>);
                 }
             }
         }
@@ -186,10 +187,10 @@ export default class Board extends React.PureComponent {
                 return <Move key={i} boardSpec={boardSpec} source={order.unit} destination={order.target} viaConvoy={order.viaConvoy} />;
             }
             if (order.action === "Hold") {
-                return <Hold key={i} boardSpec={boardSpec} territory={order.unit} size={100}/>;
+                return <Hold key={i} boardSpec={boardSpec} territory={order.unit} size={size}/>;
             }
             if (order.action === "Convoy") {
-                return <Convoy key={i} boardSpec={boardSpec} convoyer={order.unit} source={order.targetUnit} destination={order.target} size={100}/>;
+                return <Convoy key={i} boardSpec={boardSpec} convoyer={order.unit} source={order.targetUnit} destination={order.target} size={size}/>;
             }
             if (order.action === "Support" && (order.target !== null && order.target !== undefined)) {
                 return <SupportMove key={i} boardSpec={boardSpec} supporter={order.unit} source={order.targetUnit} destination={order.target}/>;
@@ -198,23 +199,23 @@ export default class Board extends React.PureComponent {
                 return <SupportHold key={i} boardSpec={boardSpec} supporter={order.unit} targetUnit={order.targetUnit} />;
             }
             if (order.action === "Build") {
-                return <Build key={i} boardSpec={boardSpec} territory={order.unit} unitType={order.unitType} size={100} faction={order.faction}/>;
+                return <Build key={i} boardSpec={boardSpec} territory={order.unit} unitType={order.unitType} size={size} faction={order.faction}/>;
             }
             if (order.action === "Disband") {
-                return <Disband key={i} boardSpec={boardSpec} territory={order.unit} size={100}/>;
+                return <Disband key={i} boardSpec={boardSpec} territory={order.unit} size={size}/>;
             }
             if (order.action === "Retreat") {
-                return <Retreat key={i} boardSpec={boardSpec} source={order.unit} destination={order.target} size={100}/>;
+                return <Retreat key={i} boardSpec={boardSpec} source={order.unit} destination={order.target} size={size}/>;
             }
             return false;
         }).filter((order)=>order);
 
         let overTokens = orders.map((order, i) => {
             if (order.action === "Build") {
-                return <Build key={i} boardSpec={boardSpec} territory={order.unit} unitType={order.unitType} size={100} faction={order.faction}/>;
+                return <Build key={i} boardSpec={boardSpec} territory={order.unit} unitType={order.unitType} size={size} faction={order.faction}/>;
             }
             if (order.action === "Disband") {
-                return <Disband key={i} boardSpec={boardSpec} territory={order.unit} size={100}/>;
+                return <Disband key={i} boardSpec={boardSpec} territory={order.unit} size={size}/>;
             }
             return false;
         }).filter((order)=>order);
@@ -275,7 +276,7 @@ export default class Board extends React.PureComponent {
         }
 
 
-        const arrowWidth = 12;
+        const arrowWidth = 12 * boardSpec.boardSize[1] / 2250;
         const arrowHeight = 3;
 
         let partialOrder;

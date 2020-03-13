@@ -162,8 +162,9 @@ let resolveUnambiguous = (conflictGraph) => {
             source: move.source,
             destination: move.realDestination
         });
-        if (conflictGraph.holds[move.source] !== undefined && conflictGraph.holds[move.source].holdStrength === "?") {
-            conflictGraph.holds[move.source].holdStrength = 0;
+        const source = stripCoast(move.source);
+        if (conflictGraph.holds[source] !== undefined && conflictGraph.holds[source].holdStrength === "?") {
+            conflictGraph.holds[source].holdStrength = 0;
         }
         if (conflictGraph.holds[move.destination] !== undefined && conflictGraph.holds[move.destination].holdStrength >= 1) {
             dislodged.push({

@@ -8,33 +8,23 @@
     "watch": "webpack --mode=development -w",
     "release": "webpack --mode=production"
   },
-  "babel": {
-    "presets": [
-      "@babel/preset-env",
-      "@babel/preset-react"
-    ],
-    "plugins": [
-      "@babel/plugin-proposal-class-properties"
-    ]
-  },
   "author": "Evan Lynch",
   "license": "ISC",
   "devDependencies": {
-    "@babel/cli": "^7.2.0",
-    "@babel/core": "^7.2.0",
-    "@babel/plugin-proposal-class-properties": "7.8.3",
-    "@babel/preset-env": "^7.2.0",
-    "@babel/preset-react": "^7.0.0",
-    "babel-loader": "^8.0.4",
-    "webpack": "^4.27.1",
-    "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "3.10.3",
+    "@babel/core": "7.11.1",
+    "@babel/plugin-proposal-class-properties": "7.10.4",
+    "@babel/preset-env": "7.11.0",
+    "@babel/preset-react": "7.10.4",
+    "babel-loader": "8.1.0",
+    "webpack": "4.44.1",
+    "webpack-cli": "3.3.12",
+    "webpack-dev-server": "3.11.0",
     "webpack-notifier": "1.8.0"
   },
   "dependencies": {
-    "flux": "3.1.3",
-    "immutability-helper": "3.0.1",
-    "react": "16.13.0",
-    "react-dom": "16.13.0"
+    "immutability-helper": "3.1.1",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "redux": "4.0.5"
   }
 }

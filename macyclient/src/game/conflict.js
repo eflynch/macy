@@ -254,6 +254,7 @@ let resolveUnambiguous = (conflictGraph) => {
 
     // All remaining moves succeed unless they lead to self dislodgement
     const moveDests = Object.keys(conflictGraph.moves);
+    console.log(moveDests);
     for (let dest of moveDests) {
         for (let move of conflictGraph.moves[dest]) {
             if (move.faction !== conflictGraph.holds[dest].faction){
@@ -272,6 +273,7 @@ let resolveUnambiguous = (conflictGraph) => {
 // WARNING: This does not consider cut supports, so remove cut support orders before calling this
 export const resolveOrders = (boardSpec, gameState, orders) => {
     let conflictGraph = generateConflictGraph(boardSpec, gameState, orders);
+    console.log(conflictGraph);
     resolveHeadToHead(conflictGraph);
     return resolveUnambiguous(conflictGraph); 
 };

@@ -1,17 +1,28 @@
-import React from 'react';
+import React, { useReducer, useEffect } from 'react';
 import {render} from 'react-dom';
 
 import App from './components/app';
-import Store from './store';
-import Actions from './actions';
+import rootReducer from './reducers';
+import MacyContext from './context';
 
+
+const Main = ({initialState}) => {
+    const [state, dispatch] = useReducer(rootReducer, initialState);
+    useEffect(()=> {
+    }, [state.macy]);
+
+    return (
+        <MacyContext.Provider value={{state, dispatch}} >
+            <App />
+        </MacyContext.Provider>
+    );
+}
 
 const main = () => {
-    Store.addOnChange(() => {
-        const state = Store.getState();
-        render(<App {...state} />, document.getElementById("content"));
-    });
-    Actions.loadSession("testSession.json");
+    // Actions.newSession("War in H2", "specs/trad.json");
+    render(<Main initialState={{
+        
+    }} />, document.getElementById("content"));
 };
 
 

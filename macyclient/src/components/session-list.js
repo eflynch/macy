@@ -1,8 +1,5 @@
 import React from 'react';
 
-import Actions from '../actions';
-
-
 const SessionListItem = ({name, serializedData}) => {
     return (
         <li>{name}</li>

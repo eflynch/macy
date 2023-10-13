@@ -1,8 +1,9 @@
 
-export const NEW_SESSION = (title, boardSpecURI) => ({
+export const NEW_SESSION = (title, boardSpecURI, dispatch) => ({
     type: 'NEW_SESSION',
     title,
-    boardSpecURI
+    boardSpecURI,
+    dispatch
 });
 
 export const CLONE_SESSION = (title, boardSpecURI) => ({
@@ -44,6 +45,11 @@ export const SUBMIT_ORDERS = () => ({
 
 export const ADJUDICATE = () => ({
     type: 'ADJUDICATE'
+});
+
+export const UPDATE = (newState) => ({
+    type: 'UPDATE',
+    newState
 });
 
 

@@ -4,12 +4,18 @@ import {render} from 'react-dom';
 import App from './components/app';
 import rootReducer from './reducers';
 import MacyContext from './context';
+import {NEW_SESSION} from './actions';
 
 
 const Main = ({initialState}) => {
-    const [state, dispatch] = useReducer(rootReducer, initialState);
+    const [outerState, dispatch] = useReducer(rootReducer, {state: initialState});
     useEffect(()=> {
-    }, [state.macy]);
+        if (outerState.state.session === undefined) {
+            dispatch(NEW_SESSION("War in H2", "specs/trad.json", dispatch));
+        }
+    }, [outerState.state]);
+
+    const state = outerState.state;
 
     return (
         <MacyContext.Provider value={{state, dispatch}} >
@@ -19,10 +25,7 @@ const Main = ({initialState}) => {
 }
 
 const main = () => {
-    // Actions.newSession("War in H2", "specs/trad.json");
-    render(<Main initialState={{
-        
-    }} />, document.getElementById("content"));
+    render(<Main initialState={{}} />, document.getElementById("content"));
 };
 
 

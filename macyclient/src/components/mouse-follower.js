@@ -1,67 +1,54 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 
-export default class MouseFollower extends React.PureComponent {
-    constructor(props){
-        super(props);
-        this.state = {
-            followerX: 0,
-            followerY: 0,
-        };
-    }
+const MouseFollower = ({follower, children, offsetX, offsetY, follow, ...props}) => {
+    const [position, setPosition] = useState({x: 0, y: 0});
+    const [show, setShow] = useState(false);
+    const divElement = useRef(null);
 
-    static defaultProps = {
-        follow: true,
-        offsetX: 10,
-        offsetY: 10
+    const onMouseMove = (e) => {
+        setPosition({x: e.pageX, y: e.pageY});
     };
 
-    onMouseMove = (e) => {
-        this.setFollowerXY(e.pageX, e.pageY);
+    const onMouseEnter = (e) => {
+        setShow(true);
     };
 
-    onMouseEnter = (e) => {
-        this.setState({show: true});
+    const onMouseLeave = (e) => {
+        setShow(False);
     };
 
-    onMouseLeave = (e) => {
-        this.setState({show: false});
-    };
-
-    setFollowerXY = (x, y) => {
-        this.setState(state => ({
-            followerY: y,
-            followerX: x
-        }));
-    }
-
-    render () {
-        let {follower, children, offsetX, offsetY, follow, ...props} = this.props;
-
-        let followerDude = <span/>;
-        if (this.state.show){
-            let x = offsetX;
-            let y = offsetY;
-            if (follow){
-                y += this.state.followerY;
-                x += this.state.followerX;
-                if (this.e){
-                    y -= this.e.offsetTop;
-                    x -= this.e.offsetLeft;
-                }
+    let followerDude = <span/>;
+    if (show){
+        let x = offsetX;
+        let y = offsetY;
+        if (follow){
+            y += position.y;
+            x += position.x;
+            if (divElement.current){
+                y -= divElement.current.offsetTop;
+                x -= divElement.current.offsetLeft;
             }
-            
-            followerDude = (
-                <div style={{position:"absolute", bottom:y, left:x}}>
-                    {follower}
-                </div>
-            );
         }
-        return (
-            <div ref={(e)=>{this.e = e}} onMouseMove={this.onMouseMove} onMouseLeave={this.onMouseLeave} onMouseEnter={this.onMouseEnter} 
-                {...props} style={{position:"relative"}}>
-                {followerDude} 
-                {children}
-            </div> 
+        
+        followerDude = (
+            <div style={{position:"absolute", bottom:y, left:x}}>
+                {follower}
+            </div>
         );
     }
-}
+    return (
+        <div ref={divElement} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave} onMouseEnter={onMouseEnter} 
+            {...props} style={{position:"relative"}}>
+            {followerDude} 
+            {children}
+        </div> 
+    );
+};
+
+MouseFollower.defaultProps = {
+    follow: true,
+    offsetX: 10,
+    offsetY: 10
+};
+
+export default MouseFollower;

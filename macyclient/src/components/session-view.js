@@ -1,121 +1,102 @@
-import React from 'react';
+import React, { useContext, useState, useEffect } from 'react';
+
+import MacyContext from '../context';
+import {SET_ORDER_MODE, SET_TURN, RESOLVE_ORDERS, REVERT_TO_CURRENT_TURN} from '../actions';
 
 import Board from './board';
 import MouseFollower from './mouse-follower';
-import {resolve} from '../game/resolve';
 import OrdersList from './orders-list';
 import SupplyCenters from './supply-centers';
 import Help from './help';
-import Actions from '../actions';
 
+const SessionView = ({turnState, orderState, session}) => {
+    const [showOrders, setShowOrders] = useState(true);
+    const [showHelp, setShowHelp] = useState(false);
+    const {dispatch} = useContext(MacyContext);
 
-export default class SessionView extends React.Component {
-    constructor(props){
-        super(props);
-        this.state = {
-            showOrders: true,
-            showHelp: false
-        };
-    }
-
-    componentDidMount() {
+    useEffect(()=> {
         window.onkeydown = (e) => {
             if (e.keyCode === 77) { // m
-                Actions.setOrderMode("Move");
+                dispatch(SET_ORDER_MODE("Move"));
             } else if (e.keyCode === 86) { // v
-                Actions.setOrderMode("Move (Convoy)");
+                dispatch(SET_ORDER_MODE("Move (Convoy)"));
             } else if (e.keyCode === 83) { // s
-                Actions.setOrderMode("Support");
+                dispatch(SET_ORDER_MODE("Support"));
             } else if (e.keyCode === 67) { // c
-                Actions.setOrderMode("Convoy");
+                dispatch(SET_ORDER_MODE("Convoy"));
             } else if (e.keyCode === 65) { // a
-                Actions.setOrderMode("Build Army");
+                dispatch(SET_ORDER_MODE("Build Army"));
             } else if (e.keyCode === 70) { // f
-                Actions.setOrderMode("Build Fleet");
+                dispatch(SET_ORDER_MODE("Build Fleet"));
             } else if (e.keyCode === 68) { // d
-                Actions.setOrderMode("Disband");
+                dispatch(SET_ORDER_MODE("Disband"));
             } else if (e.keyCode === 81) { // q
-                Actions.setOrderMode("Retreat");
+                dispatch(SET_ORDER_MODE("Retreat"));
             } else if (e.keyCode === 191) { // ?
-                this.toggleHelp();
+                setShowHelp(!showHelp);
             } else if (e.keyCode === 78) { // n
-                Actions.setTurn(this.props.turnState.turn + 1);
+                dispatch(SET_TURN(turnState.turn + 1));
             } else if (e.keyCode === 80) { // p
-                Actions.setTurn(this.props.turnState.turn - 1);
+                dispatch(SET_TURN(turnState.turn - 1));
             } else if (e.keyCode === 82) { // r
-                Actions.resolveOrders();
+                dispatch(RESOLVE_ORDERS());
             } else if (e.keyCode === 88) { // x
-                Actions.revertToCurrentTurn();
-            } else if (e.keyCode === 79) { // o
-                Actions.loadSessionFromClipboard();
-            } else if (e.keyCode === 87) { // w
-                Actions.saveSessionToClipboard(this.props.session);
+                dispatch(REVERT_TO_CURRENT_TURN());
             }
-        };
+        }
+        return () => {
+            window.onkeydown = undefined;
+        }
+    });
+
+    const boardSpec = session.boardSpec;
+    const turns = session.turns.concat(turnState.mutableTurns);
+    const turn = turnState.turn;
+    let orders = turns[turn];
+    const orderable = orders.length === 0 && turns.length === turn + 1;
+    if (orderable){
+        orders = Object.values(orderState.orders);
+    }
+    let help = <span/>;
+    if (showHelp){
+        help = <Help/>;
     }
 
-    toggleHelp = () => {
-        this.setState({showHelp: !this.state.showHelp});
-    };
-
-    saveSession = () => {
-        Actions.saveSessionToClipboard(this.props.session);
-    };
-
-    loadSession = () => {
-        Actions.loadSessionFromClipboard();
-    };
-
-    render () {
-        const boardSpec = this.props.session.boardSpec;
-        const gameState = this.props.gameState;
-        const turns = this.props.session.turns.concat(this.props.turnState.mutableTurns);
-        const turn = this.props.turnState.turn;
-        let orders = turns[turn];
-        const orderable = orders.length === 0 && turns.length === turn + 1;
-        if (orderable){
-            orders = Object.values(this.props.orderState.orders);
-        }
-        let help = <span/>;
-        if (this.state.showHelp){
-            help = <Help/>;
-        }
-
-        return (
-            <div>
-                {help}
-                <div className="main-header">
-                    <span className="site-title">MACY</span>
-                    <span className="session-title">{this.props.session.title}</span>
-                    <span className="spec-title">({boardSpec.title})</span>
-                    <a onClick={this.toggleHelp}>help</a>
-                    <a onClick={this.saveSession}>save</a>
-                    <a onClick={this.loadSession}>load</a>
-                </div>
-                <div className="main">
-                    <div className="board-container">
-                        <Board clickTerritory={Actions.tapTerritory}
-                               orders={this.state.showOrders ? orders : []}
-                               boardSpec={boardSpec}
-                               gameState={gameState}
-                               orderState={this.props.orderState}/>
-                        <SupplyCenters boardSpec={boardSpec} gameState={gameState} />
-                    </div>
-                    <OrdersList
-                        turn={turn}
-                        showResolve={orderable && turn == turns.length - 1}
-                        showRevert={turn < turns.length - 1 && turn >= this.props.session.turns.length}
-                        orders={orders}
-                        boardSpec={boardSpec}
-                        gameState={gameState}
-                        showOrders={this.state.showOrders}
-                        orderMode={this.props.orderState.orderMode}
-                        toggleShowOrders={()=>{
-                            this.setState({showOrders: !this.state.showOrders});
-                        }}
-                    />
-                </div>
+    return (
+        <div>
+            {help}
+            <div className="main-header">
+                <span className="site-title">MACY</span>
+                <span className="session-title">{session.title}</span>
+                <span className="spec-title">({boardSpec.title})</span>
+                <a onClick={toggleHelp}>help</a>
+                <a onClick={saveSession}>save</a>
+                <a onClick={loadSession}>load</a>
             </div>
-        );
-    }
-}
+            <div className="main">
+                <div className="board-container">
+                    <Board clickTerritory={Actions.tapTerritory}
+                           orders={showOrders ? orders : []}
+                           boardSpec={boardSpec}
+                           gameState={gameState}
+                           orderState={orderState}/>
+                    <SupplyCenters boardSpec={boardSpec} gameState={gameState} />
+                </div>
+                <OrdersList
+                    turn={turn}
+                    showResolve={orderable && turn == turns.length - 1}
+                    showRevert={turn < turns.length - 1 && turn >= session.turns.length}
+                    orders={orders}
+                    boardSpec={boardSpec}
+                    gameState={gameState}
+                    showOrders={showOrders}
+                    orderMode={orderState.orderMode}
+                    toggleShowOrders={()=>{
+                        setShowOrders(!showOrders);
+                    }}
+                />
+            </div>
+        </div>
+    );
+};
+export default SessionView;

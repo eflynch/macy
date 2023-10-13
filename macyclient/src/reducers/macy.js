@@ -1,16 +1,30 @@
+import {NewSession, SessionWrapper} from '../session';
 
-const macy = (state, action) => {
+import {UPDATE} from '../actions';
+
+const macy = (outerState, action) => {
+    const {state, sessionWrapper} = outerState;
+
     switch (action.type) {
-        case 'LOAD_SESSION':
-        case 'NEW_SESSION':
-        case 'SAVE_SESSION': {
-            let session = action.payload;
+        case 'UPDATE': {
+            const {newState} = action;
+            
+        }
+        case 'NEW_SESSION': {
+            const {title, boardSpecURI, dispatch} = action;
 
-            this._sessionWrapper = new SessionWrapper(session, (newState)=>{
-                this.emit(CHANGE);
+            const session = NewSession(title, boardSpecURI);
+
+            const sessionWrapper = new SessionWrapper(session, (newState)=>{
+                dispatch(UPDATE(newState));
             });
-            this._dirtyFlag = false;
-            this.emit(CHANGE);
+            return {
+                session: session,
+                sessionList: [],
+                dirtyFlag: false
+            };
+        }
+        case 'LOAD_SESSION': {
             break;
         }
         case 'SET_ORDER_MODE': {
